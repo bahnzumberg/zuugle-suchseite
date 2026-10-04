@@ -1,6 +1,5 @@
 #!/usr/bin/node
 import {
-    getProvider,
     writeKPIs,
     fixTours,
     syncCities,
@@ -8,79 +7,77 @@ import {
     populateCity2TourFlat,
     refreshSearchSuggestions,
     generateSitemaps,
-} from "./sync";
-import moment from "moment";
+} from "./sync.js";
 import cacheService from "../services/cache.js";
+import logger from "../utils/logger";
 
-console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FULL LOAD");
-console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START SYNC TOURS");
-syncTours().then(() => {
-    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE SYNC TOURS");
-    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START SYNC CITIES");
-    syncCities().then(() => {
-        console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE SYNC CITIES");
-        console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FETCH PROVIDER");
-        getProvider().then(() => {
-            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " FETCHED PROVIDER");
-            console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START FIX TOURS");
-            fixTours().then(() => {
-                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE FIX TOURS");
-                console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " START WRITE KPIs");
-                writeKPIs().then(() => {
-                    console.log(moment().format("YYYY.MM.DD HH:mm:ss"), " DONE WRITING KPIs");
-                    console.log(
-                        moment().format("YYYY.MM.DD HH:mm:ss"),
-                        " START POPULATE city2tour_flat",
-                    );
-                    populateCity2TourFlat().then(() => {
-                        console.log(
-                            moment().format("YYYY.MM.DD HH:mm:ss"),
-                            " DONE POPULATE city2tour_flat",
-                        );
-                        refreshSearchSuggestions().then(() => {
-                            console.log(
-                                moment().format("YYYY.MM.DD HH:mm:ss"),
-                                " DONE REFRESH SEARCH SUGGESTIONS",
-                            );
-                            console.log(
-                                moment().format("YYYY.MM.DD HH:mm:ss"),
-                                " START GENERATE SITEMAPS",
-                            );
-                            generateSitemaps().then(async () => {
-                                console.log(
-                                    moment().format("YYYY.MM.DD HH:mm:ss"),
-                                    " DONE GENERATE SITEMAPS",
-                                );
+// Guard: import-data-prod is only intended for the native PROD host.
+// Compose-managed environments (local, DEV, UAT) set COMPOSE_PROJECT_NAME;
+// PROD leaves it unset.
+const composeName = process.env.COMPOSE_PROJECT_NAME;
+if (composeName) {
+    logger.error(
+        `COMPOSE_PROJECT_NAME is set to "${composeName}" — this is not a PROD environment.\n` +
+            `  On local/DEV/UAT use "npm run import-data" instead, which downloads and\n` +
+            `  restores the production dump into the Docker-managed database.`,
+    );
+    process.exit(1);
+}
 
-                                // Log cache statistics before flushing
-                                const stats = await cacheService.getStats();
-                                if (stats) {
-                                    const total = stats.hits + stats.misses;
-                                    const hitRate =
-                                        total > 0 ? ((stats.hits / total) * 100).toFixed(1) : 0;
-                                    console.log(
-                                        moment().format("YYYY.MM.DD HH:mm:ss"),
-                                        ` CACHE STATS (previous day): hits=${stats.hits}, misses=${stats.misses}, hit_rate=${hitRate}%`,
-                                    );
-                                } else {
-                                    console.log(
-                                        moment().format("YYYY.MM.DD HH:mm:ss"),
-                                        " CACHE STATS: unavailable",
-                                    );
-                                }
+async function main() {
+    logger.info("FULL LOAD");
 
-                                await cacheService.flush();
-                                console.log(
-                                    moment().format("YYYY.MM.DD HH:mm:ss"),
-                                    " CACHE FLUSHED",
-                                );
+    logger.info("START SYNC TOURS");
+    const toursSwapped = await syncTours();
+    if (toursSwapped) {
+        logger.info("DONE SYNC TOURS");
+    } else {
+        logger.warn("SKIPPED SYNC TOURS (kept previous day tours)");
+    }
 
-                                process.exit();
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
+    logger.info("START SYNC CITIES");
+    await syncCities();
+    logger.info("DONE SYNC CITIES");
+
+    logger.info("START FIX TOURS");
+    await fixTours();
+    logger.info("DONE FIX TOURS");
+
+    logger.info("START WRITE KPIs");
+    await writeKPIs();
+    logger.info("DONE WRITING KPIs");
+
+    logger.info("START POPULATE city2tour_flat");
+    await populateCity2TourFlat();
+    logger.info("DONE POPULATE city2tour_flat");
+
+    logger.info("START REFRESH SEARCH SUGGESTIONS");
+    await refreshSearchSuggestions();
+    logger.info("DONE REFRESH SEARCH SUGGESTIONS");
+
+    logger.info("START GENERATE SITEMAPS");
+    await generateSitemaps();
+    logger.info("DONE GENERATE SITEMAPS");
+
+    // Log cache statistics before flushing
+    const stats = await cacheService.getStats();
+    if (stats) {
+        const total = stats.hits + stats.misses;
+        const hitRate = total > 0 ? ((stats.hits / total) * 100).toFixed(1) : 0;
+        logger.info(
+            `CACHE STATS (previous day): hits=${stats.hits}, misses=${stats.misses}, hit_rate=${hitRate}%`,
+        );
+    } else {
+        logger.info("CACHE STATS: unavailable");
+    }
+
+    await cacheService.flush();
+    logger.info("CACHE FLUSHED");
+
+    process.exit(0);
+}
+
+main().catch((err) => {
+    logger.error("FULL LOAD PROD FAILED with error:", err);
+    process.exit(1);
 });

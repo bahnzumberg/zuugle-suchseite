@@ -1,4 +1,3 @@
-import knexTourenDb from "../knexTourenDb";
 import knex from "../knex";
 import knexConfig from "../knexfile";
 import { createImagesFromMap, regenerateGpxFile } from "../utils/gpx/gpxUtils";
@@ -477,37 +476,6 @@ export async function writeKPIs() {
     await knex.raw(`INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;`);
 }
 
-export async function getProvider(retryCount = 0, maxRetries = 3) {
-    try {
-        await knex.raw(`TRUNCATE provider;`);
-        const query_result = await knexTourenDb("vw_provider_to_search").select();
-
-        if (query_result.length > 0) {
-            for (const entry of query_result) {
-                await knex("provider").insert({
-                    provider: entry.provider,
-                    provider_name: entry.provider_name,
-                    allow_gpx_download: entry.allow_gpx_download,
-                });
-            }
-        }
-        return true; // Success
-    } catch (err) {
-        logger.error("Error in getProvider:", err);
-
-        if (retryCount < maxRetries) {
-            logger.info(
-                `Retrying getProvider (attempt ${retryCount + 1} of ${maxRetries}) in 25 seconds...`,
-            );
-            await new Promise((resolve) => setTimeout(resolve, 25000));
-            return getProvider(retryCount + 1, maxRetries);
-        } else {
-            logger.error("Max retries reached. Giving up.");
-            return false; // Failure
-        }
-    }
-}
-
 export async function syncGPX(options = {}) {
     const force = Boolean(options && options.force);
     prepareDirectories();
@@ -610,108 +578,41 @@ export async function syncGPXImage() {
 }
 
 export async function syncTours() {
-    // ── Step 1: Ensure staging table tour_load exists ─────────────
-    const tableExists = await knex.raw(
-        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'tour_load')`,
-    );
-    if (!tableExists.rows[0].exists) {
-        logger.info("Creating tour_load staging table (empty copy of tour, no indices)");
-        await knex.raw(`CREATE TABLE tour_load (LIKE tour INCLUDING DEFAULTS)`);
+    const [{ cnt: loadCount }] = await knex("tour_load").count("* as cnt");
+    const [{ cnt: liveCount }] = await knex("tour").count("* as cnt");
+
+    const numLoad = Number(loadCount);
+    const numLive = Number(liveCount);
+
+    if (numLoad === 0) {
+        logger.error(
+            "SYNC TOURS ABORT: tour_load is empty — refusing to truncate tour. Continuing with tours from previous day.",
+        );
+        return false;
     }
-    await knex.raw(`TRUNCATE tour_load;`);
-
-    // ── Step 2: Load data from MariaDB into tour_load ────────────
-    let limit = 100;
-    const countResult = await knexTourenDb("vw_touren_to_search").count("* as anzahl");
-
-    let count = 0;
-    if (!!countResult && countResult.length == 1 && countResult[0]["anzahl"]) {
-        count = countResult[0]["anzahl"];
-    }
-
-    const modulo = Math.ceil(count / limit, 0);
-
-    for (let i = 0; i < modulo; i++) {
-        const query = knexTourenDb.raw(`SELECT
-                                        t.id,
-                                        t.url,
-                                        t.provider,
-                                        t.hashed_url,
-                                        REPLACE(REPLACE(REPLACE(t.description, '\0', ' 0'), "'", ""), "?", "") as description,
-                                        t.country,
-                                        t.state,
-                                        t.range_slug,
-                                        t.range_name,
-                                        t.image_url,
-                                        t.ascent,
-                                        t.descent,
-                                        t.difficulty,
-                                        t.duration,
-                                        t.distance,
-                                        REPLACE(REPLACE(REPLACE(t.title, '\0', ' 0'), "'", ""), "?", "") as title,
-                                        t.typ,
-                                        t.number_of_days,
-                                        t.traverse,
-                                        t.season,
-                                        t.jan,
-                                        t.feb,
-                                        t.mar,
-                                        t.apr,
-                                        t.may,
-                                        t.jun,
-                                        t.jul,
-                                        t.aug,
-                                        t.sep,
-                                        t.oct,
-                                        t.nov,
-                                        t.dec,
-                                        REPLACE(REPLACE(REPLACE(t.full_text, '\0', ' 0'), "'", ""), "?", " ") as full_text,
-                                        t.ai_search_column,
-                                        t.quality_rating,
-                                        t.difficulty_orig,
-                                        t.text_lang,
-                                        t.lat_start,
-                                        t.lon_start,
-                                        t.lat_end,
-                                        t.lon_end,
-                                        t.maxele
-                                        from vw_touren_to_search as t
-                                        WHERE t.id % ${modulo} = ${i};`);
-
-        const result = await query;
-        if (!!result && result.length > 0 && result[0].length > 0) {
-            await bulk_insert_tours(result[0], "tour_load");
-        }
+    if (numLive > 0 && numLoad < numLive * 0.8) {
+        logger.error(
+            `SYNC TOURS ABORT: tour_load has ${numLoad} rows vs ${numLive} live (>20% drop) — refusing swap. Continuing with tours from previous day.`,
+        );
+        return false;
     }
 
-    // ── Step 3: Apply image_url fixes on staging table ───────────
+    logger.info(`Validating tour_load OK: ${numLoad} incoming rows vs ${numLive} live rows.`);
+
+    // ── Step 1: Apply image_url fixes on staging table ───────────
     await knex.raw(`UPDATE tour_load SET image_url=NULL WHERE image_url='null';`);
+    // tour_load is filled externally and not reset here, so a missed load leaves
+    // yesterday's rows (already suffixed) in place — skip those to stay idempotent.
     await knex.raw(
-        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`,
+        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg' AND image_url NOT LIKE '%width=784&height=523';`,
     ); // This is the needed size for the tour detail page
 
-    // ── Step 4: Verify row count before swap ─────────────────────
-    const loadCountResult = await knex("tour_load").count("* as cnt");
-    const loadCount = parseInt(loadCountResult[0].cnt, 10);
-    const mariaCountResult = await knexTourenDb("vw_touren_to_search").count("* as anzahl");
-    const mariaCount = parseInt(mariaCountResult[0]["anzahl"], 10);
-
-    if (loadCount !== mariaCount) {
-        logger.error(
-            `SYNC TOURS COUNT MISMATCH: MariaDB vw_touren_to_search has ${mariaCount} rows, but tour_load has only ${loadCount} rows (${mariaCount - loadCount} missing). Aborting swap!`,
-        );
-        return;
-    }
-
-    logger.info(
-        `SYNC TOURS COUNT OK: ${loadCount} rows in tour_load match ${mariaCount} in MariaDB. Swapping...`,
-    );
-
-    // ── Step 5: Fast swap — site downtime starts here ────────────
+    // ── Step 2: Fast swap — site downtime starts here ────────────
     await knex.raw(`UPDATE kpi SET VALUE=0 WHERE name='total_tours';`);
     await knex.raw(`TRUNCATE tour;`);
     await knex.raw(`INSERT INTO tour SELECT * FROM tour_load;`);
     // ── Site downtime ends here ──────────────────────────────────
+    return true;
 }
 
 export async function syncCities() {
@@ -724,234 +625,6 @@ export async function syncCities() {
         logger.error("Error in syncCities:", err);
     }
 }
-
-const calcMonthOrder = (entry) => {
-    // This function looks up the current month.
-    // Then it takes the sorting fitting to the current month and calculates the sorting value.
-    // This function is called to set the column "month_order" in tables "tour".
-    // As the sorting is ASC, we need to return the best match as a low and the worst match as a high number.
-
-    const d = new Date();
-    let month = d.getMonth();
-
-    let entryScore = [
-        { name: "jan", value: entry.jan },
-        { name: "feb", value: entry.feb },
-        { name: "mar", value: entry.mar },
-        { name: "apr", value: entry.apr },
-        { name: "may", value: entry.may },
-        { name: "jun", value: entry.jun },
-        { name: "jul", value: entry.jul },
-        { name: "aug", value: entry.aug },
-        { name: "sep", value: entry.sep },
-        { name: "oct", value: entry.oct },
-        { name: "nov", value: entry.nov },
-        { name: "dec", value: entry.dec },
-    ];
-
-    let MonthScore = [
-        ["jan", "feb", "dec", "mar", "nov", "apr", "oct", "may", "sep", "jun", "aug", "jul"],
-        ["feb", "jan", "mar", "apr", "dec", "may", "nov", "jun", "oct", "jul", "sep", "aug"],
-        ["mar", "feb", "apr", "jan", "may", "jun", "dec", "jul", "nov", "aug", "oct", "sep"],
-        ["apr", "mar", "may", "feb", "jun", "jan", "jul", "aug", "dec", "sep", "nov", "oct"],
-        ["may", "apr", "jun", "mar", "jul", "feb", "aug", "jan", "sep", "oct", "dec", "nov"],
-        ["jun", "may", "jul", "apr", "aug", "mar", "sep", "feb", "oct", "jan", "nov", "dec"],
-        ["jul", "jun", "aug", "sep", "may", "oct", "apr", "nov", "mar", "feb", "dec", "jan"],
-        ["aug", "jul", "sep", "jun", "oct", "may", "nov", "apr", "dec", "jan", "mar", "feb"],
-        ["sep", "oct", "aug", "nov", "jul", "dec", "jun", "jan", "may", "feb", "apr", "mar"],
-        ["oct", "sep", "nov", "aug", "dec", "jan", "jul", "feb", "jun", "mar", "may", "apr"],
-        ["nov", "oct", "dec", "jan", "sep", "feb", "aug", "mar", "jul", "apr", "jun", "may"],
-        ["dec", "jan", "nov", "feb", "oct", "mar", "sep", "apr", "aug", "may", "jul", "jun"],
-    ];
-
-    let Monthname = "";
-    for (let i = 0; i <= 11; i++) {
-        Monthname = MonthScore[month][i];
-        var Monthobject = entryScore.find((Monthvalue) => Monthvalue.name === Monthname);
-
-        if (Monthobject.value == "true") {
-            return Math.floor(i / 6) * 2;
-        }
-    }
-    return 1;
-};
-
-const bulk_insert_tours = async (entries, targetTable = "tour") => {
-    let sql_values = "";
-
-    for (let i = 0; i < entries.length; i++) {
-        let entry = entries[i];
-
-        if (i != 0) {
-            sql_values = sql_values + ",";
-        }
-        sql_values =
-            sql_values +
-            "(" +
-            entry.id +
-            "," +
-            "'" +
-            entry.url +
-            "'" +
-            "," +
-            "'" +
-            entry.provider +
-            "'" +
-            "," +
-            "'" +
-            entry.hashed_url +
-            "'" +
-            "," +
-            "'" +
-            entry.description +
-            "'" +
-            "," +
-            "'" +
-            entry.image_url +
-            "'," +
-            entry.ascent +
-            "," +
-            entry.descent +
-            "," +
-            entry.difficulty +
-            "," +
-            "'" +
-            entry.difficulty_orig +
-            "'" +
-            "," +
-            entry.duration +
-            "," +
-            entry.distance +
-            "," +
-            "'" +
-            entry.title +
-            "'" +
-            "," +
-            "'" +
-            entry.typ +
-            "'" +
-            "," +
-            "'" +
-            entry.country +
-            "'" +
-            "," +
-            "'" +
-            entry.state +
-            "'" +
-            "," +
-            "'" +
-            entry.range_slug +
-            "'" +
-            "," +
-            "'" +
-            entry.range_name +
-            "'" +
-            "," +
-            "'" +
-            entry.season +
-            "'" +
-            "," +
-            entry.number_of_days +
-            "," +
-            entry.jan +
-            "," +
-            entry.feb +
-            "," +
-            entry.mar +
-            "," +
-            entry.apr +
-            "," +
-            entry.may +
-            "," +
-            entry.jun +
-            "," +
-            entry.jul +
-            "," +
-            entry.aug +
-            "," +
-            entry.sep +
-            "," +
-            entry.oct +
-            "," +
-            entry.nov +
-            "," +
-            entry.dec +
-            "," +
-            calcMonthOrder(entry) +
-            "," +
-            entry.traverse +
-            "," +
-            entry.quality_rating +
-            "," +
-            "'" +
-            entry.full_text +
-            "'" +
-            ",";
-
-        if (entry.ai_search_column == null) {
-            sql_values = sql_values + "null,";
-        } else {
-            sql_values = sql_values + "'" + entry.ai_search_column + "'" + ",";
-        }
-
-        sql_values = sql_values + "'" + entry.text_lang + "'" + "," + entry.maxele + ")";
-    }
-
-    const sql_insert = `INSERT INTO ${targetTable} (id, 
-                                          url, 
-                                          provider,
-                                          hashed_url,
-                                          description,
-                                          image_url,
-                                          ascent,
-                                          descent,
-                                          difficulty,
-                                          difficulty_orig,
-                                          duration,
-                                          distance,
-                                          title,
-                                          type,
-                                          country,
-                                          state,
-                                          range_slug,
-                                          range,
-                                          season,
-                                          number_of_days,
-                                          jan,
-                                          feb,
-                                          mar,
-                                          apr,
-                                          may,
-                                          jun,
-                                          jul,
-                                          aug,
-                                          sep,
-                                          oct,
-                                          nov,
-                                          dec,
-                                          month_order,
-                                          traverse,
-                                          quality_rating,
-                                          full_text,
-                                          ai_search_column,
-                                          text_lang,
-                                          max_ele)
-                                          VALUES ${sql_values}`;
-    // logger.info(sql_insert)
-
-    try {
-        await knex.raw(sql_insert);
-        return true;
-    } catch (err) {
-        logger.error(
-            `bulk_insert_tours FAILED for batch of ${entries.length} tours (IDs: ${entries
-                .slice(0, 5)
-                .map((e) => e.id)
-                .join(", ")}...): ${err.message}`,
-        );
-        throw err;
-    }
-};
 
 export async function populateCity2TourFlat() {
     try {
