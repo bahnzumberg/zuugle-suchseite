@@ -353,6 +353,7 @@ export async function truncateAll() {
         "overlay_weather_daily",
         "tour_weather_daily",
         "tour_weather_1h",
+        "sync_state",
     ];
     for (const tbl of tables) {
         try {

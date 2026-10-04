@@ -13,12 +13,13 @@ async function run() {
         process.exit(0);
     }
 
-    // Weather overlays run in parallel because they only depend on overlay_weather_daily,
-    // not on the GPX generation pipeline.
+    // Weather overlays: single pass, no polling.
+    // On PROD the dedicated `npm run import-weather` handles polling; here we
+    // only generate overlays when new data is already available in the DB.
     const weatherPromise = (async () => {
         try {
             logger.info("START GENERATING WEATHER OVERLAYS");
-            await syncWeatherOverlays({ wait: true });
+            await syncWeatherOverlays();
             logger.info("END GENERATING WEATHER OVERLAYS");
         } catch (err) {
             logger.error("NON-FATAL: Error during weather overlay generation:", err);
@@ -43,30 +44,12 @@ async function run() {
         logger.info("END CREATE GPX IMAGE FILES");
     })();
 
-    // The cache holds GPX pipeline results, not overlays, so the flush waits
-    // only on that pipeline.
-    await gpxPipelinePromise;
+    // Wait for both pipelines (weather finishes almost instantly with wait=false)
+    await Promise.all([gpxPipelinePromise, weatherPromise]);
 
     logger.info("FLUSHING CACHE...");
     await cacheService.flush();
     logger.info("CACHE FLUSHED.");
-
-    // Wait for weather overlays (if still running and not past cutoff)
-    await Promise.race([
-        weatherPromise,
-        new Promise((resolve) => {
-            const interval = setInterval(() => {
-                if (isCutoffReached()) {
-                    clearInterval(interval);
-                    logger.info(
-                        "Time cutoff (23:00) reached. Not waiting further for weather overlays.",
-                    );
-                    resolve(undefined);
-                }
-            }, 1000);
-            weatherPromise.finally(() => clearInterval(interval));
-        }),
-    ]);
 
     if (isCutoffReached()) {
         logger.info("SYNC FILES PIPELINE STOPPED GRACEFULLY DUE TO TIME CUTOFF (23:00).");
