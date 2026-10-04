@@ -174,28 +174,6 @@ export function visibleWeatherDays(
   return upcoming.some((day) => day.icon !== null) ? upcoming : [];
 }
 
-/**
- * The column heading for one strip cell: "Heute" for today, otherwise a short
- * weekday.
- *
- * Deliberately shorter than `formatWeatherDayLabel` below,
- * which returns "Mi 24.09." — that does not fit the ~50px cell the strip gets
- * at the `sm` breakpoint.
- */
-export function formatWeatherWeekday(
-  date: string,
-  t: TFunction,
-  locale: string = "de-AT",
-): string {
-  if (date === todayInVienna()) {
-    return t("weather.today", { defaultValue: "Heute" });
-  }
-  return new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
-    weekday: "short",
-    timeZone: "Europe/Vienna",
-  });
-}
-
 /** "07:44" → 7.733… */
 function timeToHours(time: string): number {
   const [hours, minutes] = time.split(":").map(Number);
@@ -265,34 +243,46 @@ export function windCompassKey(degrees: number): CompassKey {
   return COMPASS[Math.round((((degrees % 360) + 360) % 360) / 45) % 8];
 }
 
+export interface WeatherDayLabel {
+  weekday: string;
+  date: string | null;
+}
+
 /**
- * The label of a forecast day: "Heute", "Morgen", otherwise a short weekday
- * and "dd.mm." in every language. Shared by the map's day buttons and the
- * detail page's weather panel.
+ * The parts of a forecast day's label: "Heute" for today (Europe/Vienna) with
+ * no date, otherwise a short weekday and "dd.mm." in every language. The tour
+ * cards' strip uses the parts directly so it can put the date on a second line
+ * when its cells are narrow; everything else uses `formatWeatherDayLabel`.
+ */
+export function weatherDayLabelParts(
+  date: string,
+  t: TFunction,
+  locale: string,
+): WeatherDayLabel {
+  if (date === todayInVienna()) {
+    return {
+      weekday: t("weather.today", { defaultValue: "Heute" }),
+      date: null,
+    };
+  }
+  const [year, month, day] = date.split("-");
+  const weekday = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+  ).toLocaleDateString(locale, { weekday: "short" });
+  return { weekday, date: `${day}.${month}.` };
+}
+
+/**
+ * `weatherDayLabelParts` on one line ("Heute", "Mi 24.09."). Shared by the
+ * map's day buttons and the detail page's weather panel.
  */
 export function formatWeatherDayLabel(
-  dateStr: string,
+  date: string,
   t: TFunction,
   locale: string,
 ): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const day = now.getDate();
-  const nowDate = new Date(year, month, day);
-
-  const [dy, dm, dd] = dateStr.split("-").map(Number);
-  const targetDate = new Date(dy, dm - 1, dd);
-
-  const diffMs = targetDate.getTime() - nowDate.getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return t("weather.today", { defaultValue: "Heute" });
-  }
-
-  const weekday = targetDate.toLocaleDateString(locale, { weekday: "short" });
-  const padDay = String(dd).padStart(2, "0");
-  const padMonth = String(dm).padStart(2, "0");
-  return `${weekday} ${padDay}.${padMonth}.`;
+  const parts = weatherDayLabelParts(date, t, locale);
+  return parts.date ? `${parts.weekday} ${parts.date}` : parts.weekday;
 }
