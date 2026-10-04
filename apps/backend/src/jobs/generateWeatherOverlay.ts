@@ -17,12 +17,8 @@ import {
 } from "../utils/weatherOverlayService";
 
 export interface SyncWeatherOverlayOptions {
-    wait?: boolean;
-    intervalMs?: number;
-    timeoutMs?: number;
     weatherDir?: string;
     allDates?: boolean;
-    cutoffHour?: number;
 }
 
 function getTodayString(): string {
@@ -40,48 +36,44 @@ interface WeatherRowWithLoadId extends WeatherRow {
     load_id: number;
 }
 
-interface LastLoadInfo {
+interface WeatherSyncState {
     load_id: number;
     timestamp?: string;
 }
 
-function readLastLoad(lastLoadPath: string): LastLoadInfo | null {
-    if (!fs.existsSync(lastLoadPath)) {
-        return null;
-    }
+async function readSyncState(): Promise<WeatherSyncState | null> {
     try {
-        const raw = fs.readFileSync(lastLoadPath, "utf-8");
-        const data = JSON.parse(raw);
-        if (data && typeof data.load_id === "number") {
-            return {
-                load_id: data.load_id,
-                timestamp: typeof data.timestamp === "string" ? data.timestamp : data.updated_at,
-            };
-        }
-        return null;
-    } catch (err) {
-        logger.warn(
-            `[WeatherOverlay] Could not parse ${lastLoadPath}, treating as first run:`,
-            err,
+        const res = await knex.raw(
+            "SELECT weather_load_id, weather_synced_at FROM sync_state WHERE id = 1;",
         );
+        const row = res.rows?.[0];
+        if (!row || row.weather_load_id == null) {
+            return null;
+        }
+        return {
+            load_id: Number(row.weather_load_id),
+            timestamp: row.weather_synced_at
+                ? new Date(row.weather_synced_at).toISOString()
+                : undefined,
+        };
+    } catch (err) {
+        if ((err as { code?: string }).code === UNDEFINED_TABLE) {
+            return null;
+        }
+        logger.error("[WeatherOverlay] Error querying sync_state:", err);
         return null;
     }
 }
 
-async function writeLastLoad(
-    lastLoadPath: string,
-    loadId: number,
-    timestamp: string,
-): Promise<void> {
-    const content = JSON.stringify(
-        {
-            load_id: loadId,
-            timestamp,
-        },
-        null,
-        2,
+async function writeSyncState(loadId: number, timestamp: string): Promise<void> {
+    await knex.raw(
+        `INSERT INTO sync_state (id, weather_load_id, weather_synced_at)
+         VALUES (1, ?, ?::timestamptz)
+         ON CONFLICT (id) DO UPDATE
+            SET weather_load_id = EXCLUDED.weather_load_id,
+                weather_synced_at = EXCLUDED.weather_synced_at;`,
+        [loadId, timestamp],
     );
-    await writeWeatherFile(lastLoadPath, content);
 }
 
 /**
@@ -260,22 +252,18 @@ async function generateOverlaysFromRows(
 /**
  * Main job function to synchronize weather overlays:
  * 1. Immediate cleanup of expired overlays (< today)
- * 2. Check last-load.json
- *    - Not present: first run, generate with available data and write last-load.json
- *    - Present: query WHERE load_id > lastLoadId, poll every 6 minutes until 13:00
+ * 2. Check sync_state table
+ *    - Not present / empty: first run, generate with available data and write sync_state
+ *    - Present: query WHERE load_id > lastLoadId
  * 3. Generate overlays and write weather_metadata.json (with matching generated_at)
- * 4. Update last-load.json after successful generation (with matching timestamp)
+ * 4. Update sync_state after successful generation (with matching timestamp)
  */
 export async function syncWeatherOverlays(
     options: SyncWeatherOverlayOptions = {},
 ): Promise<boolean> {
     const todayStr = getTodayString();
     const weatherDir = options.weatherDir || path.join(PUBLIC_DIR, "weather");
-    const intervalMs = options.intervalMs ?? 6 * 60 * 1000; // 6 minutes default
-    const wait = options.wait ?? false;
     const allDates = options.allDates ?? false;
-    const cutoffHour = options.cutoffHour ?? 13;
-    const lastLoadPath = path.join(weatherDir, "last-load.json");
 
     logger.info(`[WeatherOverlay] === START SYNC WEATHER OVERLAYS (today: ${todayStr}) ===`);
 
@@ -285,13 +273,13 @@ export async function syncWeatherOverlays(
         `[WeatherOverlay] Immediate cleanup finished: ${deletedCount} expired overlay(s) removed.`,
     );
 
-    // --- STEP 2: PRÜFUNG LAST-LOAD.JSON ---
-    const lastLoad = readLastLoad(lastLoadPath);
+    // --- STEP 2: PRÜFUNG SYNC_STATE ---
+    const syncState = await readSyncState();
 
-    if (lastLoad === null) {
-        // Erster Lauf: Datei last-load.json existiert nicht (oder ungültig)
+    if (syncState === null) {
+        // Erster Lauf: Kein Eintrag in sync_state vorhanden
         logger.info(
-            `[WeatherOverlay] No valid last-load.json found. Running first load with available data...`,
+            `[WeatherOverlay] No sync_state found. Running first load with available data...`,
         );
 
         const { rows, maxLoadId } = await fetchCurrentWeatherData(todayStr, allDates);
@@ -304,16 +292,14 @@ export async function syncWeatherOverlays(
         try {
             const success = await generateOverlaysFromRows(rows, weatherDir, todayStr, timestamp);
             if (success) {
-                await writeLastLoad(lastLoadPath, maxLoadId, timestamp);
+                await writeSyncState(maxLoadId, timestamp);
                 logger.info(
-                    `[WeatherOverlay] Wrote ${lastLoadPath} with load_id ${maxLoadId} (timestamp: ${timestamp}).`,
+                    `[WeatherOverlay] Wrote sync_state with load_id ${maxLoadId} (timestamp: ${timestamp}).`,
                 );
                 logger.info(`[WeatherOverlay] === COMPLETED WEATHER OVERLAYS SYNC ===`);
                 return true;
             } else {
-                logger.error(
-                    `[WeatherOverlay] Error generating overlays. last-load.json not created.`,
-                );
+                logger.error(`[WeatherOverlay] Error generating overlays. sync_state not updated.`);
                 return false;
             }
         } catch (err) {
@@ -322,41 +308,13 @@ export async function syncWeatherOverlays(
         }
     }
 
-    // Folgelauf: last-load.json existiert bereits
-    const lastLoadId = lastLoad.load_id;
+    // Folgelauf: sync_state existiert bereits
+    const lastLoadId = syncState.load_id;
     logger.info(
-        `[WeatherOverlay] Existing last-load.json found (load_id: ${lastLoadId}, timestamp: ${lastLoad.timestamp || "none"}). Checking for newer data...`,
+        `[WeatherOverlay] Existing sync_state found (load_id: ${lastLoadId}, timestamp: ${syncState.timestamp || "none"}). Checking for newer data...`,
     );
 
-    // Initial check
-    let checkResult = await fetchNewWeatherData(lastLoadId, todayStr, allDates);
-
-    if (checkResult.rows.length === 0 && wait) {
-        const isPastCutoff = () => new Date().getHours() >= cutoffHour;
-
-        if (isPastCutoff()) {
-            logger.info(
-                `[WeatherOverlay] Current time is past ${cutoffHour}:00 and no new data available (last load_id: ${lastLoadId}). Exiting.`,
-            );
-            return true;
-        }
-
-        // Warteschleife alle 6 Minuten bis nach 13:00 oder bis neue Daten da sind
-        // Während des Wartens KEINE Konsolenmeldungen!
-        while (!isPastCutoff()) {
-            await new Promise((resolve) => setTimeout(resolve, intervalMs));
-
-            if (isPastCutoff()) {
-                break;
-            }
-
-            // Silent poll: keine Bash-Meldung ausgeben
-            checkResult = await fetchNewWeatherData(lastLoadId, todayStr, allDates);
-            if (checkResult.rows.length > 0) {
-                break;
-            }
-        }
-    }
+    const checkResult = await fetchNewWeatherData(lastLoadId, todayStr, allDates);
 
     if (checkResult.rows.length === 0) {
         logger.info(
@@ -380,16 +338,14 @@ export async function syncWeatherOverlays(
             timestamp,
         );
         if (success && newLoadId != null) {
-            await writeLastLoad(lastLoadPath, newLoadId, timestamp);
+            await writeSyncState(newLoadId, timestamp);
             logger.info(
-                `[WeatherOverlay] Successfully updated ${lastLoadPath} to load_id ${newLoadId} (timestamp: ${timestamp}).`,
+                `[WeatherOverlay] Successfully updated sync_state to load_id ${newLoadId} (timestamp: ${timestamp}).`,
             );
             logger.info(`[WeatherOverlay] === COMPLETED WEATHER OVERLAYS SYNC ===`);
             return true;
         } else {
-            logger.error(
-                `[WeatherOverlay] Overlay generation failed. last-load.json was NOT updated.`,
-            );
+            logger.error(`[WeatherOverlay] Overlay generation failed. sync_state was NOT updated.`);
             return false;
         }
     } catch (err) {
@@ -407,16 +363,9 @@ if (
             process.argv[1].endsWith("generateWeatherOverlay.js")))
 ) {
     const args = process.argv.slice(2);
-    const wait = args.includes("--wait");
     const allDates = args.includes("--all-dates");
 
-    let intervalMs = 6 * 60 * 1000;
-    const intervalArg = args.find((a) => a.startsWith("--interval="));
-    if (intervalArg) {
-        intervalMs = parseInt(intervalArg.split("=")[1], 10) * 1000;
-    }
-
-    syncWeatherOverlays({ wait, allDates, intervalMs })
+    syncWeatherOverlays({ allDates })
         .then((success) => {
             knex.destroy();
             process.exit(success ? 0 : 1);
