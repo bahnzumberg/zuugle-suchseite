@@ -41,13 +41,10 @@ async function loadValidTourIds() {
  * gpx-image: {id}_gpx.png        -> id  (legacy format)
  */
 function extractId(filename, dirType) {
-    if (dirType === "gpx-image") {
-        const match = filename.match(/^(\d+)_gpx/);
-        return match ? match[1] : null;
-    }
-    // gpx: e.g. "2493.gpx" -> "2493"
-    const match = filename.match(/^(\d+)\.gpx$/);
-    return match ? match[1] : null;
+    const pattern = dirType === "gpx-image" ? /^(\d+)_gpx/ : /^(\d+)\.gpx$/;
+    const match = filename.match(pattern);
+    // syncGPXImage zero-pads IDs below 10 ("05_gpx_small.webp"); DB IDs are unpadded
+    return match ? String(Number(match[1])) : null;
 }
 
 /**
