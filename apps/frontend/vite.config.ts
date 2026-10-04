@@ -131,7 +131,7 @@ const sirvDevMiddleware =
 
 /**
  * Serves what's left in the backend's local `public/` folder under `/public`
- * for dev — `gpx/`, `gpx-image/`, `gpx-track/`, `sitemap_*.xml` (all
+ * for dev — `gpx/`, `gpx-image/`, `sitemap_*.xml` (all
  * gitignored, generated per environment) and `range-image/` (tracked, but
  * still written there by `jobs/sync.js` at a path this folder move didn't
  * touch — see task 4/6 of the shared-`public/`-folder issue). Everything

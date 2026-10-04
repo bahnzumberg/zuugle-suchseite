@@ -8,7 +8,7 @@ import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
-import { Connection, ConnectionResult } from "../models/Connections";
+import { ConnectionResult } from "../models/Connections";
 import { API_BASE_URL } from "../utils/apiBase";
 import { apiImageUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
@@ -243,19 +243,12 @@ const domain = window.location.hostname;
 const withLocalAssetUrls = (tour: Tour): Tour => ({
   ...tour,
   gpx_file: publicAssetUrl(tour.gpx_file),
-  totour_gpx_file: publicAssetUrl(tour.totour_gpx_file),
-  fromtour_gpx_file: publicAssetUrl(tour.fromtour_gpx_file),
   image_url: apiImageUrl(tour.image_url),
 });
 
 const withLocalRangeImageUrl = (range: RangeObject): RangeObject => ({
   ...range,
   image_url: apiImageUrl(range.image_url),
-});
-
-const withLocalConnectionGpxUrl = (connection: Connection): Connection => ({
-  ...connection,
-  gpx_file: publicAssetUrl(connection.gpx_file),
 });
 
 export const api = createApi({
@@ -372,11 +365,7 @@ export const api = createApi({
         return `tours/${params.id}/connections-extended?city=${params.city}&domain=${domain}`;
       },
       transformResponse: (response: ConnectionResponse) => {
-        return response.result.map((day) => ({
-          ...day,
-          connections: day.connections.map(withLocalConnectionGpxUrl),
-          returns: day.returns.map(withLocalConnectionGpxUrl),
-        }));
+        return response.result;
       },
     }),
     getCities2Tour: build.query<Cities2TourCity[], string>({

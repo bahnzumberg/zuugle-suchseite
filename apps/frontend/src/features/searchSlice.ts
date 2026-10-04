@@ -27,6 +27,7 @@ export interface SearchState {
   searchWithType: SearchWithType | null;
   language: string | null;
   map: boolean;
+  weather: boolean;
   bounds: BoundsObject | null;
   /**
    * When true, tour links point directly to the provider's own website
@@ -43,6 +44,7 @@ const initialState: SearchState = {
   searchWithType: null,
   language: null,
   map: false,
+  weather: false,
   bounds: null,
   externalLinks: false,
   geolocation: null,
@@ -73,6 +75,9 @@ const searchSlice = createSlice({
     mapUpdated: (state, action: PayloadAction<boolean>) => {
       state.map = action.payload;
     },
+    weatherUpdated: (state, action: PayloadAction<boolean>) => {
+      state.weather = action.payload;
+    },
     externalLinksUpdated: (state, action: PayloadAction<boolean>) => {
       state.externalLinks = action.payload;
     },
@@ -92,6 +97,7 @@ export const {
   languageUpdated,
   boundsUpdated,
   mapUpdated,
+  weatherUpdated,
   externalLinksUpdated,
   geolocationUpdated,
 } = searchSlice.actions;
