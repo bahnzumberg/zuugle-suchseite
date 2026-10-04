@@ -34,6 +34,7 @@ import {
   boundsUpdated,
   geolocationUpdated,
   searchWithTypeUpdated,
+  weatherUpdated,
 } from "../../features/searchSlice";
 import {
   PoiResult,
@@ -200,7 +201,9 @@ export default function TourMapContainer({
   // --- Weather overlay state ---
   const [weatherMetadata, setWeatherMetadata] =
     useState<WeatherMetadata | null>(null);
-  const [isWeatherActive, setIsWeatherActive] = useState(false);
+  const isWeatherActive = useSelector(
+    (state: RootState) => state.search.weather,
+  );
   const [selectedWeatherDate, setSelectedWeatherDate] = useState<string | null>(
     null,
   );
@@ -245,32 +248,13 @@ export default function TourMapContainer({
     };
   }, []);
 
-  // Auto-activate weather overlay when ?weather=true is present in the URL
-  useEffect(() => {
-    if (!weatherMetadata?.days?.length) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("weather") === "true") {
-      setIsWeatherActive(true);
-    }
-  }, [weatherMetadata]);
-
   const toggleWeather = useCallback(() => {
-    setIsWeatherActive((prev) => {
-      const next = !prev;
-      if (next && !selectedWeatherDate && weatherMetadata?.days?.[0]) {
-        setSelectedWeatherDate(weatherMetadata.days[0].date);
-      }
-      // Sync ?weather= URL parameter
-      const url = new URL(window.location.href);
-      if (next) {
-        url.searchParams.set("weather", "true");
-      } else {
-        url.searchParams.delete("weather");
-      }
-      window.history.replaceState(null, "", url.toString());
-      return next;
-    });
-  }, [selectedWeatherDate, weatherMetadata]);
+    const next = !isWeatherActive;
+    dispatch(weatherUpdated(next));
+    if (next && !selectedWeatherDate && weatherMetadata?.days?.[0]) {
+      setSelectedWeatherDate(weatherMetadata.days[0].date);
+    }
+  }, [dispatch, isWeatherActive, selectedWeatherDate, weatherMetadata]);
 
   const activeWeatherDay = useMemo(() => {
     if (!weatherMetadata?.days) return null;

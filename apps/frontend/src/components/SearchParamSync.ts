@@ -7,6 +7,7 @@ import {
   citySlugUpdated,
   cityUpdated,
   mapUpdated,
+  weatherUpdated,
   geolocationUpdated,
   externalLinksUpdated,
   searchWithTypeUpdated,
@@ -88,7 +89,7 @@ export default function SearchParamSync() {
     updateParam(
       newParams,
       "weather",
-      search.map ? params.get("weather") : null,
+      search.map && search.weather ? "true" : null,
     );
     updateParam(newParams, "search", search.searchWithType?.term);
     updateParam(newParams, "search_type", search.searchWithType?.type);
@@ -175,12 +176,8 @@ export default function SearchParamSync() {
       : null;
     dispatch(searchWithTypeUpdated(searchWithType));
 
-    const map = params.get("map");
-    if (map) {
-      dispatch(mapUpdated(Boolean(map)));
-    } else {
-      dispatch(mapUpdated(false));
-    }
+    dispatch(mapUpdated(params.get("map") === "true"));
+    dispatch(weatherUpdated(params.get("weather") === "true"));
 
     const lat = params.get("lat");
     const lng = params.get("lng");

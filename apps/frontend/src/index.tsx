@@ -79,6 +79,7 @@ function getPreloadedSearchState() {
     city: !urlCitySlug || urlCitySlug === cityObject?.value ? cityObject : null,
     citySlug: urlCitySlug ?? cityObject?.value ?? null,
     map: params.get("map") === "true",
+    weather: params.get("weather") === "true",
     language: params.get("lang") ?? null,
     // ?p=bahnzumberg is the legacy embed param; it enables external tour links.
     externalLinks:
