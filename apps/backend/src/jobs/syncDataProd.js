@@ -11,6 +11,19 @@ import {
 import cacheService from "../services/cache.js";
 import logger from "../utils/logger";
 
+// Guard: import-data-prod is only intended for the native PROD host.
+// Compose-managed environments (local, DEV, UAT) set COMPOSE_PROJECT_NAME;
+// PROD leaves it unset.
+const composeName = process.env.COMPOSE_PROJECT_NAME;
+if (composeName) {
+    logger.error(
+        `COMPOSE_PROJECT_NAME is set to "${composeName}" — this is not a PROD environment.\n` +
+            `  On local/DEV/UAT use "npm run import-data" instead, which downloads and\n` +
+            `  restores the production dump into the Docker-managed database.`,
+    );
+    process.exit(1);
+}
+
 async function main() {
     logger.info("FULL LOAD");
 
