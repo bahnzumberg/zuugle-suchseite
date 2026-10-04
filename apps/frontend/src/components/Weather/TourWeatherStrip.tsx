@@ -12,7 +12,7 @@ import {
 } from "../../models/tourWeather";
 import { scoreToColor } from "../../models/weatherScore";
 
-export interface WanderwetterStripProps {
+export interface TourWeatherStripProps {
   /** Already narrowed by `visibleWeatherDays` — the card needs the same list for its padding. */
   days?: TourWeatherDay[] | null;
   /** Hold the strip's height without a forecast, so stats rows stay aligned across a grid row. */
@@ -45,10 +45,10 @@ const ONE_LINE_LABEL_QUERY = `@container (min-width: ${
   WEATHER_STRIP_DAYS * 58 + (WEATHER_STRIP_DAYS - 1) * CELL_GAP_PX
 }px)`;
 
-export default function WanderwetterStrip({
+export default function TourWeatherStrip({
   days,
   reserveSpace = false,
-}: WanderwetterStripProps) {
+}: TourWeatherStripProps) {
   const { t, i18n } = useTranslation();
   const visibleDays = days ?? [];
 
@@ -73,7 +73,7 @@ export default function WanderwetterStrip({
 
   return (
     <Box
-      className="wanderwetter-strip"
+      className="tour-weather-strip"
       role="group"
       aria-label={t("weather.button", "Wanderwetter")}
       // Hides the whole subtree from assistive tech, so the cells below need no

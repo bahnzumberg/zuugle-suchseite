@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "..";
 import FavoriteButton from "./Favorites/FavoriteButton";
 import { assetUrl, sizedImageUrl } from "../utils/assetUrl";
-import WanderwetterStrip from "./Weather/WanderwetterStrip";
+import TourWeatherStrip from "./Weather/TourWeatherStrip";
 import { visibleWeatherDays } from "../models/tourWeather";
 
 const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
@@ -22,7 +22,6 @@ const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 export interface TourCardProps {
   tour: Tour;
   city: string | null;
-  /** See `WanderwetterStrip`'s `reserveSpace`. */
   reserveWeatherSpace?: boolean;
 }
 
@@ -272,10 +271,7 @@ export default function TourCard({
          the title. It also keeps the strip a fixed-height Card footer, so
          CardContent still absorbs the grid's stretch and the stats row stays
          bottom-anchored. */}
-      <WanderwetterStrip
-        days={weatherDays}
-        reserveSpace={reserveWeatherSpace}
-      />
+      <TourWeatherStrip days={weatherDays} reserveSpace={reserveWeatherSpace} />
       {/* Top-right overlay: decorative Top-Tour badge + interactive favorite.
          pointerEvents let clicks fall through to the card except on the heart. */}
       <Box
