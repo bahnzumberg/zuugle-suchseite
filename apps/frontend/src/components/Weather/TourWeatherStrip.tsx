@@ -36,13 +36,12 @@ const ICON_SIZE = "clamp(26px, 14cqi, 34px)";
 const CELL_GAP_PX = 10;
 
 /**
- * From this strip width on, every day label fits on one line ("Mi 07.10.").
- * The longest, "MER. 28.08." (fr/sl), is 55px in the label font, so each cell
- * needs 58px. Narrower strips (two-column grid at `sm`) stack the date under
- * the weekday in every cell, so the icons stay level.
+ * From this strip width on, the full date ("Mi 07.10.") is displayed.
+ * On narrower strips, only the weekday ("Heute", "Di", "Mi", "Do") is shown
+ * to keep the strip on a single compact line without wrapping.
  */
-const ONE_LINE_LABEL_QUERY = `@container (min-width: ${
-  WEATHER_STRIP_DAYS * 58 + (WEATHER_STRIP_DAYS - 1) * CELL_GAP_PX
+const FULL_DATE_LABEL_QUERY = `@container (min-width: ${
+  WEATHER_STRIP_DAYS * 62 + (WEATHER_STRIP_DAYS - 1) * CELL_GAP_PX
 }px)`;
 
 export default function TourWeatherStrip({
@@ -84,23 +83,10 @@ export default function TourWeatherStrip({
         visibility: isPlaceholder ? "hidden" : "visible",
         px: "16px",
         pt: "10px",
-        pb: { xs: "12px", sm: "14px" },
+        pb: { xs: "11px", sm: "13px" },
         borderTop: `1px solid ${RULE}`,
       }}
     >
-      <Typography
-        variant="grayP"
-        sx={{
-          display: "block",
-          fontSize: "10px",
-          lineHeight: 1,
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          mb: "8px",
-        }}
-      >
-        {t("weather.button", "Wanderwetter")}
-      </Typography>
       <Box
         sx={{
           // Fixed columns, aligned with the stats grid above. A wrapping flex
@@ -127,30 +113,23 @@ export default function TourWeatherStrip({
               }}
             >
               <Typography
+                variant="blackP"
                 sx={{
-                  fontSize: "9.5px",
-                  lineHeight: 1,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
+                  fontSize: "13px",
+                  lineHeight: 1.2,
                   whiteSpace: "nowrap",
                   textAlign: "center",
-                  color: "rgba(0, 0, 0, 0.45)",
-                  "& .day-date": { display: "block" },
-                  [ONE_LINE_LABEL_QUERY]: {
+                  color: "#000",
+                  "& .day-date": { display: "none" },
+                  [FULL_DATE_LABEL_QUERY]: {
                     "& .day-date": { display: "inline" },
-                    // "Heute" has no date: a blank second line only when stacked.
-                    "& .day-date[data-empty]": { display: "none" },
                   },
                 }}
               >
-                {cell.label.weekday}{" "}
-                <span
-                  className="day-date"
-                  data-empty={cell.label.date === null || undefined}
-                >
-                  {cell.label.date ?? " "}
-                </span>
+                {cell.label.weekday}
+                {cell.label.date && (
+                  <span className="day-date"> {cell.label.date}</span>
+                )}
               </Typography>
               {icon === null ? (
                 <Box sx={{ width: ICON_SIZE, height: ICON_SIZE }} aria-hidden />
@@ -167,12 +146,11 @@ export default function TourWeatherStrip({
                 />
               )}
               <Typography
+                variant="blackP"
                 lang={i18n.language}
                 sx={{
-                  // Not uppercased like the label above: at this size that
-                  // mangles the diacritics in "Mäßig", "Médiocre", "Odlično".
-                  fontSize: "clamp(9px, 4.4cqi, 11.5px)",
-                  fontWeight: 600,
+                  fontSize: "13px",
+                  fontWeight: 700,
                   lineHeight: 1.2,
                   textAlign: "center",
                   // These words wrap in a ~50px cell. Breaks come from the soft
@@ -180,7 +158,7 @@ export default function TourWeatherStrip({
                   // add them at the syllable breaks for any new translation.
                   hyphens: "auto",
                   overflowWrap: "break-word",
-                  color: icon === null ? "rgba(0, 0, 0, 0.35)" : "#1F2933",
+                  color: icon === null ? "rgba(0, 0, 0, 0.35)" : "#000",
                 }}
               >
                 {icon === null ? "–" : t(`weather.grade.${icon.grade}`)}

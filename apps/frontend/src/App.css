@@ -919,6 +919,15 @@ ul.about-bullets {
   z-index: 0;
 }
 
+/* On mobile the map goes edge-to-edge; above 600px (two-column tile grid)
+   the inline 30px padding keeps it aligned with the cards below. */
+@media (max-width: 599px) {
+  .map-fullscreen-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
 /* Explicit Leaflet pane layering: tilePane (200) < weatherPane (250) < overlayPane (400) < markerPane (600) */
 .leaflet-pane.leaflet-tile-pane {
   z-index: 200 !important;

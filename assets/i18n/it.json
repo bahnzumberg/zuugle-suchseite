@@ -340,6 +340,7 @@
     "startort_placeholder": "Inserisci indirizzo o fermata",
     "zielort": "Destinazione",
     "aktivitaetsdatum": "Data dell'attività",
+    "datum": "Data",
     "bedarfsverkehr": "Trasporto a chiamata",
     "heute": "Oggi",
     "morgen": "Domani",
@@ -370,10 +371,15 @@
     "ticket_rueckfahrt": "Biglietti ritorno",
     "ticket_oebb_fallback": "Biglietti ÖBB",
     "von_bis_zeiten": "Dalle {0} alle {1}",
+    "ankunft_am_um": "Arrivo il {0} alle {1} {2}",
+    "abfahrt_am_um": "Partenza il {0} alle {1} {2}",
     "verfuegbar": "disponibile",
     "startort_aus_liste_waehlen": "Seleziona un suggerimento dall'elenco",
     "kontingent_erschoepft": "Quota delle richieste orari esaurita.",
-    "verbindungssuche_fehlgeschlagen": "Ricerca connessione fallita. Riprova."
+    "verbindungssuche_fehlgeschlagen": "Ricerca connessione fallita. Riprova.",
+    "fahrplan_titel": "Come arrivare & tornare",
+    "umstieg_label": "cambio",
+    "umstiege_label": "cambi"
   },
   "search": {
     "go": "Vai!",

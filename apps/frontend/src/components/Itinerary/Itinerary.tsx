@@ -11,12 +11,14 @@ export interface ItineraryProps {
   tourId?: string;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
   onDateChange?: (date: string) => void;
+  activityDate?: string | null;
 }
 const Itinerary = ({
   tour,
   tourId: _tourId,
   onStopHover,
   onDateChange,
+  activityDate,
 }: ItineraryProps) => {
   const city = useSelector((state: RootState) => state.search.city);
 
@@ -28,6 +30,7 @@ const Itinerary = ({
             tour={tour}
             onStopHover={onStopHover}
             onDateChange={onDateChange}
+            activityDate={activityDate}
           />
         ) : (
           <>

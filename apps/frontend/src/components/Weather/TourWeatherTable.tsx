@@ -43,7 +43,7 @@ const CELL = {
   p: "5px 0",
   textAlign: "center",
   whiteSpace: "nowrap",
-  minWidth: { xs: 38, sm: 42 },
+  minWidth: { xs: 38, sm: 39 },
   fontWeight: 400,
 } as const;
 
