@@ -25,6 +25,7 @@ const COMFORT_KEYS = [
   "departureLocation",
   "departureLocationLat",
   "departureLocationLon",
+  "tourDate",
 ];
 
 function clearComfortStorage() {

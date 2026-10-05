@@ -8,8 +8,10 @@ import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
 import DownloadIcon from "@mui/icons-material/Download";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
+import DirectionsTransitIcon from "@mui/icons-material/DirectionsTransit";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
@@ -29,8 +31,11 @@ import {
   useGetGPXQuery,
   useGetProviderGpxOkQuery,
   useGetTourQuery,
+  useGetTourWeatherQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
+import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
+import { todayInVienna, upcomingDays } from "../models/tourWeather";
 import TourCard from "../components/TourCard";
 import FavoriteButton from "../components/Favorites/FavoriteButton";
 
@@ -63,8 +68,39 @@ export default function DetailReworked() {
     lon: number;
   } | null>(null);
 
-  // "YYYY-MM-DD" chosen in the connection search; opens that day in the weather panel
-  const [activityDate, setActivityDate] = useState<string | null>(null);
+  // "YYYY-MM-DD" chosen in the connection search or weather; persisted in localStorage
+  const [activityDate, setActivityDate] = useState<string>(() => {
+    const stored = getStoredTourDate();
+    if (stored) return stored;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
+  });
+
+  const { data: weatherData } = useGetTourWeatherQuery(idOne || "", {
+    skip: !idOne,
+  });
+  const weatherDays = useMemo(
+    () => upcomingDays(weatherData ?? []),
+    [weatherData],
+  );
+
+  // If the chosen activity date is covered by the weather forecast, select it;
+  // otherwise default both weather components to "Heute" (first available day or today).
+  const isDateCoveredByWeather = useMemo(
+    () => weatherDays.some((d) => d.date === activityDate),
+    [weatherDays, activityDate],
+  );
+
+  const selectedWeatherDate = useMemo(() => {
+    if (isDateCoveredByWeather) return activityDate;
+    return weatherDays[0]?.date ?? todayInVienna();
+  }, [isDateCoveredByWeather, activityDate, weatherDays]);
+
+  const handleDateChange = useCallback((newDate: string) => {
+    setActivityDate(newDate);
+    setStoredTourDate(newDate);
+  }, []);
 
   // Whether the last GPX download attempt failed
   const [gpxDownloadFailed, setGpxDownloadFailed] = useState(false);
@@ -600,7 +636,7 @@ export default function DetailReworked() {
                     })}
                   </Typography>
                 ) : (
-                  <TourDetailProperties tour={tour} />
+                  <TourDetailProperties tour={tour} tourDate={activityDate} />
                 )}
               </Box>
 
@@ -686,14 +722,52 @@ export default function DetailReworked() {
                   }}
                 >
                   <Box
-                    className="tour-detail-itinerary-container"
-                    sx={{ flex: 1, minWidth: 0 }}
+                    component="section"
+                    aria-labelledby="tour-fahrplan-title"
+                    className="tour-fahrplan-panel"
+                    sx={{
+                      bgcolor: "rgba(170, 181, 215, 0.25)",
+                      borderRadius: "12px",
+                      p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
+                      flex: 1,
+                      minWidth: 0,
+                    }}
                   >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        mx: "2px",
+                        mb: 1.25,
+                      }}
+                    >
+                      <DirectionsTransitIcon
+                        aria-hidden
+                        sx={{
+                          fontSize: 20,
+                          color: "var(--bzb-akelei)",
+                          mr: "7px",
+                        }}
+                      />
+                      <Typography
+                        id="tour-fahrplan-title"
+                        component="h2"
+                        sx={{
+                          flex: 1,
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: "var(--bzb-bahnblau)",
+                        }}
+                      >
+                        {t("details.fahrplan_titel")}
+                      </Typography>
+                    </Box>
                     <Itinerary
                       tour={tour}
                       tourId={idOne}
                       onStopHover={setHoveredStop}
-                      onDateChange={setActivityDate}
+                      onDateChange={handleDateChange}
+                      activityDate={activityDate}
                     />
                   </Box>
                   {idOne && (
@@ -702,6 +776,7 @@ export default function DetailReworked() {
                         tourId={idOne}
                         activityDate={activityDate}
                         maxEle={tour?.max_ele}
+                        onSelectDate={handleDateChange}
                       />
                     </Box>
                   )}
@@ -737,6 +812,8 @@ export default function DetailReworked() {
                         gpxPositions={track || []}
                         scrollWheelZoom={true}
                         hoveredStop={hoveredStop}
+                        selectedWeatherDate={selectedWeatherDate}
+                        onSelectWeatherDate={handleDateChange}
                       />
                     </Box>
                   )}
@@ -748,13 +825,53 @@ export default function DetailReworked() {
 
             {/* ─── SVG365 Availability bar (all cases with valid_tour >= 0) ─── */}
             {svgExists && svgMarkup && (
-              <Box sx={{ mt: "40px" }}>
-                <Typography variant="h6" sx={{ mb: "4px", fontWeight: 600 }}>
-                  {t("details.svg_ueberschrift")}
-                </Typography>
+              <Box
+                component="section"
+                aria-labelledby="tour-svg365-title"
+                sx={{
+                  mt: "24px",
+                  bgcolor: "rgba(170, 181, 215, 0.25)",
+                  borderRadius: "12px",
+                  p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    mx: "2px",
+                    mb: 1.25,
+                  }}
+                >
+                  <CalendarMonthIcon
+                    aria-hidden
+                    sx={{
+                      fontSize: 20,
+                      color: "var(--bzb-akelei)",
+                      mr: "7px",
+                    }}
+                  />
+                  <Typography
+                    id="tour-svg365-title"
+                    component="h2"
+                    sx={{
+                      flex: 1,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: "var(--bzb-bahnblau)",
+                    }}
+                  >
+                    {t("details.svg_ueberschrift")}
+                  </Typography>
+                </Box>
                 <Typography
-                  variant="body1"
-                  sx={{ lineHeight: "1.6", mb: "12px" }}
+                  sx={{
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                    color: "#555",
+                    mb: "10px",
+                    mx: "2px",
+                  }}
                 >
                   {t("details.svg_beschreibung")}
                 </Typography>

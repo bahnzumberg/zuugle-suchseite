@@ -72,6 +72,7 @@ export default function TourCard({
     >
       <Link
         href={tourLink}
+        underline="none"
         style={{
           textDecoration: "none",
           display: "contents",
@@ -107,6 +108,9 @@ export default function TourCard({
             display: "flex",
             flexDirection: "column",
             flexGrow: 1,
+            paddingBottom: showsWeatherStrip
+              ? { xs: "10px", sm: "12px" }
+              : undefined,
             "&:last-child": {
               // The strip below owns the card's bottom padding when it renders.
               paddingBottom: showsWeatherStrip
@@ -264,14 +268,11 @@ export default function TourCard({
             </Typography>
           </Box>
         </CardContent>
+        <TourWeatherStrip
+          days={weatherDays}
+          reserveSpace={reserveWeatherSpace}
+        />
       </Link>
-      {/* Outside the card-wide Link on purpose: the weather is information about
-         the tour, not a second way to navigate to it, and folding four days of
-         weekday/condition/grade text into the link's accessible name would bury
-         the title. It also keeps the strip a fixed-height Card footer, so
-         CardContent still absorbs the grid's stretch and the stats row stays
-         bottom-anchored. */}
-      <TourWeatherStrip days={weatherDays} reserveSpace={reserveWeatherSpace} />
       {/* Top-right overlay: decorative Top-Tour badge + interactive favorite.
          pointerEvents let clicks fall through to the card except on the heart. */}
       <Box

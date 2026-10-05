@@ -6,7 +6,7 @@ import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useTranslation } from "react-i18next";
 import { useGetTourWeatherQuery } from "../../features/apiSlice";
-import { upcomingDays } from "../../models/tourWeather";
+import { upcomingDays, hoursInWindow } from "../../models/tourWeather";
 import TourWeatherDay from "./TourWeatherDay";
 import TourWeatherInfoDialog from "./TourWeatherInfoDialog";
 import { MUTED } from "./weatherStyles";
@@ -16,6 +16,7 @@ interface TourWeatherPanelProps {
   /** "YYYY-MM-DD" from the connection search; that day opens. */
   activityDate: string | null;
   maxEle?: number;
+  onSelectDate?: (date: string) => void;
 }
 
 /**
@@ -27,6 +28,7 @@ export default memo(function TourWeatherPanel({
   tourId,
   activityDate,
   maxEle,
+  onSelectDate,
 }: TourWeatherPanelProps) {
   const { t } = useTranslation();
   const { data } = useGetTourWeatherQuery(tourId);
@@ -34,11 +36,18 @@ export default memo(function TourWeatherPanel({
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
 
-  useEffect(() => {
-    if (activityDate) setOpenDay(activityDate);
-  }, [activityDate]);
+  const days = upcomingDays(data ?? []).filter(
+    (day) => hoursInWindow(day).length > 0,
+  );
 
-  const days = upcomingDays(data ?? []);
+  useEffect(() => {
+    if (!days || days.length === 0) return;
+    if (activityDate && days.some((day) => day.date === activityDate)) {
+      setOpenDay(activityDate);
+    } else {
+      setOpenDay(null);
+    }
+  }, [activityDate, days]);
   if (days.length === 0) return null;
 
   const activityOutsideForecast =
@@ -96,9 +105,10 @@ export default memo(function TourWeatherPanel({
             key={day.date}
             day={day}
             expanded={openDay === day.date}
-            onToggle={() =>
-              setOpenDay((current) => (current === day.date ? null : day.date))
-            }
+            onToggle={() => {
+              setOpenDay((current) => (current === day.date ? null : day.date));
+              onSelectDate?.(day.date);
+            }}
             isTourDay={day.date === activityDate}
             maxEle={maxEle}
           />

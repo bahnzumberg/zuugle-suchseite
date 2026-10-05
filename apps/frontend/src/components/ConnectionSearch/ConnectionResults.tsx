@@ -14,6 +14,10 @@ import Divider from "@mui/material/Divider";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import SubwayIcon from "@mui/icons-material/Subway";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
@@ -831,6 +835,84 @@ function ConnectionTimeline({
   );
 }
 
+// ─── Compact summary for accordion header ─────────────────────
+
+/** One-line summary shown in the collapsed accordion header:
+ *  "Hinfahrt 06:00 - 09:11" + vehicle icons + route + duration + transfers */
+function ConnectionCompactSummary({
+  connection,
+  coordinateReplacements,
+  lang,
+  t,
+}: {
+  connection: Connection;
+  coordinateReplacements?: CoordinateReplacement;
+  lang: string;
+  t: (key: string) => string;
+}) {
+  const els = connection.connection_elements;
+  const fromName = resolveLocationName(
+    els[0]?.from_location ?? "",
+    coordinateReplacements,
+  );
+  const toName = resolveLocationName(
+    els[els.length - 1]?.to_location ?? "",
+    coordinateReplacements,
+  );
+  const durationMin = calcDurationMinutes(
+    connection.connection_start_timestamp,
+    connection.connection_end_timestamp,
+  );
+  const transfers = connection.connection_transfers;
+  const journeyLegs = els.filter((e) => e.type === "JNY");
+
+  return (
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      {/* Vehicle icons + duration + transfers on one line */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          flexWrap: "nowrap",
+          overflow: "hidden",
+        }}
+      >
+        {journeyLegs.map((leg, idx) => (
+          <VehicleIcon key={idx} vehicleType={leg.vehicle_type} lang={lang} />
+        ))}
+        <Typography
+          component="span"
+          sx={{
+            fontSize: "13px",
+            color: "#888",
+            ml: "4px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {formatDuration(durationMin)} •{" "}
+          {transfers === 1
+            ? `1 ${t("details.umstieg_label")}`
+            : `${transfers} ${t("details.umstiege_label")}`}
+        </Typography>
+      </Box>
+      {/* Route name */}
+      <Typography
+        sx={{
+          fontSize: "14px",
+          color: "#555",
+          mt: "1px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {fromName} - {toName}
+      </Typography>
+    </Box>
+  );
+}
+
 // ─── ICS generation ───────────────────────────────────────────
 
 function generateIcs(
@@ -971,9 +1053,9 @@ export default function ConnectionResults({
     }
   }, [connections.from_activity]);
 
-  // Toggle state: details expanded by default so user sees timeline immediately
-  const [toExpanded, setToExpanded] = useState(true);
-  const [fromExpanded, setFromExpanded] = useState(true);
+  // Toggle state: details collapsed by default so user sees compact summary first
+  const [toExpanded, setToExpanded] = useState(false);
+  const [fromExpanded, setFromExpanded] = useState(false);
 
   // Action button states
 
@@ -1022,6 +1104,19 @@ export default function ConnectionResults({
   const hasConflict = diffMin !== null && diffMin < 0;
   const hasTimeWarning =
     diffMin !== null && diffMin >= 0 && diffMin < tourDurationMinutes;
+
+  const isMultiDay = (tour?.number_of_days ?? 1) > 1;
+
+  const toElements = selectedTo?.connection_elements ?? [];
+  const fromElements = selectedFrom?.connection_elements ?? [];
+  const arrivalStopName =
+    toElements[toElements.length - 1]?.to_location ||
+    activity.activity_start_location_display_name ||
+    "";
+  const departureStopName =
+    fromElements[0]?.from_location ||
+    activity.activity_end_location_display_name ||
+    "";
 
   // Conflict thresholds for greying tabs:
   // A Hinfahrt tab is conflicting when its end > selectedFrom.start
@@ -1121,76 +1216,124 @@ export default function ConnectionResults({
 
   return (
     <Box sx={{ mt: "24px", minWidth: 0, textAlign: "left" }}>
-      {/* ─── Anreise Datum ─── */}
-      {connections.to_activity.length > 0 && (
-        <Box>
-          <Box
+      {/* ─── Hinfahrt Accordion ─── */}
+      {connections.to_activity.length > 0 && selectedTo && (
+        <Accordion
+          expanded={toExpanded}
+          onChange={() => setToExpanded((v) => !v)}
+          disableGutters
+          elevation={0}
+          slotProps={{ transition: { unmountOnExit: true } }}
+          sx={{
+            borderRadius: "10px",
+            overflow: "hidden",
+            "&::before": { display: "none" },
+            bgcolor: "#fff",
+          }}
+        >
+          <AccordionSummary
             id="anreise-header"
+            aria-controls="anreise-content"
+            expandIcon={
+              <ExpandMoreIcon sx={{ color: "var(--bzb-bahnblau)" }} />
+            }
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              mb: "8px",
+              fontFamily: "inherit",
+              px: { xs: 1, sm: 1.25 },
+              minHeight: 56,
+              "& .MuiAccordionSummary-content": {
+                my: 1,
+                alignItems: "center",
+                gap: { xs: 1, sm: 1.5 },
+                minWidth: 0,
+              },
             }}
           >
-            <Typography
-              sx={{
-                fontSize: "16px",
-                fontWeight: 700,
-                color: "var(--bzb-akelei)",
-              }}
-            >
-              {t("details.anreise")} {hinfahrtDate}
-            </Typography>
-            {/* Live badge */}
-            {data.live === true && (
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Box
                 sx={{
-                  display: "inline-flex",
+                  display: "flex",
                   alignItems: "center",
-                  gap: "5px",
-                  // Lindgrün on Bahnblau — the Corporate Design's only green,
-                  // and the same active-pill pairing the favorites toggle uses.
-                  bgcolor: "var(--bzb-lindgruen)",
-                  borderRadius: "12px",
-                  px: "8px",
-                  py: "2px",
+                  gap: "10px",
+                  mb: "2px",
                 }}
               >
-                <Box
-                  sx={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    bgcolor: "var(--bzb-bahnblau)",
-                    flexShrink: 0,
-                  }}
-                />
                 <Typography
                   sx={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "var(--bzb-bahnblau)",
-                    lineHeight: 1,
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: "var(--bzb-akelei)",
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  {t("details.echtzeit")}
+                  {t("details.anreise")}{" "}
+                  {formatTime(selectedTo.connection_start_timestamp)} -{" "}
+                  {formatTime(selectedTo.connection_end_timestamp)}
                 </Typography>
+                {/* Live badge */}
+                {data.live === true && (
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      bgcolor: "var(--bzb-lindgruen)",
+                      borderRadius: "12px",
+                      px: "8px",
+                      py: "2px",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        bgcolor: "var(--bzb-bahnblau)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        color: "var(--bzb-bahnblau)",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {t("details.echtzeit")}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
-            )}
-          </Box>
+              <ConnectionCompactSummary
+                connection={selectedTo}
+                coordinateReplacements={coordinateReplacements}
+                lang={i18n.language}
+                t={t}
+              />
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails
+            id="anreise-content"
+            sx={{
+              px: { xs: 1, sm: 1.25 },
+              pt: 0,
+              pb: 1.25,
+              borderTop: "1px solid rgba(0,0,0,0.08)",
+            }}
+          >
+            {/* Horizontale Anreisenavigation */}
+            <Box sx={{ mt: "8px" }}>
+              <ConnectionTabs
+                connections={connections.to_activity}
+                selectedId={selectedToId}
+                recommendedId={connections.recommended_to_activity_connection}
+                onSelect={handleToSelect}
+                conflictThreshold={toConflictThreshold}
+              />
+            </Box>
 
-          {/* Horizontale Anreisenavigation */}
-          <ConnectionTabs
-            connections={connections.to_activity}
-            selectedId={selectedToId}
-            recommendedId={connections.recommended_to_activity_connection}
-            onSelect={handleToSelect}
-            conflictThreshold={toConflictThreshold}
-          />
-
-          {/* Anreise Detail (toggle) */}
-          {toExpanded && selectedTo && (
+            {/* Anreise Detail (timeline) */}
             <ConnectionTimeline
               elements={selectedTo.connection_elements}
               coordinateReplacements={coordinateReplacements}
@@ -1198,16 +1341,16 @@ export default function ConnectionResults({
               t={t}
               onStopHover={onStopHover}
             />
-          )}
-        </Box>
+          </AccordionDetails>
+        </Accordion>
       )}
 
       {/* ─── Activity Box ─── */}
       <Box
         sx={{
-          mt: "20px",
-          mb: "20px",
-          p: "16px",
+          mt: "8px",
+          mb: "8px",
+          p: "10px 12px",
           bgcolor: "#f5f0f6",
           borderRadius: "12px",
           borderLeft: "4px solid var(--bzb-akelei)",
@@ -1216,52 +1359,72 @@ export default function ConnectionResults({
         {/* Header: Hiking icon + Wanderung label */}
         <Typography
           sx={{
-            fontSize: "16px",
+            fontSize: "15px",
             fontWeight: 700,
             color: "var(--bzb-akelei)",
             display: "flex",
             alignItems: "center",
-            gap: "6px",
-            mb: "8px",
+            gap: "5px",
+            mb: "2px",
           }}
         >
-          <HikingIcon sx={{ fontSize: "20px", flexShrink: 0 }} />
+          <HikingIcon sx={{ fontSize: "18px", flexShrink: 0 }} />
           {t("details.wanderung")}
         </Typography>
 
         {/* Tourdauer */}
         <Typography
           sx={{
-            fontSize: "16px",
+            fontSize: "14px",
             color: "#555",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
+            lineHeight: 1.5,
           }}
         >
           {t("details.tourdauer")}:{" "}
           <strong>
-            {tourDurationHours !== undefined
-              ? formatDurationFromHours(tourDurationHours)
-              : formatDuration(activity.activity_duration_minutes)}
+            {isMultiDay && tour?.number_of_days
+              ? `${tour.number_of_days} ${t("details.tage")}`
+              : tourDurationHours !== undefined
+                ? formatDurationFromHours(tourDurationHours)
+                : formatDuration(activity.activity_duration_minutes)}
           </strong>
         </Typography>
 
-        <Divider sx={{ my: "8px" }} />
-
-        {/* Von HH:MM bis HH:MM */}
-        {arrivalAtActivity && departureFromActivity && (
-          <Typography
+        {/* Multi-day: Ankunft / Abfahrt details */}
+        {isMultiDay && arrivalAtActivity && departureFromActivity && (
+          <Box
             sx={{
-              fontSize: "15px",
-              color: "#555",
-              mb: "6px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+              mt: "4px",
             }}
           >
-            {t("details.von_bis_zeiten")
-              .replace("{0}", formatTime(arrivalAtActivity))
-              .replace("{1}", formatTime(departureFromActivity))}
-          </Typography>
+            <Typography
+              sx={{
+                fontSize: "15px",
+                color: "#555",
+              }}
+            >
+              {t("details.ankunft_am_um", "Ankunft am {0} um {1} {2}")
+                .replace("{0}", formatDate(arrivalAtActivity))
+                .replace("{1}", formatTime(arrivalAtActivity))
+                .replace("{2}", arrivalStopName)
+                .trim()}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: "15px",
+                color: "#555",
+              }}
+            >
+              {t("details.abfahrt_am_um", "Abfahrt am {0} um {1} {2}")
+                .replace("{0}", formatDate(departureFromActivity))
+                .replace("{1}", formatTime(departureFromActivity))
+                .replace("{2}", departureStopName)
+                .trim()}
+            </Typography>
+          </Box>
         )}
 
         {/* Conflict / warning / available time */}
@@ -1279,7 +1442,7 @@ export default function ConnectionResults({
                 {t("details.terminkonflikt")}
               </Typography>
             )}
-            {hasTimeWarning && (
+            {hasTimeWarning && !isMultiDay && (
               <Typography
                 sx={{
                   fontSize: "14px",
@@ -1295,23 +1458,14 @@ export default function ConnectionResults({
                   )}
               </Typography>
             )}
-            {!hasConflict && !hasTimeWarning && (
+            {!isMultiDay && !hasConflict && !hasTimeWarning && (
               <Typography
                 sx={{
-                  fontSize: "15px",
+                  fontSize: "14px",
                   color: "#555",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
+                  lineHeight: 1.5,
                 }}
               >
-                <HikingIcon
-                  sx={{
-                    fontSize: "20px",
-                    color: "var(--bzb-akelei)",
-                    flexShrink: 0,
-                  }}
-                />
                 {t("details.verfuegbare_gehzeit")}:{" "}
                 <strong>{formatDuration(diffMin)}</strong>
               </Typography>
@@ -1319,7 +1473,8 @@ export default function ConnectionResults({
           </>
         )}
 
-        {activity.activity_start_location_display_name &&
+        {!isMultiDay &&
+          activity.activity_start_location_display_name &&
           activity.activity_end_location_display_name && (
             <Typography sx={{ fontSize: "14px", color: "#555", mt: "4px" }}>
               {activity.activity_start_location_display_name} →{" "}
@@ -1328,22 +1483,71 @@ export default function ConnectionResults({
           )}
       </Box>
 
-      {/* ─── Rückreise Datum ─── */}
-      {connections.from_activity.length > 0 && (
-        <Box>
-          <Typography
+      {/* ─── Rückfahrt Accordion ─── */}
+      {connections.from_activity.length > 0 && selectedFrom && (
+        <Accordion
+          expanded={fromExpanded}
+          onChange={() => setFromExpanded((v) => !v)}
+          disableGutters
+          elevation={0}
+          slotProps={{ transition: { unmountOnExit: true } }}
+          sx={{
+            borderRadius: "10px",
+            overflow: "hidden",
+            "&::before": { display: "none" },
+            bgcolor: "#fff",
+          }}
+        >
+          <AccordionSummary
+            id="rueckreise-header"
+            aria-controls="rueckreise-content"
+            expandIcon={
+              <ExpandMoreIcon sx={{ color: "var(--bzb-bahnblau)" }} />
+            }
             sx={{
-              fontSize: "16px",
-              fontWeight: 700,
-              color: "var(--bzb-akelei)",
-              mb: "8px",
+              fontFamily: "inherit",
+              px: { xs: 1, sm: 1.25 },
+              minHeight: 56,
+              "& .MuiAccordionSummary-content": {
+                my: 1,
+                alignItems: "center",
+                gap: { xs: 1, sm: 1.5 },
+                minWidth: 0,
+              },
             }}
           >
-            {t("details.rueckreise")} {rueckfahrtDate}
-          </Typography>
-
-          {/* Rückreise Detail (toggle) — above the tabs */}
-          {fromExpanded && selectedFrom && (
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                sx={{
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "var(--bzb-akelei)",
+                  whiteSpace: "nowrap",
+                  mb: "2px",
+                }}
+              >
+                {t("details.rueckreise")}{" "}
+                {formatTime(selectedFrom.connection_start_timestamp)} -{" "}
+                {formatTime(selectedFrom.connection_end_timestamp)}
+              </Typography>
+              <ConnectionCompactSummary
+                connection={selectedFrom}
+                coordinateReplacements={coordinateReplacements}
+                lang={i18n.language}
+                t={t}
+              />
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails
+            id="rueckreise-content"
+            sx={{
+              px: { xs: 1, sm: 1.25 },
+              pt: 0,
+              pb: 1.25,
+              borderTop: "1px solid rgba(0,0,0,0.08)",
+            }}
+          >
+            {/* Rückreise Detail (timeline) — above the tabs */}
             <ConnectionTimeline
               elements={selectedFrom.connection_elements}
               coordinateReplacements={coordinateReplacements}
@@ -1351,26 +1555,26 @@ export default function ConnectionResults({
               t={t}
               onStopHover={onStopHover}
             />
-          )}
 
-          {/* Horizontale Rückreisenavigation */}
-          <Box sx={{ mt: "12px" }}>
-            <ConnectionTabs
-              connections={connections.from_activity}
-              selectedId={selectedFromId}
-              recommendedId={connections.recommended_from_activity_connection}
-              onSelect={handleFromSelect}
-              conflictThreshold={fromConflictThreshold}
-              conflictCheckStart={true}
-            />
-          </Box>
-        </Box>
+            {/* Horizontale Rückreisenavigation */}
+            <Box sx={{ mt: "12px" }}>
+              <ConnectionTabs
+                connections={connections.from_activity}
+                selectedId={selectedFromId}
+                recommendedId={connections.recommended_from_activity_connection}
+                onSelect={handleFromSelect}
+                conflictThreshold={fromConflictThreshold}
+                conflictCheckStart={true}
+              />
+            </Box>
+          </AccordionDetails>
+        </Accordion>
       )}
 
       {/* ─── Action Buttons ─── */}
       <Box
         sx={{
-          mt: "20px",
+          mt: "16px",
           display: "flex",
           gap: "10px",
           flexWrap: "wrap",

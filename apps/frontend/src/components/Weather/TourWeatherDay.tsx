@@ -207,12 +207,8 @@ export default function TourWeatherDay({
             </span>
           </Box>
         )}
-        {hours.length > 0 ? (
+        {hours.length > 0 && (
           <TourWeatherTable day={day} hours={hours} maxEle={maxEle} />
-        ) : (
-          <Box sx={{ fontSize: 14, color: MUTED, py: 0.75 }}>
-            {t("weather.detail.no_hours")}
-          </Box>
         )}
       </AccordionDetails>
     </Accordion>

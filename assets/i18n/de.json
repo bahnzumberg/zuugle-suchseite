@@ -341,6 +341,7 @@
     "startort_placeholder": "Adresse oder Haltestelle eingeben",
     "zielort": "Zielort",
     "aktivitaetsdatum": "Aktivitätsdatum",
+    "datum": "Datum",
     "bedarfsverkehr": "Bedarfsverkehr",
     "heute": "Heute",
     "morgen": "Morgen",
@@ -371,10 +372,15 @@
     "ticket_rueckfahrt": "Tickets für Rückreise",
     "ticket_oebb_fallback": "Tickets bei ÖBB",
     "von_bis_zeiten": "Von {0} bis {1}",
+    "ankunft_am_um": "Ankunft am {0} um {1} {2}",
+    "abfahrt_am_um": "Abfahrt am {0} um {1} {2}",
     "verfuegbar": "verfügbar",
     "startort_aus_liste_waehlen": "Bitte einen Vorschlag aus der Liste auswählen",
     "kontingent_erschoepft": "Kontingent der Fahrplanabfrage erschöpft.",
-    "verbindungssuche_fehlgeschlagen": "Verbindungssuche fehlgeschlagen. Bitte erneut versuchen."
+    "verbindungssuche_fehlgeschlagen": "Verbindungssuche fehlgeschlagen. Bitte erneut versuchen.",
+    "fahrplan_titel": "Wie komme ich hin und wieder zurück?",
+    "umstieg_label": "Umstieg",
+    "umstiege_label": "Umstiege"
   },
   "search": {
     "go": "Los!",
@@ -440,7 +446,6 @@
       "daylight_label": "Tageslicht",
       "empty_help": "Leere Felder: Für diese Stunde liegt keine Vorhersage vor.",
       "hour": "Uhr",
-      "no_hours": "Stündliche Vorhersage für diesen Tag nicht verfügbar.",
       "outside_window": "Für dein Aktivitätsdatum gibt es noch keine Vorhersage – sie reicht 4 Tage voraus.",
       "sunrise": "Sonnenaufgang",
       "sunset": "Sonnenuntergang",

@@ -343,6 +343,7 @@
     "startort_placeholder": "Vnesite naslov ali postajo",
     "zielort": "Cilj",
     "aktivitaetsdatum": "Datum aktivnosti",
+    "datum": "Datum",
     "bedarfsverkehr": "Prevoz na klic",
     "heute": "Danes",
     "morgen": "Jutri",
@@ -373,10 +374,15 @@
     "ticket_rueckfahrt": "Vozovnice za povratek",
     "ticket_oebb_fallback": "Vozovnice ÖBB",
     "von_bis_zeiten": "Od {0} do {1}",
+    "ankunft_am_um": "Prihod {0} ob {1} {2}",
+    "abfahrt_am_um": "Odhod {0} ob {1} {2}",
     "verfuegbar": "na voljo",
     "startort_aus_liste_waehlen": "Izberite predlog s seznama",
     "kontingent_erschoepft": "Kvota poizvedb urnikov je presežena.",
-    "verbindungssuche_fehlgeschlagen": "Iskanje povezave ni uspelo. Poskusite znova."
+    "verbindungssuche_fehlgeschlagen": "Iskanje povezave ni uspelo. Poskusite znova.",
+    "fahrplan_titel": "Pot tja & nazaj",
+    "umstieg_label": "prestop",
+    "umstiege_label": "prestopi"
   },
   "search": {
     "go": "Naprej!",

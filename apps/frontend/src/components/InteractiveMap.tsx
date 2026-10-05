@@ -26,6 +26,8 @@ export interface InteractiveMapProps {
   abreiseGpxPositions?: L.LatLngExpression[];
   scrollWheelZoom?: boolean;
   hoveredStop?: { lat: number; lon: number } | null;
+  selectedWeatherDate?: string | null;
+  onSelectWeatherDate?: (date: string) => void;
 }
 
 export default function InteractiveMap({
@@ -34,6 +36,8 @@ export default function InteractiveMap({
   abreiseGpxPositions = [],
   scrollWheelZoom = false,
   hoveredStop,
+  selectedWeatherDate: externalWeatherDate,
+  onSelectWeatherDate,
 }: InteractiveMapProps) {
   const [map, setMap] = useState<L.Map | null>(null);
   const [poly, setPoly] = useState<L.Polyline | null>(null);
@@ -41,9 +45,23 @@ export default function InteractiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --- Weather overlay state ---
-  const { weatherMetadata, selectedWeatherDate, setSelectedWeatherDate } =
-    useWeatherOverlay();
+  const {
+    weatherMetadata,
+    selectedWeatherDate: hookWeatherDate,
+    setSelectedWeatherDate: setHookWeatherDate,
+  } = useWeatherOverlay();
   const [isWeatherActive, setIsWeatherActive] = useState(false);
+
+  // Controlled date from prop, fallback to hook state
+  const effectiveWeatherDate = externalWeatherDate ?? hookWeatherDate;
+
+  const handleSelectDate = useCallback(
+    (date: string) => {
+      setHookWeatherDate(date);
+      onSelectWeatherDate?.(date);
+    },
+    [onSelectWeatherDate, setHookWeatherDate],
+  );
 
   const startIcon = L.icon({
     iconUrl: assetUrl("/img/startpunkt.svg"),
@@ -86,7 +104,7 @@ export default function InteractiveMap({
   }, [map]);
 
   const activeDay = weatherMetadata?.days?.find(
-    (d) => d.date === selectedWeatherDate,
+    (d) => d.date === effectiveWeatherDate,
   );
   const activeOverlayUrl = activeDay
     ? assetUrl(`weather/${activeDay.file}`)
@@ -249,9 +267,9 @@ export default function InteractiveMap({
         <WeatherButtonAndDays
           metadata={weatherMetadata}
           isActive={isWeatherActive}
-          selectedDate={selectedWeatherDate}
+          selectedDate={effectiveWeatherDate}
           onToggleActive={toggleWeather}
-          onSelectDate={setSelectedWeatherDate}
+          onSelectDate={handleSelectDate}
         />
         <WeatherLegend metadata={weatherMetadata} isActive={isWeatherActive} />
         {hoveredStop && (

@@ -73,7 +73,6 @@ export default function SearchResults() {
               top: 0,
               zIndex: 100,
               backgroundColor: "#fff",
-              borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
             }}
           >
             <Box className={"search-result-header-container"}>
