@@ -6,6 +6,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
 import { darken } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router";
 import { useFavorites } from "../../hooks/useFavorites";
 import { useAppDispatch } from "../../hooks";
 import { syncDialogOpened } from "../../features/favoritesSlice";
@@ -26,6 +27,8 @@ const INACTIVE_SX = {
 export default function FavoritesToggle() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { favoritesOnly, toggleFavoritesOnly } = useFavorites();
 
   const label = favoritesOnly ? t("favorites.showing") : t("favorites.show");
@@ -45,12 +48,40 @@ export default function FavoritesToggle() {
       }
     : INACTIVE_SX;
 
+  const handleToggle = () => {
+    toggleFavoritesOnly();
+    // The favorites page is always /search. Navigate there when
+    // entering favorites mode, and stay on /search when leaving.
+    if (location.pathname !== "/search") {
+      navigate("/search");
+    }
+  };
+
   return (
     <Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+      {/* Sync button: only visible in favorites mode, positioned left of the
+          toggle pill so the labelled "Zurück" button stays at the far right. */}
+      {favoritesOnly && (
+        <Tooltip title={t("favorites.sync.title")}>
+          <IconButton
+            onClick={() => dispatch(syncDialogOpened(null))}
+            aria-label={t("favorites.sync.title")}
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: "var(--bzb-bahnblau)",
+              color: "#fff",
+              "&:hover": { bgcolor: "#1a3a5c" },
+            }}
+          >
+            <CloudSyncRoundedIcon />
+          </IconButton>
+        </Tooltip>
+      )}
       <SearchBarButton
         icon={icon}
         label={label}
-        onClick={toggleFavoritesOnly}
+        onClick={handleToggle}
         ariaPressed={favoritesOnly}
         sx={{
           borderRadius: "50px",
@@ -61,18 +92,6 @@ export default function FavoritesToggle() {
           ...stateSx,
         }}
       />
-      {/* Icon-only at every width: the search bar has no room for a second
-          labelled pill on mobile, and the label would wrap the row. 40px to
-          match the pill beside it. */}
-      <Tooltip title={t("favorites.sync.title")}>
-        <IconButton
-          onClick={() => dispatch(syncDialogOpened(null))}
-          aria-label={t("favorites.sync.title")}
-          sx={{ width: 40, height: 40, ...INACTIVE_SX }}
-        >
-          <CloudSyncRoundedIcon />
-        </IconButton>
-      </Tooltip>
     </Box>
   );
 }

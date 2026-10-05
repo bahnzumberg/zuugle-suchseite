@@ -10,7 +10,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -1126,13 +1125,6 @@ export default function ConnectionResults({
 
   // Buttons disabled when conflict or no selection
   const actionsDisabled = hasConflict || !selectedTo || !selectedFrom;
-
-  const hinfahrtDate = selectedTo
-    ? formatDate(selectedTo.connection_start_timestamp)
-    : "";
-  const rueckfahrtDate = selectedFrom
-    ? formatDate(selectedFrom.connection_start_timestamp)
-    : "";
 
   // ── Share handler
   const handleShare = async () => {

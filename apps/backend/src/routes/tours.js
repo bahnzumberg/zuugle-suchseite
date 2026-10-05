@@ -759,9 +759,10 @@ const tourWeatherWrapper = async (req, res) => {
         const days = hasForecast
             ? dayRows
                   .map((day) => ({ ...day, hours: hoursByDate.get(day.date) ?? [] }))
-                  .filter((day) =>
-                      day.hours.filter((h) => h.hour >= HOUR_MIN && h.hour <= HOUR_MAX).length
-                          >= MIN_HOURS_IN_WINDOW,
+                  .filter(
+                      (day) =>
+                          day.hours.filter((h) => h.hour >= HOUR_MIN && h.hour <= HOUR_MAX)
+                              .length >= MIN_HOURS_IN_WINDOW,
                   )
             : [];
 

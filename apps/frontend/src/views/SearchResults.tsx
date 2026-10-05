@@ -37,6 +37,7 @@ export default function SearchResults() {
     isTotalsLoading,
     showMap,
     favoritesEmptyVariant,
+    favoritesOnly,
   } = useSearchTours();
 
   // Open legal dialog from ?legal=imprint|privacy query param (used by redirects)
@@ -75,7 +76,14 @@ export default function SearchResults() {
               backgroundColor: "#fff",
             }}
           >
-            <Box className={"search-result-header-container"}>
+            <Box
+              className={"search-result-header-container"}
+              sx={
+                favoritesOnly
+                  ? { backgroundColor: "var(--bzb-akelei)" }
+                  : undefined
+              }
+            >
               {!!directLink && (
                 <Box className={"seo-bar"}>
                   <Typography
