@@ -17,17 +17,18 @@ import svgr from "vite-plugin-svgr";
 import { defineConfig } from "vite-plus";
 
 /**
- * The embed always talks to www.zuugle.at (production).
- * For dev/UAT testing, override with VITE_API_URL.
+ * The embed talks to dev.zuugle.at for testing.
+ * For production, override with VITE_API_URL=https://www.zuugle.at/api.
  */
-const API_URL = process.env.VITE_API_URL?.trim() || "https://www.zuugle.at/api";
+const API_URL =
+  process.env.VITE_API_URL?.trim() || "https://dev.zuugle.at/api";
 
 /**
- * Asset base for the embed — always absolute to the Zuugle CDN so fonts,
- * images, and icons load regardless of the host page's origin.
+ * Asset base for the embed — on dev this is the dev server's /public path;
+ * for production, set VITE_ASSET_BASE_URL=https://cdn.zuugle.at.
  */
 const ASSET_BASE = (
-  process.env.VITE_ASSET_BASE_URL?.trim() || "https://cdn.zuugle.at"
+  process.env.VITE_ASSET_BASE_URL?.trim() || "https://dev.zuugle.at/public"
 ).replace(/\/+$/, "");
 
 const ASSET_BASE_TOKEN = "__ASSET_BASE__";
