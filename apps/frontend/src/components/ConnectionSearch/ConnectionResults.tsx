@@ -906,7 +906,7 @@ function ConnectionCompactSummary({
           whiteSpace: "nowrap",
         }}
       >
-        {fromName} - {toName}
+        {fromName} → {toName}
       </Typography>
     </Box>
   );

@@ -182,8 +182,8 @@ export default function TourCard({
             sx={{
               mt: "auto",
               display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "8px",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: "10px",
             }}
           >
             <Typography
@@ -192,6 +192,7 @@ export default function TourCard({
                 borderRight: "1px solid #DDDDDD",
                 display: "block",
                 fontSize: "13px",
+                textAlign: "center",
               }}
             >
               {len_too_long && anreisedauer_notlong ? (
@@ -213,6 +214,7 @@ export default function TourCard({
                 borderRight: "1px solid #DDDDDD",
                 display: "block",
                 fontSize: "13px",
+                textAlign: "center",
               }}
             >
               {len_too_long && umstiege_notlong ? (
@@ -231,7 +233,11 @@ export default function TourCard({
 
             <Typography
               variant="blackP"
-              style={{ borderRight: "1px solid #DDDDDD", fontSize: "13px" }}
+              style={{
+                borderRight: "1px solid #DDDDDD",
+                fontSize: "13px",
+                textAlign: "center",
+              }}
             >
               {len_too_long && dauer_notlong ? (
                 <>
@@ -252,7 +258,10 @@ export default function TourCard({
               </span>
             </Typography>
 
-            <Typography variant="blackP" style={{ fontSize: "13px" }}>
+            <Typography
+              variant="blackP"
+              style={{ fontSize: "13px", textAlign: "center" }}
+            >
               {len_too_long && anstieg_notlong ? (
                 <>
                   {t("filter.anstieg")}

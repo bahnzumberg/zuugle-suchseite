@@ -150,7 +150,7 @@ export async function fixTours() {
                     f.tour_provider AS provider,
                     f.hashed_url,
                     f.city_slug,
-                    EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60 AS min_connection_dur
+                    COALESCE(EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60,0) AS min_connection_dur
                     FROM fahrplan AS f
                     WHERE f.city_any_connection='yes'
                     GROUP BY f.tour_provider, f.hashed_url, f.city_slug
@@ -192,9 +192,12 @@ export async function fixTours() {
                     SELECT 
                     f.hashed_url,
                     f.city_slug,
-                    ROUND(AVG(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600 +
-                    EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600 +
-                    t.duration)*100)/100 AS avg_total_tour_duration
+                    ROUND(
+                    AVG(
+                    COALESCE(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600,0) +
+                    COALESCE(EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600,0) +
+                    COALESCE(t.duration,0)
+                    )*100)/100 AS avg_total_tour_duration
                     FROM fahrplan AS f
                     INNER JOIN tour AS t
                     ON f.hashed_url=t.hashed_url
@@ -627,7 +630,7 @@ export async function populateCity2TourFlat() {
             t.ascent, 
             t.descent, 
             t.difficulty, 
-            t.duration, 
+            COALESCE(t.duration, 0) as duration, 
             t.distance, 
             t.number_of_days, 
             t.traverse, 

@@ -8,7 +8,6 @@ import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
-import { ConnectionResult } from "../models/Connections";
 import { API_BASE_URL } from "../utils/apiBase";
 import { apiImageUrl, assetUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
@@ -150,16 +149,6 @@ export interface FilterResponse {
 export interface FilterWithProviders {
   filter: FilterObject;
   providers: Provider[];
-}
-
-export interface ConnectionParams {
-  id: string;
-  city: string;
-}
-
-export interface ConnectionResponse {
-  success: boolean;
-  result: ConnectionResult[];
 }
 
 export interface LicensePublisher {
@@ -407,14 +396,6 @@ export const api = createApi({
         allow_gpx_download: string;
       }) => response.allow_gpx_download === "y",
     }),
-    getConnectionsExtended: build.query<ConnectionResult[], ConnectionParams>({
-      query: (params) => {
-        return `tours/${params.id}/connections-extended?city=${params.city}&domain=${domain}`;
-      },
-      transformResponse: (response: ConnectionResponse) => {
-        return response.result;
-      },
-    }),
     getCities2Tour: build.query<Cities2TourCity[], string>({
       query: (id) => {
         return `cities2tour?domain=${domain}&id=${id}`;
@@ -533,9 +514,6 @@ export const {
   useLazyGetGPXQuery,
   useGetProviderGpxOkQuery,
   useLazyGetProviderGpxOkQuery,
-  useGetConnectionsExtendedQuery,
-  useLazyGetConnectionsExtendedQuery,
-
   useGetCities2TourQuery,
   useGetLicensesQuery,
 

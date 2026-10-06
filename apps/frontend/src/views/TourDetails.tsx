@@ -789,7 +789,6 @@ export default function DetailReworked() {
                     order: { xs: 2, md: 2 },
                     display: "flex",
                     flexDirection: "column",
-                    pt: { md: "20px" },
                     gap: "12px",
                     position: { md: "sticky" },
                     top: { md: "72px" },
