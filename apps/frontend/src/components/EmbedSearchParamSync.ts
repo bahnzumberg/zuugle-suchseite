@@ -14,7 +14,7 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../hooks";
-import { cityUpdated, citySlugUpdated } from "../features/searchSlice";
+import { cityUpdated } from "../features/searchSlice";
 import { useGetCitiesQuery } from "../features/apiSlice";
 import { filterUpdated } from "../features/filterSlice";
 import { useEmbed } from "../utils/embedContext";

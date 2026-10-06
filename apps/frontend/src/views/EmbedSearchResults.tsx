@@ -9,15 +9,19 @@
  * The provider filter is locked via EmbedContext — see EmbedSearchParamSync.
  */
 
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
 import Search from "../components/Search/Search";
 import MapBtn from "../components/Search/MapBtn";
 import TourCardContainer from "../components/TourCardContainer";
 import Filter from "../components/Filter/Filter";
 import TotalToursHeader from "../components/TotalToursHeader";
 import EmbedSearchParamSync from "../components/EmbedSearchParamSync";
+import FavoritesToggle from "../components/Favorites/FavoritesToggle";
+import FavoritesEmptyState from "../components/Favorites/FavoritesEmptyState";
 import { useSearchTours } from "../hooks/useSearchTours";
 
 const TourMapContainer = lazy(
@@ -33,12 +37,12 @@ export default function EmbedSearchResults() {
     fetchMore,
     filterOn,
     setFilterOn,
-    allCities,
     showMap,
+    favoritesEmptyVariant,
   } = useSearchTours();
 
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <EmbedSearchParamSync />
       <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
 
@@ -52,34 +56,57 @@ export default function EmbedSearchResults() {
           borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
         }}
       >
-        <Box className={"search-result-header-container"}>
-          {/* No DomainMenu, no FavoritesToggle — just the BzB logo slot */}
+        <Box
+          sx={{
+            pt: 0,
+            pb: { xs: 1, sm: 1.5 },
+            px: { xs: 1, sm: 2 },
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* Spacer to keep Search centered on desktop while Favorites is on the right */}
           <Box
-            component={"div"}
-            className="rowing"
             sx={{
-              justifyContent: "center",
-              minHeight: 46,
+              flex: 1,
+              display: { xs: "none", md: "block" },
+              minWidth: 0,
             }}
           />
-        </Box>
-        {!!allCities && allCities.length > 0 && (
+
           <Box
             sx={{
-              mt: "-50px",
+              flex: { xs: "1 1 auto", md: "0 0 650px" },
+              width: { xs: "100%", md: "650px" },
+              maxWidth: "650px",
+              minWidth: 0,
               display: "flex",
               justifyContent: "center",
-              position: "relative",
             }}
           >
             <Search setFilterOn={setFilterOn} />
           </Box>
-        )}
+
+          <Box
+            sx={{
+              flex: { xs: "0 0 auto", md: 1 },
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              ml: { xs: 1, sm: 1.5 },
+              minWidth: 0,
+            }}
+          >
+            <FavoritesToggle />
+          </Box>
+        </Box>
         <TotalToursHeader loadedTours={loadedTours} setFilterOn={setFilterOn} />
       </Box>
 
       {showMap && (
-        <Box>
+        <Box sx={{ width: "100%" }}>
           <Suspense
             fallback={
               <Skeleton variant="rectangular" width="100%" height="100%" />
@@ -93,10 +120,43 @@ export default function EmbedSearchResults() {
           </Suspense>
         </Box>
       )}
+      {isToursLoading && tours.length === 0 && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            py: 8,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+      {favoritesEmptyVariant && tours.length === 0 && (
+        <FavoritesEmptyState variant={favoritesEmptyVariant} />
+      )}
+      {!isToursLoading &&
+        loadedTours &&
+        !favoritesEmptyVariant &&
+        tours.length === 0 && (
+          <Box
+            sx={{
+              textAlign: "center",
+              py: 8,
+              color: "text.secondary",
+            }}
+          >
+            <Typography variant="body1">Keine Touren gefunden.</Typography>
+          </Box>
+        )}
       {!!tours && tours.length > 0 && (
         <Box
           className="cards-container"
-          sx={{ marginTop: { xs: 0, md: 0, lg: "14px" } }}
+          sx={{
+            marginTop: { xs: 0, md: 0, lg: "14px" },
+            width: "100%",
+            maxWidth: "100%",
+          }}
         >
           <TourCardContainer
             tours={tours}
