@@ -2255,9 +2255,9 @@ const tourGpxWrapper = async (req, res) => {
 };
 
 /**
- * Fetches the start and end stop coordinates of a tour from the tracks tables.
- * Start = first point of the "totour" track (where the journey to the trail begins).
- * End   = last point of the "fromtour" track (where passengers alight after the trail).
+ * Fetches the start and end stop coordinates of a tour from the gpx table.
+ * Start = gpx row with typ='first' (hike start point).
+ * End   = gpx row with typ='last'  (hike end point).
  * When a city slug is provided the query is scoped to that city's connection;
  * otherwise any available fahrplan row is used (LIMIT 1 ensures a single result).
  * Results are cached in Valkey for 24 hours.
@@ -2280,26 +2280,35 @@ const getTourStopsCoordinates = async (tourId, city) => {
         const result = await knex.raw(
             `SELECT
                 tour.id AS tour_id,
-                tt.track_point_lon AS start_stop_lon,
-                tt.track_point_lat AS start_stop_lat,
-                ft.track_point_lon AS end_stop_lon,
-                ft.track_point_lat AS end_stop_lat
+                COALESCE(tt.track_point_lon, g1.lon) AS start_stop_lon,
+                COALESCE(tt.track_point_lat, g1.lat) AS start_stop_lat,
+                COALESCE(ft.track_point_lon, g2.lon) AS end_stop_lon,
+                COALESCE(ft.track_point_lat, g2.lat) AS end_stop_lat
             FROM tour
             INNER JOIN fahrplan AS f
                 ON tour.hashed_url = f.hashed_url
-            INNER JOIN tracks AS tt
+
+            INNER JOIN gpx AS g1
+                ON g1.hashed_url = tour.hashed_url
+               AND g1.typ = 'first'
+            LEFT OUTER JOIN tracks AS tt
                 ON tt.track_key = f.totour_track_key
                AND tt.track_point_sequence = 1
-            CROSS JOIN LATERAL (
+
+            INNER JOIN gpx AS g2
+                ON g2.hashed_url = tour.hashed_url
+               AND g2.typ = 'last'
+            LEFT OUTER JOIN LATERAL (
                 SELECT track_point_lon, track_point_lat
                 FROM tracks
                 WHERE track_key = f.fromtour_track_key
                 ORDER BY track_point_sequence DESC
                 LIMIT 1
-            ) AS ft
+            ) AS ft ON true
+
             WHERE tour.id = ?
             ${cityClause}
-            GROUP BY tour.id, tt.track_point_lon, tt.track_point_lat, ft.track_point_lon, ft.track_point_lat
+            GROUP BY tour.id, tt.track_point_lon, tt.track_point_lat, ft.track_point_lon, ft.track_point_lat, g1.lon, g1.lat, g2.lon, g2.lat
             LIMIT 1`,
             bindings,
         );
