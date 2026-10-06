@@ -1367,7 +1367,7 @@ const getMatchingTourIds = async (req) => {
                             TRUNC(t.min_connection_duration / 30, 0) ASC, 
                             t.traverse DESC, 
                             t.quality_rating DESC,
-                            FLOOR(t.duration) ASC,
+                            FLOOR(COALESCE(t.duration, 0)) ASC,
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
         const tour_ids = await knex.raw(tour_ids_sql);
         tourIds = tour_ids.rows.map((row) => row.id);
@@ -2086,9 +2086,7 @@ const connectionsExtendedWrapper = async (req, res) => {
                           f.totour_track_duration,
                           f.fromtour_track_duration,
                           f.connection_description_json,
-                          f.return_description_json,
-                          f.totour_track_key,
-                          f.fromtour_track_key
+                          f.return_description_json
                           FROM tour as t
                           INNER JOIN fahrplan as f
                           ON f.hashed_url=t.hashed_url

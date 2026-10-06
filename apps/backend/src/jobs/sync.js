@@ -196,7 +196,7 @@ export async function fixTours() {
                     AVG(
                     COALESCE(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600,0) +
                     COALESCE(EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600,0) +
-                    t.duration
+                    COALESCE(t.duration,0)
                     )*100)/100 AS avg_total_tour_duration
                     FROM fahrplan AS f
                     INNER JOIN tour AS t
@@ -630,7 +630,7 @@ export async function populateCity2TourFlat() {
             t.ascent, 
             t.descent, 
             t.difficulty, 
-            t.duration, 
+            COALESCE(t.duration, 0) as duration, 
             t.distance, 
             t.number_of_days, 
             t.traverse, 
