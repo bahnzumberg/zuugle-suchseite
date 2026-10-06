@@ -41,6 +41,7 @@ server {
     location /public/ {
         auth_basic off;
         alias /root/suchseite/dev-api/public/;
+        add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
     }
 
     location / {
