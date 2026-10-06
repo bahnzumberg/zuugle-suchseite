@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import { useEmbed } from "../../utils/embedContext";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -49,6 +50,7 @@ export interface FilterProps {
 }
 
 export default function Filter({ showFilter, setShowFilter }: FilterProps) {
+  const { isEmbed } = useEmbed();
   const dispatch = useAppDispatch();
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
@@ -449,19 +451,21 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   updateTempArray("countries", value, checked)
                 }
               />
-              <CheckboxFilterSection
-                title={t("filter.provider")}
-                options={(fetchedFilter?.providers ?? []).map((v) => ({
-                  value: v,
-                  label:
-                    fetchedProviders?.find((p) => p.provider === v)
-                      ?.provider_name ?? "",
-                }))}
-                isChecked={(value) => displayAsSelected("providers", value)}
-                onChange={({ value, checked }) =>
-                  updateTempArray("providers", value, checked)
-                }
-              />
+              {!isEmbed && (
+                <CheckboxFilterSection
+                  title={t("filter.provider")}
+                  options={(fetchedFilter?.providers ?? []).map((v) => ({
+                    value: v,
+                    label:
+                      fetchedProviders?.find((p) => p.provider === v)
+                        ?.provider_name ?? "",
+                  }))}
+                  isChecked={(value) => displayAsSelected("providers", value)}
+                  onChange={({ value, checked }) =>
+                    updateTempArray("providers", value, checked)
+                  }
+                />
+              )}
               <GeolocationSearchFilter
                 tempGeolocation={tempGeolocation}
                 updateGeolocation={updateGeolocation}
