@@ -88,5 +88,9 @@ export default defineConfig({
     // Override the API base URL for the embed — it must be absolute since
     // the widget runs on a different origin than zuugle.at.
     "import.meta.env.VITE_API_URL": JSON.stringify(API_URL),
+    // Tell the API which Zuugle domain this embed represents — without this,
+    // the widget would send `domain=www.bahn-zum-berg.at` (the host page)
+    // and the backend wouldn't find any data.
+    __ZUUGLE_DOMAIN__: JSON.stringify(new URL(API_URL).hostname),
   },
 });
