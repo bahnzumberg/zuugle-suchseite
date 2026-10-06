@@ -15,6 +15,7 @@ import { replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/utils";
 import { convertDifficulty } from "../utils/utils";
 import logger from "../utils/logger";
+import { weatherLimiter } from "../middlewares/rateLimit";
 
 import fs from "fs";
 import path from "path";
@@ -492,8 +493,10 @@ router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
  *         description: Invalid tour ID.
  *       404:
  *         description: Tour not found.
+ *       429:
+ *         description: Too many requests. Rate limit exceeded.
  */
-router.get("/:id/weather", (req, res) => tourWeatherWrapper(req, res));
+router.get("/:id/weather", weatherLimiter, (req, res) => tourWeatherWrapper(req, res));
 
 /**
  * @swagger
