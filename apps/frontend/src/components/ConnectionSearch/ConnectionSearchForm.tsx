@@ -453,214 +453,195 @@ export default function ConnectionSearchForm({
           {/* Section: Datum + Verbindung suchen */}
           {!isMultiDay ? (
             <>
-              {/* Row 1: Startort + Datum + Button aligned */}
+              {/* Row 1: Startort */}
+              <Typography sx={sectionLabelSx}>
+                {t("details.startort")}
+              </Typography>
+              <Autocomplete
+                fullWidth
+                freeSolo
+                options={options}
+                getOptionLabel={(option) =>
+                  typeof option === "string" ? option : option.displayName
+                }
+                inputValue={inputValue}
+                onInputChange={(_e, value, reason) => {
+                  setInputValue(value);
+                  if (reason === "input") {
+                    searchAutocomplete(value);
+                  }
+                  if (reason === "clear") {
+                    clearDepartureLocation();
+                    clearOptions();
+                  }
+                }}
+                onChange={(_e, value) => {
+                  if (value && typeof value !== "string") {
+                    const loc: DepartureLocation = {
+                      displayName: value.displayName,
+                      locationType: value.locationType,
+                      citySlug: value.citySlug,
+                      cityName: value.cityName,
+                    };
+                    setDepartureLocation(loc, value.lat, value.lon);
+                    setInputValue(value.displayName);
+                  } else if (!value) {
+                    clearDepartureLocation();
+                  }
+                }}
+                loading={autocompleteLoading}
+                renderOption={(props, option) => (
+                  <li
+                    {...props}
+                    key={`${option.lat}-${option.lon}-${option.displayName}`}
+                  >
+                    {option.locationType === "station" ? (
+                      <DirectionsTransitIcon
+                        sx={{
+                          color: "var(--bzb-bahnblau)",
+                          mr: 1,
+                          fontSize: "18px",
+                        }}
+                      />
+                    ) : (
+                      <LocationOnIcon
+                        sx={{
+                          color: "var(--bzb-akelei)",
+                          mr: 1,
+                          fontSize: "18px",
+                        }}
+                      />
+                    )}
+                    <Typography sx={{ fontSize: "14px" }}>
+                      {option.displayName}
+                    </Typography>
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder={t("details.startort_placeholder")}
+                    size="small"
+                    slotProps={{
+                      ...params.slotProps,
+                      input: {
+                        ...params.slotProps?.input,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocationOnIcon
+                              sx={{
+                                color: "var(--bzb-akelei)",
+                                ...(!departureLocation && {
+                                  "@keyframes bounce": {
+                                    "0%, 100%": {
+                                      transform: "translateY(0)",
+                                    },
+                                    "30%": {
+                                      transform: "translateY(-4px)",
+                                    },
+                                    "50%": {
+                                      transform: "translateY(0)",
+                                    },
+                                    "70%": {
+                                      transform: "translateY(-2px)",
+                                    },
+                                  },
+                                  animation: "bounce 1.5s ease infinite",
+                                }),
+                              }}
+                            />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <>
+                            {autocompleteLoading ? (
+                              <CircularProgress size={18} />
+                            ) : null}
+                            {params.slotProps?.input?.endAdornment}
+                          </>
+                        ),
+                      },
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                      },
+                    }}
+                  />
+                )}
+              />
+
+              {/* Row 2: Datum (links) + Verbindung suchen (rechts) */}
               <Box
                 sx={{
                   display: "flex",
-                  gap: "10px",
                   alignItems: "flex-end",
-                  flexWrap: "wrap",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                  mt: "8px",
                 }}
               >
-                {/* Startort — takes remaining space */}
-                <Box
-                  sx={{
-                    flex: { xs: "1 1 100%", sm: "1 1 0" },
-                    minWidth: "140px",
-                  }}
-                >
+                <Box>
                   <Typography sx={sectionLabelSx}>
-                    {t("details.startort")}
+                    {t("details.datum")}
                   </Typography>
-                  <Autocomplete
-                    fullWidth
-                    freeSolo
-                    options={options}
-                    getOptionLabel={(option) =>
-                      typeof option === "string" ? option : option.displayName
-                    }
-                    inputValue={inputValue}
-                    onInputChange={(_e, value, reason) => {
-                      setInputValue(value);
-                      if (reason === "input") {
-                        searchAutocomplete(value);
-                      }
-                      if (reason === "clear") {
-                        clearDepartureLocation();
-                        clearOptions();
-                      }
+                  <DatePicker
+                    value={selectedDate}
+                    onChange={(date) => {
+                      if (date) setSelectedDate(date);
                     }}
-                    onChange={(_e, value) => {
-                      if (value && typeof value !== "string") {
-                        const loc: DepartureLocation = {
-                          displayName: value.displayName,
-                          locationType: value.locationType,
-                          citySlug: value.citySlug,
-                          cityName: value.cityName,
-                        };
-                        setDepartureLocation(loc, value.lat, value.lon);
-                        setInputValue(value.displayName);
-                      } else if (!value) {
-                        clearDepartureLocation();
-                      }
-                    }}
-                    loading={autocompleteLoading}
-                    renderOption={(props, option) => (
-                      <li
-                        {...props}
-                        key={`${option.lat}-${option.lon}-${option.displayName}`}
-                      >
-                        {option.locationType === "station" ? (
-                          <DirectionsTransitIcon
-                            sx={{
-                              color: "var(--bzb-bahnblau)",
-                              mr: 1,
-                              fontSize: "18px",
-                            }}
-                          />
-                        ) : (
-                          <LocationOnIcon
-                            sx={{
-                              color: "var(--bzb-akelei)",
-                              mr: 1,
-                              fontSize: "18px",
-                            }}
-                          />
-                        )}
-                        <Typography sx={{ fontSize: "14px" }}>
-                          {option.displayName}
-                        </Typography>
-                      </li>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder={t("details.startort_placeholder")}
-                        size="small"
-                        slotProps={{
-                          ...params.slotProps,
-                          input: {
-                            ...params.slotProps?.input,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <LocationOnIcon
-                                  sx={{
-                                    color: "var(--bzb-akelei)",
-                                    ...(!departureLocation && {
-                                      "@keyframes bounce": {
-                                        "0%, 100%": {
-                                          transform: "translateY(0)",
-                                        },
-                                        "30%": {
-                                          transform: "translateY(-4px)",
-                                        },
-                                        "50%": {
-                                          transform: "translateY(0)",
-                                        },
-                                        "70%": {
-                                          transform: "translateY(-2px)",
-                                        },
-                                      },
-                                      animation: "bounce 1.5s ease infinite",
-                                    }),
-                                  }}
-                                />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                              <>
-                                {autocompleteLoading ? (
-                                  <CircularProgress size={18} />
-                                ) : null}
-                                {params.slotProps?.input?.endAdornment}
-                              </>
-                            ),
-                          },
-                        }}
-                        sx={{
+                    minDate={today}
+                    format="DD.MM.YYYY"
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: {
+                          width: "150px",
                           "& .MuiOutlinedInput-root": {
                             borderRadius: "12px",
                           },
-                        }}
-                      />
-                    )}
+                        },
+                      },
+                    }}
                   />
                 </Box>
-
-                {/* Datum + Button — always on the same line */}
-                <Box
+                <Button
+                  variant="contained"
+                  aria-label={t("details.verbindung_suchen")}
+                  disabled={!canSearch || isSearching}
+                  onClick={(e) => {
+                    handleSearch();
+                    (e.currentTarget as HTMLButtonElement).blur();
+                  }}
                   sx={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    gap: "10px",
-                    flex: "0 0 auto",
-                    ml: "auto",
+                    bgcolor: isSearching
+                      ? "var(--bzb-bahnblau)"
+                      : "var(--bzb-akelei)",
+                    color: "#fff",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    px: "16px",
+                    whiteSpace: "nowrap",
+                    "&:hover": {
+                      bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
+                    },
+                    "&:focus, &:focus-visible": {
+                      bgcolor: "var(--bzb-akelei)",
+                    },
+                    "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
                   }}
                 >
-                  <Box>
-                    <Typography sx={sectionLabelSx}>
-                      {t("details.datum")}
-                    </Typography>
-                    <DatePicker
-                      value={selectedDate}
-                      onChange={(date) => {
-                        if (date) setSelectedDate(date);
-                      }}
-                      minDate={today}
-                      format="DD.MM.YYYY"
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          sx: {
-                            width: "150px",
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: "12px",
-                            },
-                          },
-                        },
-                      }}
+                  {isSearching ? (
+                    <CircularProgress
+                      size={22}
+                      sx={{ color: "#fff", mx: "24px" }}
                     />
-                  </Box>
-                  <Button
-                    variant="contained"
-                    aria-label={t("details.verbindung_suchen")}
-                    disabled={!canSearch || isSearching}
-                    onClick={(e) => {
-                      handleSearch();
-                      (e.currentTarget as HTMLButtonElement).blur();
-                    }}
-                    sx={{
-                      bgcolor: isSearching
-                        ? "var(--bzb-bahnblau)"
-                        : "var(--bzb-akelei)",
-                      color: "#fff",
-                      fontWeight: 600,
-                      fontSize: "14px",
-                      borderRadius: "12px",
-                      textTransform: "none",
-                      px: "16px",
-                      whiteSpace: "nowrap",
-                      "&:hover": {
-                        bgcolor: isSearching
-                          ? "var(--bzb-bahnblau)"
-                          : "#5a1d61",
-                      },
-                      "&:focus, &:focus-visible": {
-                        bgcolor: "var(--bzb-akelei)",
-                      },
-                      "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
-                    }}
-                  >
-                    {isSearching ? (
-                      <CircularProgress
-                        size={22}
-                        sx={{ color: "#fff", mx: "24px" }}
-                      />
-                    ) : (
-                      t("details.verbindung_suchen")
-                    )}
-                  </Button>
-                </Box>
+                  ) : (
+                    t("details.verbindung_suchen")
+                  )}
+                </Button>
               </Box>
 
               {/* Row 2: Bedarfsverkehr left + powered by right */}
@@ -669,6 +650,8 @@ export default function ConnectionSearchForm({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  rowGap: "2px",
                   mt: "6px",
                 }}
               >
@@ -676,10 +659,17 @@ export default function ConnectionSearchForm({
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "4px",
+                    gap: "6px",
+                    flexShrink: 0,
                   }}
                 >
-                  <Typography sx={{ ...sectionLabelSx, mb: 0 }}>
+                  <Typography
+                    sx={{
+                      ...sectionLabelSx,
+                      mb: 0,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {t("details.bedarfsverkehr")}
                   </Typography>
                   <Switch
@@ -706,6 +696,8 @@ export default function ConnectionSearchForm({
                     fontSize: "11px",
                     color: "#8b8b8b",
                     textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    ml: "auto",
                     mr: "10px",
                     "&:hover": { color: "var(--bzb-akelei)" },
                   }}
@@ -906,10 +898,17 @@ export default function ConnectionSearchForm({
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "4px",
+                    gap: "6px",
+                    flexShrink: 0,
                   }}
                 >
-                  <Typography sx={{ ...sectionLabelSx, mb: 0 }}>
+                  <Typography
+                    sx={{
+                      ...sectionLabelSx,
+                      mb: 0,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {t("details.bedarfsverkehr")}
                   </Typography>
                   <Switch
