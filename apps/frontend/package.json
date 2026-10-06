@@ -54,6 +54,8 @@
     "dev:main": "VITE_API_URL=https://www.zuugle.at/api vp dev",
     "dev:uat": "VITE_API_URL=/api UAT_TARGET=https://www2.zuugle.at UAT_AUTH=bzb:bzb vp dev",
     "build": "vp build",
+    "embed:dev": "vp dev --config vite.config.embed.ts",
+    "embed:build": "vp build --config vite.config.embed.ts",
     "preview": "vp preview",
     "format": "vp fmt .",
     "format:check": "vp fmt --check .",

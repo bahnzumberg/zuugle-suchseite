@@ -228,7 +228,19 @@ export const errorStatus = (error: unknown): number | null => {
   return typeof status === "number" ? status : null;
 };
 
-const domain = window.location.hostname;
+/**
+ * Domain sent to the API in every request (`?domain=…`).
+ *
+ * The main app uses the page's own hostname (`www.zuugle.at`, `www.zuugle.de`,
+ * …). The embed widget runs on a third-party host (e.g. `www.bahn-zum-berg.at`)
+ * but must still tell the API which Zuugle domain it represents — the build
+ * sets `__ZUUGLE_DOMAIN__` to the correct value (e.g. `dev.zuugle.at`).
+ */
+declare const __ZUUGLE_DOMAIN__: string | undefined;
+const domain =
+  typeof __ZUUGLE_DOMAIN__ !== "undefined"
+    ? __ZUUGLE_DOMAIN__
+    : window.location.hostname;
 
 /**
  * The API returns GPX links as absolute URLs built from the `domain` above, so
