@@ -23,14 +23,14 @@ import { isCutoffReached } from "../timeCutoff";
 const ERROR_IMAGE_FILES = ["error-london.webp", "error-502.webp", "error-white.webp"];
 const errorImageHashes = new Set();
 
-// Konstanten für Batch-Update-Queue
-const BATCH_SIZE = 500; // Updates werden alle 500 Bilder gebatcht
-const MAX_RETRIES = 3; // Maximale Anzahl Wiederholungsversuche bei DB-Fehlern
-const RETRY_DELAY_MS = 30000; // Wartezeit zwischen Retries (30 Sekunden)
+// Constants for batch update queue
+const BATCH_SIZE = 500; // Updates are batched every 500 images
+const MAX_RETRIES = 3; // Maximum number of retry attempts on DB errors
+const RETRY_DELAY_MS = 30000; // Delay between retries (30 seconds)
 
-// Batch-Update-Queue für effiziente DB-Updates
+// Batch update queue for efficient DB updates
 const updateQueue = [];
-let drainPromise = null; // Serialisiert Flush-Aufrufe
+let drainPromise = null; // Serialises flush calls
 
 const createImageHash = async (imageInput) => {
     try {
@@ -127,13 +127,13 @@ const executeUpdate = async (updates, isForce, retryCount = 0) => {
     if (updates.length === 0) return;
 
     try {
-        // Baue CASE-Statement für Batch-Update
+        // Build CASE statement for batch update
         const caseStatements = updates
             .map(({ tourId, imageUrl }) => `WHEN ${tourId} THEN '${imageUrl.replace(/'/g, "''")}'`)
             .join(" ");
         const ids = updates.map((u) => u.tourId).join(",");
 
-        // city2tour_flat wird via Database-Trigger aktualisiert
+        // city2tour_flat is updated via database trigger
         if (isForce) {
             await knex.raw(`
                 UPDATE tour 
@@ -158,7 +158,7 @@ const executeUpdate = async (updates, isForce, retryCount = 0) => {
             return executeUpdate(updates, isForce, retryCount + 1);
         } else {
             logger.error(`Batch update failed after ${MAX_RETRIES} retries:`, e);
-            // Bei totalem Fehlschlag: Einzelne Updates als Fallback
+            // On total failure: fall back to individual updates
             logger.info(`Falling back to individual updates for ${updates.length} tours...`);
             for (const { tourId, imageUrl, force } of updates) {
                 try {
@@ -180,24 +180,24 @@ const executeUpdate = async (updates, isForce, retryCount = 0) => {
 };
 
 /**
- * Fügt ein Update zur Queue hinzu und flusht automatisch bei BATCH_SIZE
+ * Adds an update to the queue and flushes automatically when BATCH_SIZE is reached.
  * @param {number} tourId - Tour ID
- * @param {string} imageUrl - Bild-URL
- * @param {boolean} force - Überschreiben auch wenn nicht NULL
+ * @param {string} imageUrl - Image URL
+ * @param {boolean} force - Overwrite even if not NULL
  */
 const queueDbUpdate = (tourId, imageUrl, force = false) => {
     if (!tourId || !imageUrl || imageUrl.length === 0) return;
 
     updateQueue.push({ tourId, imageUrl, force });
 
-    // Automatisch flushen wenn BATCH_SIZE erreicht
+    // Automatically flush when BATCH_SIZE is reached
     if (updateQueue.length >= BATCH_SIZE) {
         flushUpdateQueue();
     }
 };
 
 /**
- * Flusht die Update-Queue strikt seriell und führt Batch-UPDATEs aus
+ * Flushes the update queue strictly serially and executes batch UPDATEs.
  */
 const flushUpdateQueue = async () => {
     if (drainPromise) return drainPromise;
@@ -208,7 +208,7 @@ const flushUpdateQueue = async () => {
                 const batch = updateQueue.splice(0, Math.min(updateQueue.length, BATCH_SIZE));
                 if (batch.length === 0) break;
 
-                // Trenne force und non-force Updates
+                // Separate force and non-force updates
                 const forceUpdates = batch.filter((u) => u.force);
                 const normalUpdates = batch.filter((u) => !u.force);
 
@@ -228,8 +228,8 @@ const flushUpdateQueue = async () => {
 };
 
 /**
- * Flusht alle verbleibenden Updates am Ende der Verarbeitung und wartet garantiert,
- * bis alle Datenbank-Operationen abgeschlossen sind.
+ * Flushes all remaining updates at the end of processing and waits until
+ * all database operations have completed.
  */
 const flushAllPendingUpdates = async () => {
     while (updateQueue.length > 0 || drainPromise) {
@@ -242,12 +242,12 @@ const flushAllPendingUpdates = async () => {
     logger.info("All pending DB updates flushed.");
 };
 
-// Legacy-Funktion für Kompatibilität (wird intern auf Queue umgeleitet)
+// Legacy function for compatibility (internally redirects to the queue)
 const dispatchDbUpdate = (tourId, imageUrl, force) => {
     queueDbUpdate(tourId, imageUrl, force);
 };
 
-// Neue Hilfsfunktion für die Fehlerbehandlung und Platzhaltersetzung
+// Helper function for error handling and placeholder assignment
 const handleImagePlaceholder = async (tourId) => {
     try {
         const result = await knex.raw(`SELECT range_slug FROM tour AS t WHERE t.id=${tourId}`);
@@ -266,7 +266,7 @@ const handleImagePlaceholder = async (tourId) => {
     }
 };
 
-// Hilfsfunktion für die Bildgenerierung
+// Helper function for image generation
 // Returns: 'success' | 'error_image' | 'failed'
 const processAndCreateImage = async (tourId, pageOrBrowser, url) => {
     const filePathSmallWebp = path.join(PUBLIC_DIR, gpxImagePath(tourId));
@@ -278,7 +278,7 @@ const processAndCreateImage = async (tourId, pageOrBrowser, url) => {
             fs.mkdirSync(dirPath, { recursive: true });
         }
 
-        // In-Memory-Screenshot (Ad 1D): kein temporäres PNG auf der Festplatte
+        // In-memory screenshot (Ad 1D): no temporary PNG on disk
         const generationPromise = createImageFromMap(
             pageOrBrowser,
             null,
@@ -449,48 +449,113 @@ export const regenerateGpxFile = async (id, hashedUrl, title) => {
     }
 };
 
-// Überprüfung und Neuerstellung alter Bilder (inkl. zugehöriger GPX-Dateien)
+// Check and recreate old images (including associated GPX files).
+// If the gpx_changed_regenerate table exists and has entries, only those
+// specific tours are regenerated. Otherwise a random 10 % sample of
+// images older than 30 days is selected.
 const cleanAndRecreateOldImages = async () => {
     let idsToRecreate = [];
-    const allToursWithImages = await knex.raw(
-        `SELECT id, hashed_url, title FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
-    );
-    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
 
-    for (const row of allToursWithImages.rows) {
-        const id = row.id;
-        const filePath = path.join(PUBLIC_DIR, gpxImagePath(id));
+    // 1. Check whether gpx_changed_regenerate exists and has entries.
+    // This table is part of the ETL job and exists only on production.
+    let changedTours = [];
+    try {
+        const tableCheck = await knex.raw(
+            `SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_name = 'gpx_changed_regenerate'
+            );`,
+        );
+        if (tableCheck.rows[0].exists) {
+            const result = await knex.raw(
+                `SELECT t.id, t.hashed_url, t.title
+                 FROM gpx_changed_regenerate AS g
+                 INNER JOIN tour AS t ON g.hashed_url = t.hashed_url
+                 GROUP BY t.id, t.hashed_url, t.title;`,
+            );
+            changedTours = result.rows;
+        }
+    } catch (err) {
+        logger.error("Error checking gpx_changed_regenerate table:", err);
+    }
 
-        try {
-            const stats = await fs.promises.stat(filePath);
-            const isOlderThan30Days = Date.now() - stats.mtimeMs > thirtyDaysInMs;
-            const shouldBeDeleted = Math.random() < 0.1;
+    if (changedTours.length > 0) {
+        // 2a. Targeted regeneration of tours flagged in gpx_changed_regenerate
+        logger.info(
+            `Found ${changedTours.length} tours to regenerate from gpx_changed_regenerate table.`,
+        );
+        for (const row of changedTours) {
+            const id = row.id;
+            const filePath = path.join(PUBLIC_DIR, gpxImagePath(id));
 
-            if (isOlderThan30Days && shouldBeDeleted) {
-                // logger.info(`Deleting old image for tour ID ${id}.`);
+            // Delete existing image if present
+            try {
                 await fs.promises.unlink(filePath);
-
-                // Zugehöriges GPX-File löschen und frisch aus der DB regenerieren,
-                // damit das neue Image auf aktuellen Daten basiert
-                const gpxFilePath = path.join(PUBLIC_DIR, tourGpxPath(id));
-                try {
-                    await fs.promises.unlink(gpxFilePath);
-                    logger.info(`Deleted GPX file for tour ID ${id}.`);
-                } catch (gpxErr) {
-                    if (gpxErr.code !== "ENOENT") {
-                        logger.error(`Error deleting GPX file for tour ID ${id}:`, gpxErr);
-                    }
+            } catch (e) {
+                if (e.code !== "ENOENT") {
+                    logger.error(`Error deleting image for tour ID ${id}:`, e);
                 }
-                await regenerateGpxFile(id, row.hashed_url, row.title);
-
-                idsToRecreate.push(id);
             }
-        } catch (e) {
-            if (e.code === "ENOENT") {
-                logger.info(`Image for tour ID ${id} not found on disk. Adding to recreate list.`);
-                idsToRecreate.push(id);
-            } else {
-                logger.error(`Error checking file for ID ${id}:`, e);
+
+            // Delete associated GPX file and regenerate from DB
+            // so that the new image is based on current data
+            const gpxFilePath = path.join(PUBLIC_DIR, tourGpxPath(id));
+            try {
+                await fs.promises.unlink(gpxFilePath);
+                logger.info(`Deleted GPX file for tour ID ${id}.`);
+            } catch (gpxErr) {
+                if (gpxErr.code !== "ENOENT") {
+                    logger.error(`Error deleting GPX file for tour ID ${id}:`, gpxErr);
+                }
+            }
+            await regenerateGpxFile(id, row.hashed_url, row.title);
+
+            idsToRecreate.push(id);
+        }
+    } else {
+        // 2b. Fallback: random 10 % selection from images older than 30 days
+        const allToursWithImages = await knex.raw(
+            `SELECT id, hashed_url, title FROM tour WHERE image_url NOT LIKE 'https://cdn.bahn-zum-berg.at%';`,
+        );
+        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+
+        for (const row of allToursWithImages.rows) {
+            const id = row.id;
+            const filePath = path.join(PUBLIC_DIR, gpxImagePath(id));
+
+            try {
+                const stats = await fs.promises.stat(filePath);
+                const isOlderThan30Days = Date.now() - stats.mtimeMs > thirtyDaysInMs;
+                const shouldBeDeleted = Math.random() < 0.1;
+
+                if (isOlderThan30Days && shouldBeDeleted) {
+                    // logger.info(`Deleting old image for tour ID ${id}.`);
+                    await fs.promises.unlink(filePath);
+
+                    // Delete associated GPX file and regenerate from DB
+                    // so that the new image is based on current data
+                    const gpxFilePath = path.join(PUBLIC_DIR, tourGpxPath(id));
+                    try {
+                        await fs.promises.unlink(gpxFilePath);
+                        logger.info(`Deleted GPX file for tour ID ${id}.`);
+                    } catch (gpxErr) {
+                        if (gpxErr.code !== "ENOENT") {
+                            logger.error(`Error deleting GPX file for tour ID ${id}:`, gpxErr);
+                        }
+                    }
+                    await regenerateGpxFile(id, row.hashed_url, row.title);
+
+                    idsToRecreate.push(id);
+                }
+            } catch (e) {
+                if (e.code === "ENOENT") {
+                    logger.info(
+                        `Image for tour ID ${id} not found on disk. Adding to recreate list.`,
+                    );
+                    idsToRecreate.push(id);
+                } else {
+                    logger.error(`Error checking file for ID ${id}:`, e);
+                }
             }
         }
     }
@@ -499,7 +564,7 @@ const cleanAndRecreateOldImages = async () => {
         logger.info(
             `Found ${idsToRecreate.length} images to recreate. Restarting image generation process...`,
         );
-        await createImagesFromMap(idsToRecreate, true); // Übergibt das Flag 'true' um keine weitere Rekursion zuzulassen
+        await createImagesFromMap(idsToRecreate, true); // Pass 'true' to prevent further recursion
     } else {
         logger.info(`No old images found to recreate.`);
     }
@@ -724,8 +789,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
         }
     }
 
-    // Die "clean and recreate" Funktion nur einmal am Ende des Hauptprozesses ausführen
-    // Nur ausführen wenn: nicht rekursiv UND vor 23:00
+    // Run the "clean and recreate" function only once at the end of the main process.
+    // Only run when: not recursive AND before 23:00
     if (!isRecursiveCall) {
         if (!isCutoffReached()) {
             logger.info(`Starting final check for old images...`);
