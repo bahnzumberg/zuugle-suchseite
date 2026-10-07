@@ -5,6 +5,14 @@
 All content on GitHub must be written in **English**. This includes commit messages,
 PR titles and descriptions, issue comments, code comments, and code review feedback.
 
+## Deployment Environments
+
+| Environment | Domain                | Branch  | Notes                         |
+|-------------|-----------------------|---------|-------------------------------|
+| DEV         | `dev.zuugle.at`       | `dev`   | Development / integration     |
+| UAT         | `www2.zuugle.at`      | `uat`   | Staging / user acceptance     |
+| PROD        | `www.zuugle.at`       | `main`  | Production                    |
+
 ## Git Workflow
 
 - **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
