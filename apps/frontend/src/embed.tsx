@@ -18,15 +18,14 @@
  * user. All other filters (region, difficulty, season, …) work normally.
  */
 
-import { Component, ErrorInfo, ReactNode, StrictMode } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router";
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 import { I18nextProvider } from "react-i18next";
-import { createHead, UnheadProvider } from "@unhead/react/client";
-import i18n from "./translations/i18n.embed";
+import i18n from "./translations/i18n";
 import searchReducer from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
 import favoritesReducer, {
@@ -37,57 +36,9 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme";
 import EmbedSearchResults from "./views/EmbedSearchResults";
 import { EmbedContext, type EmbedConfig } from "./utils/embedContext";
+import LanguageParamSync from "./components/LanguageParamSync";
 
 import "./App.css";
-
-interface ErrorBoundaryProps {
-  children: ReactNode;
-}
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-}
-
-class EmbedErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("[zuugle-embed] Fatal error inside embed:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div
-          style={{
-            padding: "24px",
-            color: "#bf360c",
-            textAlign: "center",
-            fontFamily: "sans-serif",
-          }}
-        >
-          <p style={{ fontWeight: 600, margin: "0 0 8px" }}>
-            Fehler beim Laden der Zuugle-Suche.
-          </p>
-          <p style={{ fontSize: "12px", color: "#888", margin: 0 }}>
-            {this.state.error?.message}
-          </p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 const FIXED_PROVIDER = "bahnzumberg";
 
@@ -111,7 +62,6 @@ function bootstrap() {
   }
 
   const config = readConfig(container);
-  console.log("[zuugle-embed] Initializing widget with config:", config);
 
   // Set the language before the store is created
   if (config.lang) {
@@ -163,28 +113,23 @@ function bootstrap() {
     externalLinks: true,
   };
 
-  const head = createHead();
   const root = createRoot(container);
   root.render(
     <StrictMode>
-      <EmbedErrorBoundary>
-        <Provider store={store}>
-          <UnheadProvider head={head}>
-            <MemoryRouter>
-              <EmbedContext.Provider value={embedConfig}>
-                <ThemeProvider theme={theme}>
-                  <I18nextProvider i18n={i18n}>
-                    <EmbedSearchResults />
-                  </I18nextProvider>
-                </ThemeProvider>
-              </EmbedContext.Provider>
-            </MemoryRouter>
-          </UnheadProvider>
-        </Provider>
-      </EmbedErrorBoundary>
+      <Provider store={store}>
+        <MemoryRouter>
+          <EmbedContext.Provider value={embedConfig}>
+            <ThemeProvider theme={theme}>
+              <I18nextProvider i18n={i18n}>
+                <LanguageParamSync />
+                <EmbedSearchResults />
+              </I18nextProvider>
+            </ThemeProvider>
+          </EmbedContext.Provider>
+        </MemoryRouter>
+      </Provider>
     </StrictMode>,
   );
-  console.log("[zuugle-embed] Widget mounted successfully.");
 }
 
 // Auto-init when the DOM is ready

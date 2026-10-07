@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams, useSearchParams } from "react-router";
 import { useAppDispatch } from "../../hooks";
 import { cityUpdated, citySlugUpdated } from "../../features/searchSlice";
@@ -34,11 +34,17 @@ import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
 interface ConnectionSearchFormProps {
   tour: Tour;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
+  /** Called with "YYYY-MM-DD" whenever the activity (or departure) date changes. */
+  onDateChange?: (date: string) => void;
+  /** External activity date ("YYYY-MM-DD") to sync with. */
+  activityDate?: string | null;
 }
 
 export default function ConnectionSearchForm({
   tour,
   onStopHover,
+  onDateChange,
+  activityDate: externalActivityDate,
 }: ConnectionSearchFormProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.substring(0, 2);
@@ -72,14 +78,48 @@ export default function ConnectionSearchForm({
   const today = dayjs();
   const tomorrow = today.add(1, "day");
 
-  // Single-day: selected date (default: tomorrow)
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(tomorrow);
+  const initialDate = useMemo(() => {
+    if (externalActivityDate) {
+      const parsed = dayjs(externalActivityDate);
+      if (parsed.isValid() && !parsed.isBefore(today, "day")) {
+        return parsed;
+      }
+    }
+    return tomorrow;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Multi-day: departure date + return date (default: tomorrow)
-  const [departureDate, setDepartureDate] = useState<Dayjs | null>(tomorrow);
+  // Single-day: selected date (default: tomorrow or externalActivityDate)
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(initialDate);
+
+  // Multi-day: departure date + return date (default: tomorrow or externalActivityDate)
+  const [departureDate, setDepartureDate] = useState<Dayjs | null>(initialDate);
   const [returnDate, setReturnDate] = useState<Dayjs | null>(
-    tomorrow.add(tour.number_of_days - 1, "day"),
+    initialDate.add(tour.number_of_days - 1, "day"),
   );
+
+  // Sync external activityDate changes into Diana's date pickers
+  useEffect(() => {
+    if (!externalActivityDate) return;
+    const currentStr = isMultiDay
+      ? departureDate?.format("YYYY-MM-DD")
+      : selectedDate.format("YYYY-MM-DD");
+    if (externalActivityDate !== currentStr) {
+      const d = dayjs(externalActivityDate);
+      if (d.isValid() && !d.isBefore(today, "day")) {
+        if (isMultiDay) {
+          const diffDays =
+            returnDate && departureDate
+              ? returnDate.diff(departureDate, "day")
+              : tour.number_of_days - 1;
+          setDepartureDate(d);
+          setReturnDate(d.add(Math.max(diffDays, 0), "day"));
+        } else {
+          setSelectedDate(d);
+        }
+      }
+    }
+  }, [externalActivityDate, isMultiDay]);
 
   // Search state
   const [isSearching, setIsSearching] = useState(false);
@@ -107,6 +147,11 @@ export default function ConnectionSearchForm({
     }
     return selectedDate.format("YYYY-MM-DD");
   };
+
+  const currentActivityDate = getSelectedDate();
+  useEffect(() => {
+    onDateChange?.(currentActivityDate);
+  }, [currentActivityDate, onDateChange]);
 
   const activityDurationMinutes = Math.round(
     parseFloat(tour.avg_total_tour_duration) * 60,
@@ -382,8 +427,8 @@ export default function ConnectionSearchForm({
     fontWeight: 400,
     fontSize: "15px",
     lineHeight: "23px",
-    color: "#101010",
-    mb: "6px",
+    color: "#555",
+    mb: "2px",
     textAlign: "left" as const,
   };
 
@@ -393,139 +438,153 @@ export default function ConnectionSearchForm({
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
       <Box
         sx={{
-          pt: "16px",
           minWidth: 0,
           textAlign: "left",
         }}
       >
-        {/* Section: Startort */}
-        <Typography sx={sectionLabelSx}>{t("details.startort")}</Typography>
-        <Autocomplete
-          fullWidth
-          freeSolo
-          options={options}
-          getOptionLabel={(option) =>
-            typeof option === "string" ? option : option.displayName
-          }
-          inputValue={inputValue}
-          onInputChange={(_e, value, reason) => {
-            setInputValue(value);
-            if (reason === "input") {
-              searchAutocomplete(value);
-            }
-            if (reason === "clear") {
-              clearDepartureLocation();
-              clearOptions();
-            }
+        {/* ─── White card: Startort → Bedarfsverkehr ─── */}
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "10px",
+            p: { xs: "6px 10px 12px", sm: "6px 16px 16px" },
           }}
-          onChange={(_e, value) => {
-            if (value && typeof value !== "string") {
-              const loc: DepartureLocation = {
-                displayName: value.displayName,
-                locationType: value.locationType,
-                citySlug: value.citySlug,
-                cityName: value.cityName,
-              };
-              setDepartureLocation(loc, value.lat, value.lon);
-              setInputValue(value.displayName);
-            } else if (!value) {
-              clearDepartureLocation();
-            }
-          }}
-          loading={autocompleteLoading}
-          renderOption={(props, option) => (
-            <li
-              {...props}
-              key={`${option.lat}-${option.lon}-${option.displayName}`}
-            >
-              {option.locationType === "station" ? (
-                <DirectionsTransitIcon
-                  sx={{ color: "var(--bzb-bahnblau)", mr: 1, fontSize: "18px" }}
-                />
-              ) : (
-                <LocationOnIcon
-                  sx={{ color: "var(--bzb-akelei)", mr: 1, fontSize: "18px" }}
-                />
-              )}
-              <Typography sx={{ fontSize: "14px" }}>
-                {option.displayName}
+        >
+          {/* Section: Datum + Verbindung suchen */}
+          {!isMultiDay ? (
+            <>
+              {/* Row 1: Startort */}
+              <Typography sx={sectionLabelSx}>
+                {t("details.startort")}
               </Typography>
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder={t("details.startort_placeholder")}
-              size="small"
-              slotProps={{
-                ...params.slotProps,
-                input: {
-                  ...params.slotProps?.input,
-                  startAdornment: (
-                    <InputAdornment position="start">
+              <Autocomplete
+                fullWidth
+                freeSolo
+                options={options}
+                getOptionLabel={(option) =>
+                  typeof option === "string" ? option : option.displayName
+                }
+                inputValue={inputValue}
+                onInputChange={(_e, value, reason) => {
+                  setInputValue(value);
+                  if (reason === "input") {
+                    searchAutocomplete(value);
+                  }
+                  if (reason === "clear") {
+                    clearDepartureLocation();
+                    clearOptions();
+                  }
+                }}
+                onChange={(_e, value) => {
+                  if (value && typeof value !== "string") {
+                    const loc: DepartureLocation = {
+                      displayName: value.displayName,
+                      locationType: value.locationType,
+                      citySlug: value.citySlug,
+                      cityName: value.cityName,
+                    };
+                    setDepartureLocation(loc, value.lat, value.lon);
+                    setInputValue(value.displayName);
+                  } else if (!value) {
+                    clearDepartureLocation();
+                  }
+                }}
+                loading={autocompleteLoading}
+                renderOption={(props, option) => (
+                  <li
+                    {...props}
+                    key={`${option.lat}-${option.lon}-${option.displayName}`}
+                  >
+                    {option.locationType === "station" ? (
+                      <DirectionsTransitIcon
+                        sx={{
+                          color: "var(--bzb-bahnblau)",
+                          mr: 1,
+                          fontSize: "18px",
+                        }}
+                      />
+                    ) : (
                       <LocationOnIcon
                         sx={{
                           color: "var(--bzb-akelei)",
-                          ...(!departureLocation && {
-                            "@keyframes bounce": {
-                              "0%, 100%": { transform: "translateY(0)" },
-                              "30%": { transform: "translateY(-4px)" },
-                              "50%": { transform: "translateY(0)" },
-                              "70%": { transform: "translateY(-2px)" },
-                            },
-                            animation: "bounce 1.5s ease infinite",
-                          }),
+                          mr: 1,
+                          fontSize: "18px",
                         }}
                       />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <>
-                      {autocompleteLoading ? (
-                        <CircularProgress size={18} />
-                      ) : null}
-                      {params.slotProps?.input?.endAdornment}
-                    </>
-                  ),
-                },
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                },
-              }}
-            />
-          )}
-        />
+                    )}
+                    <Typography sx={{ fontSize: "14px" }}>
+                      {option.displayName}
+                    </Typography>
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder={t("details.startort_placeholder")}
+                    size="small"
+                    slotProps={{
+                      ...params.slotProps,
+                      input: {
+                        ...params.slotProps?.input,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocationOnIcon
+                              sx={{
+                                color: "var(--bzb-akelei)",
+                                ...(!departureLocation && {
+                                  "@keyframes bounce": {
+                                    "0%, 100%": {
+                                      transform: "translateY(0)",
+                                    },
+                                    "30%": {
+                                      transform: "translateY(-4px)",
+                                    },
+                                    "50%": {
+                                      transform: "translateY(0)",
+                                    },
+                                    "70%": {
+                                      transform: "translateY(-2px)",
+                                    },
+                                  },
+                                  animation: "bounce 1.5s ease infinite",
+                                }),
+                              }}
+                            />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <>
+                            {autocompleteLoading ? (
+                              <CircularProgress size={18} />
+                            ) : null}
+                            {params.slotProps?.input?.endAdornment}
+                          </>
+                        ),
+                      },
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                      },
+                    }}
+                  />
+                )}
+              />
 
-        {/* Section: Datum + Verbindung suchen in same flex-wrap row */}
-        {!isMultiDay ? (
-          <>
-            <Typography sx={{ ...sectionLabelSx, mt: "20px" }}>
-              {t("details.aktivitaetsdatum")}
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                gap: "8px",
-                alignItems: "center",
-                flexWrap: "wrap",
-                mt: "8px",
-              }}
-            >
+              {/* Row 2: Datum (links) + Verbindung suchen (rechts) */}
               <Box
                 sx={{
                   display: "flex",
-                  gap: "8px",
-                  alignItems: "center",
-                  flex: "1 1 100%",
-                  minWidth: 0,
-                  "@media (min-width: 600px)": {
-                    flex: "1 1 0",
-                  },
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                  mt: "8px",
                 }}
               >
-                <Box sx={{ flex: "1 1 0", minWidth: "120px" }}>
+                <Box>
+                  <Typography sx={sectionLabelSx}>
+                    {t("details.datum")}
+                  </Typography>
                   <DatePicker
                     value={selectedDate}
                     onChange={(date) => {
@@ -536,8 +595,8 @@ export default function ConnectionSearchForm({
                     slotProps={{
                       textField: {
                         size: "small",
-                        fullWidth: true,
                         sx: {
+                          width: "150px",
                           "& .MuiOutlinedInput-root": {
                             borderRadius: "12px",
                           },
@@ -546,7 +605,6 @@ export default function ConnectionSearchForm({
                     }}
                   />
                 </Box>
-
                 <Button
                   variant="contained"
                   aria-label={t("details.verbindung_suchen")}
@@ -556,7 +614,6 @@ export default function ConnectionSearchForm({
                     (e.currentTarget as HTMLButtonElement).blur();
                   }}
                   sx={{
-                    flex: "0 0 auto",
                     bgcolor: isSearching
                       ? "var(--bzb-bahnblau)"
                       : "var(--bzb-akelei)",
@@ -586,77 +643,200 @@ export default function ConnectionSearchForm({
                   )}
                 </Button>
               </Box>
-            </Box>
 
-            {/* powered by */}
-            <Typography
-              component="a"
-              href="https://zuugle-services.com/"
-              target="_blank"
-              rel="noreferrer"
-              sx={{
-                display: "block",
-                textAlign: "right",
-                mt: "2px",
-                fontSize: "12px",
-                color: "#8b8b8b",
-                textDecoration: "none",
-                "&:hover": { color: "var(--bzb-akelei)" },
-              }}
-            >
-              powered by Zuugle Services
-            </Typography>
-
-            {/* Bedarfsverkehr toggle */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                mt: "12px",
-              }}
-            >
-              <Typography sx={{ ...sectionLabelSx, mb: 0 }}>
-                {t("details.bedarfsverkehr")}
-              </Typography>
-              <Switch
-                checked={useFlex}
-                onChange={(e) => setUseFlex(e.target.checked)}
-                size="small"
+              {/* Row 2: Bedarfsverkehr left + powered by right */}
+              <Box
                 sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "var(--bzb-akelei)",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "var(--bzb-akelei)",
-                  },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  rowGap: "2px",
+                  mt: "6px",
                 }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      ...sectionLabelSx,
+                      mb: 0,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t("details.bedarfsverkehr")}
+                  </Typography>
+                  <Switch
+                    checked={useFlex}
+                    onChange={(e) => setUseFlex(e.target.checked)}
+                    size="small"
+                    sx={{
+                      "& .MuiSwitch-switchBase.Mui-checked": {
+                        color: "var(--bzb-akelei)",
+                      },
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "var(--bzb-akelei)",
+                        },
+                    }}
+                  />
+                </Box>
+                <Typography
+                  component="a"
+                  href="https://zuugle-services.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  sx={{
+                    fontSize: "11px",
+                    color: "#8b8b8b",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    ml: "auto",
+                    mr: "10px",
+                    "&:hover": { color: "var(--bzb-akelei)" },
+                  }}
+                >
+                  powered by Zuugle Services
+                </Typography>
+              </Box>
+            </>
+          ) : (
+            /* Multi-day tour: date pickers + button */
+            <Box>
+              {/* Row 1: Startort */}
+              <Typography sx={sectionLabelSx}>
+                {t("details.startort")}
+              </Typography>
+              <Autocomplete
+                fullWidth
+                freeSolo
+                options={options}
+                getOptionLabel={(option) =>
+                  typeof option === "string" ? option : option.displayName
+                }
+                inputValue={inputValue}
+                onInputChange={(_e, value, reason) => {
+                  setInputValue(value);
+                  if (reason === "input") {
+                    searchAutocomplete(value);
+                  }
+                  if (reason === "clear") {
+                    clearDepartureLocation();
+                    clearOptions();
+                  }
+                }}
+                onChange={(_e, value) => {
+                  if (value && typeof value !== "string") {
+                    const loc: DepartureLocation = {
+                      displayName: value.displayName,
+                      locationType: value.locationType,
+                      citySlug: value.citySlug,
+                      cityName: value.cityName,
+                    };
+                    setDepartureLocation(loc, value.lat, value.lon);
+                    setInputValue(value.displayName);
+                  } else if (!value) {
+                    clearDepartureLocation();
+                  }
+                }}
+                loading={autocompleteLoading}
+                renderOption={(props, option) => (
+                  <li
+                    {...props}
+                    key={`${option.lat}-${option.lon}-${option.displayName}`}
+                  >
+                    {option.locationType === "station" ? (
+                      <DirectionsTransitIcon
+                        sx={{
+                          color: "var(--bzb-bahnblau)",
+                          mr: 1,
+                          fontSize: "18px",
+                        }}
+                      />
+                    ) : (
+                      <LocationOnIcon
+                        sx={{
+                          color: "var(--bzb-akelei)",
+                          mr: 1,
+                          fontSize: "18px",
+                        }}
+                      />
+                    )}
+                    <Typography sx={{ fontSize: "14px" }}>
+                      {option.displayName}
+                    </Typography>
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder={t("details.startort_placeholder")}
+                    size="small"
+                    slotProps={{
+                      ...params.slotProps,
+                      input: {
+                        ...params.slotProps?.input,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocationOnIcon
+                              sx={{
+                                color: "var(--bzb-akelei)",
+                                ...(!departureLocation && {
+                                  "@keyframes bounce": {
+                                    "0%, 100%": {
+                                      transform: "translateY(0)",
+                                    },
+                                    "30%": {
+                                      transform: "translateY(-4px)",
+                                    },
+                                    "50%": {
+                                      transform: "translateY(0)",
+                                    },
+                                    "70%": {
+                                      transform: "translateY(-2px)",
+                                    },
+                                  },
+                                  animation: "bounce 1.5s ease infinite",
+                                }),
+                              }}
+                            />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <>
+                            {autocompleteLoading ? (
+                              <CircularProgress size={18} />
+                            ) : null}
+                            {params.slotProps?.input?.endAdornment}
+                          </>
+                        ),
+                      },
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                      },
+                    }}
+                  />
+                )}
               />
-            </Box>
-          </>
-        ) : (
-          /* Multi-day tour: date pickers + button in same flex-wrap row */
-          <Box sx={{ mt: "20px" }}>
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "flex-end",
-                gap: "8px",
-              }}
-            >
-              {/* Date pickers grow → push button right */}
+
+              {/* Row 2: Anreise + Rückreise date pickers */}
               <Box
                 sx={{
                   display: "flex",
                   gap: "12px",
-                  flex: "1 1 auto",
-                  flexWrap: "wrap",
-                  minWidth: 0,
+                  mt: "8px",
                 }}
               >
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography sx={{ ...sectionLabelSx }}>
+                  <Typography sx={sectionLabelSx}>
                     {t("details.anreise")}
                   </Typography>
                   <DatePicker
@@ -669,14 +849,16 @@ export default function ConnectionSearchForm({
                         size: "small",
                         fullWidth: true,
                         sx: {
-                          "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "12px",
+                          },
                         },
                       },
                     }}
                   />
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography sx={{ ...sectionLabelSx }}>
+                  <Typography sx={sectionLabelSx}>
                     {t("details.rueckreise")}
                   </Typography>
                   <DatePicker
@@ -693,7 +875,9 @@ export default function ConnectionSearchForm({
                         size: "small",
                         fullWidth: true,
                         sx: {
-                          "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "12px",
+                          },
                         },
                       },
                     }}
@@ -701,92 +885,106 @@ export default function ConnectionSearchForm({
                 </Box>
               </Box>
 
-              {/* Search button: left-aligned when wrapped on mobile */}
-              <Button
-                variant="contained"
-                aria-label={t("details.verbindung_suchen")}
-                disabled={!canSearch || isSearching}
-                onClick={(e) => {
-                  handleSearch();
-                  (e.currentTarget as HTMLButtonElement).blur();
-                }}
+              {/* Row 3: Bedarfsverkehr left + Verbindung suchen right */}
+              <Box
                 sx={{
-                  flex: "0 0 auto",
-                  alignSelf: "flex-end",
-                  bgcolor: isSearching
-                    ? "var(--bzb-bahnblau)"
-                    : "var(--bzb-akelei)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  borderRadius: "12px",
-                  textTransform: "none",
-                  px: "20px",
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
-                  },
-                  "&:focus, &:focus-visible": {
-                    bgcolor: "var(--bzb-akelei)",
-                  },
-                  "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mt: "8px",
                 }}
               >
-                {isSearching ? (
-                  <CircularProgress size={22} sx={{ color: "#fff" }} />
-                ) : (
-                  t("details.verbindung_suchen")
-                )}
-              </Button>
-            </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      ...sectionLabelSx,
+                      mb: 0,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t("details.bedarfsverkehr")}
+                  </Typography>
+                  <Switch
+                    checked={useFlex}
+                    onChange={(e) => setUseFlex(e.target.checked)}
+                    size="small"
+                    sx={{
+                      "& .MuiSwitch-switchBase.Mui-checked": {
+                        color: "var(--bzb-akelei)",
+                      },
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "var(--bzb-akelei)",
+                        },
+                    }}
+                  />
+                </Box>
+                <Button
+                  variant="contained"
+                  aria-label={t("details.verbindung_suchen")}
+                  disabled={!canSearch || isSearching}
+                  onClick={(e) => {
+                    handleSearch();
+                    (e.currentTarget as HTMLButtonElement).blur();
+                  }}
+                  sx={{
+                    bgcolor: isSearching
+                      ? "var(--bzb-bahnblau)"
+                      : "var(--bzb-akelei)",
+                    color: "#fff",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    px: "16px",
+                    whiteSpace: "nowrap",
+                    "&:hover": {
+                      bgcolor: isSearching ? "var(--bzb-bahnblau)" : "#5a1d61",
+                    },
+                    "&:focus, &:focus-visible": {
+                      bgcolor: "var(--bzb-akelei)",
+                    },
+                    "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
+                  }}
+                >
+                  {isSearching ? (
+                    <CircularProgress size={22} sx={{ color: "#fff" }} />
+                  ) : (
+                    t("details.verbindung_suchen")
+                  )}
+                </Button>
+              </Box>
 
-            {/* powered by */}
-            <Typography
-              component="a"
-              href="https://zuugle-services.com/"
-              target="_blank"
-              rel="noreferrer"
-              sx={{
-                display: "block",
-                textAlign: "right",
-                mt: "2px",
-                fontSize: "12px",
-                color: "#8b8b8b",
-                textDecoration: "none",
-                "&:hover": { color: "var(--bzb-akelei)" },
-              }}
-            >
-              powered by Zuugle Services
-            </Typography>
-
-            {/* Bedarfsverkehr toggle */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                mt: "12px",
-              }}
-            >
-              <Typography sx={{ ...sectionLabelSx, mb: 0 }}>
-                {t("details.bedarfsverkehr")}
-              </Typography>
-              <Switch
-                checked={useFlex}
-                onChange={(e) => setUseFlex(e.target.checked)}
-                size="small"
+              {/* Row 4: powered by */}
+              <Typography
+                component="a"
+                href="https://zuugle-services.com/"
+                target="_blank"
+                rel="noreferrer"
                 sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "var(--bzb-akelei)",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "var(--bzb-akelei)",
-                  },
+                  display: "block",
+                  textAlign: "right",
+                  mt: "2px",
+                  mb: 0,
+                  fontSize: "11px",
+                  color: "#8b8b8b",
+                  textDecoration: "none",
+                  mr: "10px",
+                  "&:hover": { color: "var(--bzb-akelei)" },
                 }}
-              />
+              >
+                powered by Zuugle Services
+              </Typography>
             </Box>
-          </Box>
-        )}
+          )}
+        </Box>
 
         {/* Search error */}
         {searchError && !isSearching && (

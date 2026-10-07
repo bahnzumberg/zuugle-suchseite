@@ -919,6 +919,15 @@ ul.about-bullets {
   z-index: 0;
 }
 
+/* On mobile the map goes edge-to-edge; above 600px (two-column tile grid)
+   the inline 30px padding keeps it aligned with the cards below. */
+@media (max-width: 599px) {
+  .map-fullscreen-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
 /* Explicit Leaflet pane layering: tilePane (200) < weatherPane (250) < overlayPane (400) < markerPane (600) */
 .leaflet-pane.leaflet-tile-pane {
   z-index: 200 !important;
@@ -1008,19 +1017,6 @@ ul.about-bullets {
 .alignStart {
   display: flex;
   align-items: flex-start;
-}
-
-.countrySwitch {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  padding: 15px;
-  width: 173.02px;
-  background: rgba(37, 73, 128, 0.2);
-  border-radius: 20px;
-  cursor: pointer;
 }
 
 .rowing {

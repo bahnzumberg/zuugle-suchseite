@@ -36,6 +36,7 @@ export default function StartNew() {
     isTotalsLoading,
     showMap,
     favoritesEmptyVariant,
+    favoritesOnly,
   } = useSearchTours();
 
   const tld = getTLD();
@@ -84,7 +85,14 @@ export default function StartNew() {
               : "none",
           }}
         >
-          <Box className={"search-result-header-container"}>
+          <Box
+            className={"search-result-header-container"}
+            sx={
+              favoritesOnly
+                ? { backgroundColor: "var(--bzb-akelei)" }
+                : undefined
+            }
+          >
             {!!directLink && (
               <Box className={"seo-bar"}>
                 <Typography

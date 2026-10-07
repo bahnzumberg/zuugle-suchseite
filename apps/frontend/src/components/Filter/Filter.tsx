@@ -1,6 +1,13 @@
 import Box from "@mui/material/Box";
 import { useEmbed } from "../../utils/embedContext";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
@@ -80,29 +87,33 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const { filter: fetchedFilter, providers: fetchedProviders } =
     filterData ?? {};
 
-  const defaultFilterValues = getDefaultFilterValues();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultFilterValues = useMemo(() => getDefaultFilterValues(), []);
 
   // and a temporary filter object which will become the new stored filter on submit.
   const [tempFilter, setTempFilter] =
     useState<FilterObject>(defaultFilterValues);
 
-  function fetchFilterScalar(filter: FilterObject) {
-    const scalarFilter = {
-      ...filter,
-      ranges: undefined,
-      types: undefined,
-      languages: undefined,
-      difficulties: undefined,
-      providers: undefined,
-      countries: undefined,
-    };
-    triggerFetchFilter({
-      city: citySlug || "",
-      search: search?.term || "",
-      search_type: search?.type !== "term" ? search?.type : "",
-      filter: scalarFilter,
-    });
-  }
+  const fetchFilterScalar = useCallback(
+    (filter: FilterObject) => {
+      const scalarFilter = {
+        ...filter,
+        ranges: undefined,
+        types: undefined,
+        languages: undefined,
+        difficulties: undefined,
+        providers: undefined,
+        countries: undefined,
+      };
+      triggerFetchFilter({
+        city: citySlug || "",
+        search: search?.term || "",
+        search_type: search?.type !== "term" ? search?.type : "",
+        filter: scalarFilter,
+      });
+    },
+    [citySlug, search, triggerFetchFilter],
+  );
 
   useEffect(() => {
     if (showFilter) {
@@ -110,7 +121,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     } else {
       hasInitialized.current = false;
     }
-  }, [showFilter]);
+    // storedFilter intentionally omitted: we only want to re-fetch when the
+    // dialog opens/closes, not on every filter chip removal while it is closed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilter, fetchFilterScalar]);
 
   // tempFilter has to be updated with fetched and stored filter values
   useEffect(() => {
@@ -174,7 +188,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       fetchFilterScalar(tempFilter);
     }, 500);
     return () => clearTimeout(timer);
-  }, [tempFilter]);
+  }, [tempFilter, showFilter, fetchFilterScalar]);
 
   useEffect(() => {
     setTempGeolocation(geolocation ?? {});

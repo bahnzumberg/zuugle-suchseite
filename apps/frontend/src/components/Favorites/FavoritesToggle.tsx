@@ -6,6 +6,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
 import { darken, lighten } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router";
 import { useFavorites } from "../../hooks/useFavorites";
 import { useAppDispatch } from "../../hooks";
 import { syncDialogOpened } from "../../features/favoritesSlice";
@@ -60,6 +61,8 @@ export default function FavoritesToggle({
   const { isEmbed } = useEmbed();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { favoritesOnly, toggleFavoritesOnly } = useFavorites();
 
   const label = favoritesOnly ? t("favorites.showing") : t("favorites.show");
@@ -85,45 +88,57 @@ export default function FavoritesToggle({
 
   const showSync = !isEmbed && !hideSync;
 
+  const handleToggle = () => {
+    // When on a different page (e.g. the start page), the user wants to
+    // enter favorites mode. Toggle first, then navigate — wrapping the
+    // navigation in a microtask so the Redux store has committed the new
+    // state before React Router mounts the search page.
+    if (location.pathname !== "/search") {
+      if (!favoritesOnly) {
+        toggleFavoritesOnly();
+      }
+      // Microtask ensures the store update is visible to the new route.
+      queueMicrotask(() => navigate("/search"));
+    } else {
+      toggleFavoritesOnly();
+    }
+  };
+
   return (
-    <Box
-      sx={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        flexShrink: 0,
-      }}
-    >
-      <Tooltip title={label}>
-        <span>
-          <SearchBarButton
-            icon={icon}
-            label={label}
-            onClick={toggleFavoritesOnly}
-            ariaPressed={favoritesOnly}
-            sx={{
-              borderRadius: "50px",
-              textTransform: "none",
-              px: { xs: 0, sm: "18px" },
-              minWidth: { xs: 40, sm: 100 },
-              fontWeight: 400,
-              whiteSpace: "nowrap",
-              ...stateSx,
-            }}
-          />
-        </span>
-      </Tooltip>
-      {showSync && (
+    <Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+      {/* Sync button: only visible in favorites mode, positioned left of the
+          toggle pill so the labelled "Zurück" button stays at the far right. */}
+      {showSync && favoritesOnly && (
         <Tooltip title={t("favorites.sync.title")}>
           <IconButton
             onClick={() => dispatch(syncDialogOpened(null))}
             aria-label={t("favorites.sync.title")}
-            sx={{ width: 40, height: 40, ...INACTIVE_SX }}
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: "var(--bzb-bahnblau)",
+              color: "#fff",
+              "&:hover": { bgcolor: "#1a3a5c" },
+            }}
           >
             <CloudSyncRoundedIcon />
           </IconButton>
         </Tooltip>
       )}
+      <SearchBarButton
+        icon={icon}
+        label={label}
+        onClick={handleToggle}
+        ariaPressed={favoritesOnly}
+        sx={{
+          borderRadius: "50px",
+          textTransform: "none",
+          px: "18px",
+          fontWeight: 400,
+          whiteSpace: "nowrap",
+          ...stateSx,
+        }}
+      />
     </Box>
   );
 }

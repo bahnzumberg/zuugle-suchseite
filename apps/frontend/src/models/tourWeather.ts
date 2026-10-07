@@ -8,6 +8,27 @@ export interface TourWeatherDay {
   score: number | null; // 0..100
 }
 
+/** One local hour of `/tours/:id/weather`. Sunshine and precipitation are sums from the hour before till this hour. */
+export interface TourWeatherHour {
+  hour: number; // local 0..23, Europe/Vienna
+  icon: number | null;
+  temp_high_c: number | null;
+  temp_low_c: number | null;
+  sunshine_h: number | null; // 0..1
+  precipitation_mm: number | null;
+  wind_speed_kmh: number | null;
+  wind_direction_deg: number | null;
+  thunderstorm_pct: number | null;
+  freezing_level_m: number | null;
+}
+
+/** One day of `/tours/:id/weather`: the strip day plus local sun times and its hours. */
+export interface TourWeatherDetailDay extends TourWeatherDay {
+  sunrise: string | null; // "HH:MM", local
+  sunset: string | null;
+  hours: TourWeatherHour[];
+}
+
 export type WeatherGradeKey =
   | "excellent"
   | "very_good"
@@ -98,9 +119,28 @@ export function weatherIconUrl(icon: WeatherIcon): string {
   return assetUrl(`icons/weather/${icon.file}.svg`);
 }
 
-/** Today in Europe/Vienna as "YYYY-MM-DD", matching `filterPastDays`. */
-function todayInVienna(): string {
+/** The icon for an id from the weather import; undefined for no data or an unknown id. */
+export function weatherIcon(id: number | null): WeatherIcon | undefined {
+  return id === null ? undefined : WEATHER_ICONS[id];
+}
+
+/** German uses the Austrian format, so 2000 reads "2 000" as on the rest of the page. */
+export function numberLocale(language: string): string {
+  return language.startsWith("de") ? "de-AT" : language;
+}
+
+/** Today in Europe/Vienna as "YYYY-MM-DD". */
+export function todayInVienna(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
+}
+
+/**
+ * Drops the days before today (Europe/Vienna). RTK Query's cache can outlive
+ * midnight, so every forecast is run through this where it is rendered.
+ */
+export function upcomingDays<T extends { date: string }>(days: T[]): T[] {
+  const today = todayInVienna();
+  return days.filter((day) => day.date >= today);
 }
 
 /**
@@ -122,9 +162,7 @@ export function visibleWeatherDays(
 ): TourWeatherDay[] {
   if (!days) return [];
 
-  const today = todayInVienna();
-  const upcoming = days
-    .filter((day) => day.date >= today)
+  const upcoming = upcomingDays(days)
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, WEATHER_STRIP_DAYS)
     .map((day) =>
@@ -136,24 +174,115 @@ export function visibleWeatherDays(
   return upcoming.some((day) => day.icon !== null) ? upcoming : [];
 }
 
+/** "07:44" → 7.733… */
+function timeToHours(time: string): number {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours + minutes / 60;
+}
+
+/** Used when a day lacks sunrise/sunset: a typical hiking day. */
+const FALLBACK_WINDOW: [number, number] = [6, 20];
+
 /**
- * The column heading for one strip cell: "Heute" for today, otherwise a short
- * weekday.
- *
- * Deliberately shorter than `formatWeatherDayLabel` in `WeatherControls.tsx`,
- * which returns "Mi, 24.09." — that does not fit the ~50px cell the strip gets
- * at the `sm` breakpoint.
+ * The hours the detail table shows: from the hour before sunrise to the hour
+ * after sunset, clamped to 5–20 (labeled 06–21, since each column label is the
+ * end of the period: column "21" = 20:00–21:00).
  */
-export function formatWeatherWeekday(
+function hourWindow(day: TourWeatherDetailDay): [number, number] {
+  if (!day.sunrise || !day.sunset) return FALLBACK_WINDOW;
+  return [
+    Math.max(5, Math.floor(timeToHours(day.sunrise)) - 1),
+    Math.min(20, Math.ceil(timeToHours(day.sunset)) + 1),
+  ];
+}
+
+/** The day's hours inside `hourWindow`; empty when the import has none there. */
+export function hoursInWindow(day: TourWeatherDetailDay): TourWeatherHour[] {
+  const [from, to] = hourWindow(day);
+  return day.hours.filter((hour) => hour.hour >= from && hour.hour <= to);
+}
+
+/** Half the length of dawn and dusk, in hours: the light changes from 30 min before to 30 min after. */
+const TWILIGHT_HALF_H = 0.5;
+
+/**
+ * How dark it is at local time `time` (hours, e.g. 7.5 = 07:30): 1 at night,
+ * 0 in daylight, and a smooth ramp through dawn and dusk that is half-way at
+ * sunrise and sunset. 0 throughout when the day lacks sun times.
+ */
+export function darkness(time: number, day: TourWeatherDetailDay): number {
+  if (!day.sunrise || !day.sunset) return 0;
+  const light = (sinceSunEvent: number) => {
+    const x = Math.min(
+      1,
+      Math.max(0, (sinceSunEvent + TWILIGHT_HALF_H) / (2 * TWILIGHT_HALF_H)),
+    );
+    return x * x * (3 - 2 * x);
+  };
+  return Math.max(
+    1 - light(time - timeToHours(day.sunrise)),
+    light(time - timeToHours(day.sunset)),
+  );
+}
+
+/** Highest max / lowest min over the given hours, or null without values. */
+export function tempRange(
+  hours: TourWeatherHour[],
+): { max: number; min: number } | null {
+  const highs = hours.flatMap((hour) => hour.temp_high_c ?? []);
+  const lows = hours.flatMap((hour) => hour.temp_low_c ?? []);
+  if (highs.length === 0 || lows.length === 0) return null;
+  return { max: Math.max(...highs), min: Math.min(...lows) };
+}
+
+type CompassKey = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+const COMPASS: CompassKey[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
+
+/** The 8-point sector wind comes from; the letters are translated (O/E, Z/V…). */
+export function windCompassKey(degrees: number): CompassKey {
+  return COMPASS[Math.round((((degrees % 360) + 360) % 360) / 45) % 8];
+}
+
+export interface WeatherDayLabel {
+  weekday: string;
+  date: string | null;
+}
+
+/**
+ * The parts of a forecast day's label: "Heute" for today (Europe/Vienna) with
+ * no date, otherwise a short weekday and "dd.mm." in every language. The tour
+ * cards' strip uses the parts directly so it can put the date on a second line
+ * when its cells are narrow; everything else uses `formatWeatherDayLabel`.
+ */
+export function weatherDayLabelParts(
   date: string,
   t: TFunction,
-  locale: string = "de-AT",
-): string {
+  locale: string,
+): WeatherDayLabel {
   if (date === todayInVienna()) {
-    return t("weather.today", { defaultValue: "Heute" });
+    return {
+      weekday: t("weather.today", { defaultValue: "Heute" }),
+      date: null,
+    };
   }
-  return new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
-    weekday: "short",
-    timeZone: "Europe/Vienna",
-  });
+  const [year, month, day] = date.split("-");
+  const weekday = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+  ).toLocaleDateString(locale, { weekday: "short" });
+  return { weekday, date: `${day}.${month}.` };
+}
+
+/**
+ * `weatherDayLabelParts` on one line ("Heute", "Mi 24.09."). Shared by the
+ * map's day buttons and the detail page's weather panel.
+ */
+export function formatWeatherDayLabel(
+  date: string,
+  t: TFunction,
+  locale: string,
+): string {
+  const parts = weatherDayLabelParts(date, t, locale);
+  return parts.date ? `${parts.weekday} ${parts.date}` : parts.weekday;
 }

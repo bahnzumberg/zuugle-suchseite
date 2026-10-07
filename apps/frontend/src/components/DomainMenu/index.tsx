@@ -184,30 +184,39 @@ function DomainMenu() {
 
   return (
     <Box component={"div"} className="colLeft">
-      <div
-        className="countrySwitch"
+      <Box
         ref={triggerRef}
         onClick={() => setShowDomainMenu(true)}
+        sx={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "5px",
+          height: 40,
+          px: "18px",
+          bgcolor: "rgba(255, 255, 255, 0.15)",
+          borderRadius: "50px",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          "&:hover": { bgcolor: "rgba(255, 255, 255, 0.28)" },
+        }}
       >
         <img
           src={assetUrl("/img/zuugle_weiss.svg")}
-          height={"19px"}
-          width={"34px"}
+          height="19"
+          width="34"
           alt="Logo Zuugle"
         />
         <Typography
-          style={{
+          sx={{
             fontSize: "15.4px",
-            color: "#FFF",
+            color: "#fff",
             lineHeight: "21px",
-            marginLeft: "5px",
-            whiteSpace: "nowrap",
           }}
         >
           {getDomainText()}
         </Typography>
-        <KeyboardArrowDownIcon sx={{ width: "25px", color: "#ffff" }} />
-      </div>
+        <KeyboardArrowDownIcon sx={{ width: 20, color: "#fff" }} />
+      </Box>
       {showDomainMenu && (
         <Modal
           onClose={() => setShowDomainMenu(false)}

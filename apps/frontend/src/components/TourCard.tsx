@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "..";
 import FavoriteButton from "./Favorites/FavoriteButton";
 import { assetUrl, sizedImageUrl } from "../utils/assetUrl";
-import WanderwetterStrip from "./Weather/WanderwetterStrip";
+import TourWeatherStrip from "./Weather/TourWeatherStrip";
 import { visibleWeatherDays } from "../models/tourWeather";
 
 const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
@@ -22,7 +22,6 @@ const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 export interface TourCardProps {
   tour: Tour;
   city: string | null;
-  /** See `WanderwetterStrip`'s `reserveSpace`. */
   reserveWeatherSpace?: boolean;
 }
 
@@ -73,6 +72,7 @@ export default function TourCard({
     >
       <Link
         href={tourLink}
+        underline="none"
         style={{
           textDecoration: "none",
           display: "contents",
@@ -108,6 +108,9 @@ export default function TourCard({
             display: "flex",
             flexDirection: "column",
             flexGrow: 1,
+            paddingBottom: showsWeatherStrip
+              ? { xs: "10px", sm: "12px" }
+              : undefined,
             "&:last-child": {
               // The strip below owns the card's bottom padding when it renders.
               paddingBottom: showsWeatherStrip
@@ -179,8 +182,8 @@ export default function TourCard({
             sx={{
               mt: "auto",
               display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "8px",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: "10px",
             }}
           >
             <Typography
@@ -189,6 +192,7 @@ export default function TourCard({
                 borderRight: "1px solid #DDDDDD",
                 display: "block",
                 fontSize: "13px",
+                textAlign: "center",
               }}
             >
               {len_too_long && anreisedauer_notlong ? (
@@ -210,6 +214,7 @@ export default function TourCard({
                 borderRight: "1px solid #DDDDDD",
                 display: "block",
                 fontSize: "13px",
+                textAlign: "center",
               }}
             >
               {len_too_long && umstiege_notlong ? (
@@ -228,7 +233,11 @@ export default function TourCard({
 
             <Typography
               variant="blackP"
-              style={{ borderRight: "1px solid #DDDDDD", fontSize: "13px" }}
+              style={{
+                borderRight: "1px solid #DDDDDD",
+                fontSize: "13px",
+                textAlign: "center",
+              }}
             >
               {len_too_long && dauer_notlong ? (
                 <>
@@ -249,7 +258,10 @@ export default function TourCard({
               </span>
             </Typography>
 
-            <Typography variant="blackP" style={{ fontSize: "13px" }}>
+            <Typography
+              variant="blackP"
+              style={{ fontSize: "13px", textAlign: "center" }}
+            >
               {len_too_long && anstieg_notlong ? (
                 <>
                   {t("filter.anstieg")}
@@ -265,17 +277,11 @@ export default function TourCard({
             </Typography>
           </Box>
         </CardContent>
+        <TourWeatherStrip
+          days={weatherDays}
+          reserveSpace={reserveWeatherSpace}
+        />
       </Link>
-      {/* Outside the card-wide Link on purpose: the weather is information about
-         the tour, not a second way to navigate to it, and folding four days of
-         weekday/condition/grade text into the link's accessible name would bury
-         the title. It also keeps the strip a fixed-height Card footer, so
-         CardContent still absorbs the grid's stretch and the stats row stays
-         bottom-anchored. */}
-      <WanderwetterStrip
-        days={weatherDays}
-        reserveSpace={reserveWeatherSpace}
-      />
       {/* Top-right overlay: decorative Top-Tour badge + interactive favorite.
          pointerEvents let clicks fall through to the card except on the heart. */}
       <Box

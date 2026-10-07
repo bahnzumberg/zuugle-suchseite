@@ -85,20 +85,29 @@ container or on a native host it uses the local `pg_restore` instead.
 
 ### Execute backend locally
 
-    npm run start
+```bash
+npm run start
+```
 
-> **Hint:** On the local environment `logger('anytext');` writes to `api.log` in your
-> `zuugle-api/` directory. Helpful when debugging SQL, etc.
+Starts the Express API with file watching (`tsx watch src/index.js`).
+
+> **Hint:** The backend logger (`src/utils/logger.ts`) formats output with consistent
+> timestamps to `stdout`/`stderr` using `logger.info(...)`, `logger.warn(...)`,
+> `logger.error(...)`, and `logger.debug(...)`.
 
 ### Create GPX files and images
 
-Start the API locally, and in a new terminal run the update script:
+Ensure the project is built (`npm run build`) and the API is running locally (`npm run start`), then in a new terminal run the file sync script:
 
-    npm run import-files
+```bash
+npm run import-files
+```
+
+This synchronizes GPX files, generates map preview images via headless Puppeteer against the running API, generates weather overlays, and flushes the Valkey cache.
 
 ## Database changes
-The database is built from `src/migrations/`. Create a new migration with
-`npm run migrate:make <name>`, then apply it with `npm run migrate`. 
+
+The database schema is managed via Knex migrations in `src/migrations/`. Create a new migration with `npm run migrate:make <name>`, then apply it with `npm run migrate`.
 
 ## Managing the Docker stack
 
@@ -111,8 +120,20 @@ npm run rebuild-docker       # recreate the postgres container + re-apply migrat
 
 After `rebuild-docker`, re-run `npm run import-data` to repopulate.
 
+## Code quality & testing
+
+Run the checks before pushing (these mirror the CI pipeline in `.github/workflows/code-checks.yml`):
+
+```bash
+npm run format:check  # verify formatting with Prettier (fix with: npm run format)
+npm run lint          # run ESLint (fix with: npm run lint:fix)
+npm run tsc           # type-check with TypeScript
+npm test              # run Jest test suite
+node scripts/check-cron-scripts.mjs  # guard cron-invoked npm scripts
+```
+
 ## Branches & deployment
 
 Three branches auto-deploy via path-filtered GitHub Actions: `dev`→dev.zuugle.at,
 `uat`→www2.zuugle.at, `main`→www.zuugle.at. Each environment differs only by its server-side
-`.env`. 
+`.env`.

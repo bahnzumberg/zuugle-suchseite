@@ -340,6 +340,7 @@
     "startort_placeholder": "Inserisci indirizzo o fermata",
     "zielort": "Destinazione",
     "aktivitaetsdatum": "Data dell'attività",
+    "datum": "Data",
     "bedarfsverkehr": "Trasporto a chiamata",
     "heute": "Oggi",
     "morgen": "Domani",
@@ -370,10 +371,15 @@
     "ticket_rueckfahrt": "Biglietti ritorno",
     "ticket_oebb_fallback": "Biglietti ÖBB",
     "von_bis_zeiten": "Dalle {0} alle {1}",
+    "ankunft_am_um": "Arrivo il {0} alle {1} {2}",
+    "abfahrt_am_um": "Partenza il {0} alle {1} {2}",
     "verfuegbar": "disponibile",
     "startort_aus_liste_waehlen": "Seleziona un suggerimento dall'elenco",
     "kontingent_erschoepft": "Quota delle richieste orari esaurita.",
-    "verbindungssuche_fehlgeschlagen": "Ricerca connessione fallita. Riprova."
+    "verbindungssuche_fehlgeschlagen": "Ricerca connessione fallita. Riprova.",
+    "fahrplan_titel": "Come arrivare & tornare",
+    "umstieg_label": "cambio",
+    "umstiege_label": "cambi"
   },
   "search": {
     "go": "Vai!",
@@ -427,6 +433,67 @@
       "overcast_snow": "Coperto, neve",
       "thunderstorm": "Temporale",
       "extreme": "Estremo"
+    },
+    "detail": {
+      "info_label": "Spiegazione e aggiornamento dei dati",
+      "info_title": "Come leggere il meteo escursioni",
+      "info_intro": "Previsioni orarie per l’escursione. La colonna «08» indica dalle 08 alle 09: sole, precipitazioni e temporali valgono per quell’ora, temperatura e vento per il suo inizio.",
+      "condition_help": "Un simbolo per ogni ora; l’intestazione del giorno mostra la valutazione per tutta la giornata.",
+      "condition_label": "Meteo",
+      "daylight_help": "Il tempo prima dell’alba e dopo il tramonto è ombreggiato in grigio-blu.",
+      "daylight_label": "Luce del giorno",
+      "empty_help": "Celle vuote: per quell’ora non c’è previsione.",
+      "hour": "Ora",
+      "no_hours": "Previsioni orarie non disponibili per questo giorno.",
+      "outside_window": "Per la tua data di attività non ci sono ancora previsioni – coprono i prossimi 4 giorni.",
+      "sunrise": "Alba",
+      "sunset": "Tramonto",
+      "tour_day": "Giorno del tour",
+      "rows": {
+        "temp_max": {
+          "label": "Temperatura max",
+          "help": "Nel punto più basso dell’escursione, corretta per l’altitudine."
+        },
+        "temp_min": {
+          "label": "Temperatura min",
+          "help": "Nel punto più alto dell’escursione."
+        },
+        "sunshine": {
+          "label": "Soleggiamento",
+          "help": "Minuti di sole in quell’ora."
+        },
+        "wind_direction": {
+          "label": "Direzione del vento",
+          "unit": "Dir.",
+          "help": "La freccia indica dove soffia il vento, le lettere da dove proviene."
+        },
+        "wind_speed": {
+          "label": "Vento",
+          "help": "Velocità del vento a 10 m dal suolo."
+        },
+        "precipitation": {
+          "label": "Precipitazioni",
+          "help": "Pioggia o neve in quell’ora."
+        },
+        "thunderstorm": {
+          "label": "Temporale",
+          "help": "Probabilità di temporale, evidenziata in arancione da 15 %."
+        },
+        "freezing_level": {
+          "label": "Zero termico",
+          "help": "Evidenziato in arancione quando è sotto il punto più alto dell’escursione ({{elevation}} m)."
+        }
+      },
+      "compass": {
+        "n": "N",
+        "ne": "NE",
+        "e": "E",
+        "se": "SE",
+        "s": "S",
+        "sw": "SO",
+        "w": "O",
+        "nw": "NO"
+      }
     }
   }
 }

@@ -69,3 +69,16 @@ export const listsLimiter = rateLimit({
     limit: 300,
     message: { success: false, message: "Too many requests. Please try again later." },
 });
+
+/**
+ * Rate limit for /api/tours/:id/weather.
+ * Bounds request rates on uncached or invalid queries to protect the database.
+ * 300 requests per 10 minutes is loose enough that normal browsing never hits it.
+ */
+export const weatherLimiter = rateLimit({
+    ...shared,
+    store: buildStore("weather"),
+    windowMs: 10 * 60 * 1000,
+    limit: 300,
+    message: { success: false, message: "Too many requests. Please try again later." },
+});

@@ -116,8 +116,49 @@
       }
     </script>
 
+    <script>
+      if (window.location.pathname.startsWith("/tour")) {
+        document.documentElement.classList.add("is-tour-page");
+      }
+    </script>
+
     <!-- App Shell: inline skeleton to avoid white screen while JS loads -->
     <style>
+      .is-tour-page .shell-header,
+      .is-tour-page .shell-search-wrap,
+      .is-tour-page .shell-cards-wrap {
+        display: none !important;
+      }
+
+      .tour-shell-loader {
+        display: none;
+      }
+
+      .is-tour-page .tour-shell-loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .tour-shell-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #254980;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
       .shell-header {
         height: 500px;
         background: #1a3a5c;
@@ -269,6 +310,9 @@
   <body>
     <div id="root">
       <!-- Static skeleton replaced by React on mount -->
+      <div class="tour-shell-loader">
+        <div class="tour-shell-spinner"></div>
+      </div>
       <div class="shell-header">
         <div class="shell-inner">
           <h1 class="shell-title">
