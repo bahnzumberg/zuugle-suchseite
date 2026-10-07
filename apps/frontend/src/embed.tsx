@@ -31,7 +31,7 @@ import filterReducer from "./features/filterSlice";
 import favoritesReducer, {
   initialFavoritesState,
 } from "./features/favoritesSlice";
-import { api, isValidSearchType } from "./features/apiSlice";
+import { api } from "./features/apiSlice";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme";
 import EmbedSearchResults from "./views/EmbedSearchResults";

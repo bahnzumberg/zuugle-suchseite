@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import sharp from "sharp";
 import convertXML from "xml-js";
 import { create } from "xmlbuilder2";
+import { randomInt } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 import knex from "../../knex";
 import {
@@ -464,7 +465,7 @@ const cleanAndRecreateOldImages = async () => {
         try {
             const stats = await fs.promises.stat(filePath);
             const isOlderThan30Days = Date.now() - stats.mtimeMs > thirtyDaysInMs;
-            const shouldBeDeleted = Math.random() < 0.1;
+            const shouldBeDeleted = randomInt(0, 10) === 0; // ~10 % sampling, crypto-safe
 
             if (isOlderThan30Days && shouldBeDeleted) {
                 // logger.info(`Deleting old image for tour ID ${id}.`);

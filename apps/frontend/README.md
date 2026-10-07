@@ -1,31 +1,42 @@
-# Zuugle Suchseite
+# Zuugle Suchseite (Frontend)
+
+Vite+ React SPA. Part of the **zuugle-suchseite monorepo** — see the repo-root
+[`README.md`](../../README.md) for the overall map.
 
 ## Paths and Query Parameters
 
 ### Paths
 
-- `/`: [Start](src/views/Start) - Startseite
-- `/search`: [Search](src/views/Search.tsx) - Suchseite
-- `/tour/:id/:city`: [TourDetail](src/views/TourDetail.tsx) - Detailseite
-- `/privacy`: [Privacy](src/views/Privacy.tsx) - Datenschutzerkl&auml;rung
-- `/imprint`: [Imprint](src/views/Imprint.tsx) - Impressum
+- `/`: [Start](src/views/StartNew.tsx) - Startseite
+- `/:city`: [SearchResults](src/views/SearchResults.tsx) - Direct city view (e.g. `/wien`), renders search results for that city or redirects unknown slugs to `/search?search=<slug>`
+- `/search`: [SearchResults](src/views/SearchResults.tsx) - Suchseite
+- `/search/:searchTerm`: Redirects to `/search?search=<searchTerm>`
+- `/tour/:idOne/:cityOne?`: [TourDetails](src/views/TourDetails.tsx) - Detailseite (city slug is optional)
+- `/provider/:provider`: [TourDetails](src/views/TourDetails.tsx) - Provider-filtered tour view
+- `/sync/:code`: Target for the QR code in the favorites sync dialog; opens the dialog on the search page
+- `/privacy`: Redirects to `/search?legal=privacy` (Datenschutzerklärung)
+- `/imprint`: Redirects to `/search?legal=imprint` (Impressum)
 
-<!-- - `/about`: [About](src/views/Pages/About.tsx) TODO: About.tsx is currently not used -> Clean up or update. -->
+<!-- - `/about`: [About](src/views/About.tsx) TODO: About.tsx is currently not used -> Clean up or update. -->
 
 ### Query Parameters
 
-| Parameter                        | Applicable to  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                            | Examples                                                                                                     |
-| -------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `city`                           | `/`, `/search` | Sets the main city for the search.                                                                                                                                                                                                                                                                                                                                                                                                                     | `wien`, `innsbruck`                                                                                          |
-| `p`                              | `/`, `/search` | If set, will only show tours from that provider.                                                                                                                                                                                                                                                                                                                                                                                                       | `bahnzumberg`, `alpenvereinaktiv`                                                                            |
-| `lang`                           | `/`, `/search` | Set language of the page. Tours written in that language are displayed before tours in other languages.                                                                                                                                                                                                                                                                                                                                                | `en`, `fr`, `de`, `it`, `sl`                                                                                 |
-| `filter`                         | `/search`      | JSON representation of the filter object. Reflects the currently active filter settings, which can be changed via the dialog on the search page.                                                                                                                                                                                                                                                                                                       |
-| `search`                         | `/search`      | Search phrase to filter by. This is usually triggered when one types something into the search field on the start page or search page.                                                                                                                                                                                                                                                                                                                 | `Badesee`                                                                                                    |
-| `geolocation`                    | `/search`      | Usually triggered by clicking on a marker on the map. Zuugle will display only tours that pass through the provided location within a certain radius. A visual indicator is visible on the map, which can also be used to interactively change the radius. Moreover, the geolocation is visible and editable in the filter dialog. Coordinates are in WGS84 and the radius is given in meters. If no radius is provided, a default of $100 m$ is used. | `{"lat":47.46488122914572, "lng":12.203235626220705, "radius":500}`                                          |
-| `lat`, `lng`, optional: `radius` | `/search`      | Alternative way of passing location for `geolocation`. See `geolocation` query parameter.                                                                                                                                                                                                                                                                                                                                                              | `lat=47.46488122914572&lng=12.203235626220705&radius=500`                                                    |
-| `map`                            | `/search`      | Will show a map with tour markers above the list of tours.                                                                                                                                                                                                                                                                                                                                                                                             | `true`                                                                                                       |
-| `bounds`                         | `/search`      | Will adjust the map to the provided bounds and only shows tours which start within those bounds. The bounds are updated when a user moves the map (dragging it or zooming in/out).                                                                                                                                                                                                                                                                     | `{"north":47.697747261516, "south":47.00367043276572, "west":13.278350830078125, "east":13.921051025390627}` |
-| `range`                          | `/search`      | This is usually triggered when users click on one of the range cards visible on the start page.                                                                                                                                                                                                                                                                                                                                                        | `Karwendel`, `Ötztaler Alpen`                                                                                |
+| Parameter                        | Applicable to  | Description                                                                                                                                                                                                                                                                                            | Examples                                                                  |
+| -------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `city`                           | `/`, `/search` | Sets the main city for the search. On `/:city` routes, the city is part of the path instead.                                                                                                                                                                                                           | `wien`, `innsbruck`                                                       |
+| `search`                         | `/search`      | Search phrase to filter by.                                                                                                                                                                                                                                                                            | `Badesee`, `Dachstein`                                                    |
+| `search_type`                    | `/search`      | Type when searching for specific entities.                                                                                                                                                                                                                                                             | `term`, `hut`, `peak`                                                     |
+| `lat`, `lng`, optional: `radius` | `/search`      | WGS84 coordinates and radius in meters (default 100 m) to filter tours passing through that location.                                                                                                                                                                                                  | `lat=47.464881&lng=12.203235&radius=500`                                  |
+| `map`                            | `/search`      | Shows the interactive map with tour markers above the list of tours.                                                                                                                                                                                                                                   | `true`                                                                    |
+| `bounds`                         | `/search`      | Bounding box JSON to restrict tours to the visible map area. Updated when the user pans or zooms.                                                                                                                                                                                                      | `{"north":47.697747,"south":47.003670,"west":13.278350,"east":13.921051}` |
+| `weather`                        | `/search`      | Enables the weather overlay on the map (applicable when `map=true`).                                                                                                                                                                                                                                   | `true`                                                                    |
+| `lang`                           | `/`, `/search` | Language preference for the interface and tour prioritization.                                                                                                                                                                                                                                         | `de`, `en`, `fr`, `it`, `sl`                                              |
+| `legal`                          | `/search`      | Opens the legal dialog/drawer directly.                                                                                                                                                                                                                                                                | `imprint`, `privacy`                                                      |
+| `externalLinks`                  | `/search`      | When `true`, links directly to the original tour provider (e.g. bahn-zum-berg.at) rather than the internal detail view.                                                                                                                                                                                | `true`                                                                    |
+| `p` / `providers`                | `/search`      | Filter by tour provider (pipe-separated array; `p` is an alias from URL navigation).                                                                                                                                                                                                                   | `bahnzumberg`, `bahnzumberg\|alpenvereinaktiv`                            |
+| `range` / `ranges`               | `/search`      | Filter by mountain range (pipe-separated array; `range` is an alias from range card clicks).                                                                                                                                                                                                           | `Karwendel`, `Ötztaler Alpen`                                             |
+| Scalar filters                   | `/search`      | Individual filter settings (see `src/utils/filterParams.ts`): `singleDayTour`, `multipleDayTour`, `summerSeason`, `winterSeason`, `traverse` (booleans), `minAscent`, `maxAscent`, `minDescent`, `maxDescent`, `minDistance`, `maxDistance`, `minTransportDuration`, `maxTransportDuration` (numbers). | `singleDayTour=true&maxAscent=1000`                                       |
+| Array filters                    | `/search`      | Pipe-separated filter lists: `types`, `difficulties`, `countries`, `languages`.                                                                                                                                                                                                                        | `types=1\|2&difficulties=1\|2`                                            |
 
 ## First time installation
 
@@ -53,7 +64,7 @@ Execute in the project directory:
 
 ### Prepare API
 
-Follow the steps described at https://github.com/bahnzumberg/zuugle-api#zuugleat-api
+Follow the backend setup steps described in [`../backend/README.md`](../backend/README.md).
 
 ### Execute frontend locally
 
@@ -63,7 +74,25 @@ This will run the frontend in a browser on http://localhost:3000
 
 ## Run frontend with remote backend
 
-    VITE_API_URL=https://www2.zuugle.at/api vp dev
+The repository provides pre-configured npm scripts in `package.json` for remote environments:
+
+- **UAT** (proxies `/api` with Basic Auth credentials `bzb:bzb`):
+
+  ```bash
+  npm run dev:uat
+  ```
+
+- **Production** (connects directly to the live production API):
+
+  ```bash
+  npm run dev:main
+  ```
+
+- **Custom API endpoint:**
+
+  ```bash
+  VITE_API_URL=https://custom-host.at/api vp dev
+  ```
 
 ## Environment variables
 

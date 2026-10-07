@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useSearchParams, useParams } from "react-router";
 import { RootState } from "..";
 import { useSelector } from "react-redux";
@@ -50,7 +50,7 @@ export default function SearchParamSync() {
       const city = allCities.find((c) => c.value === search.citySlug);
       dispatch(cityUpdated(city ?? null));
     }
-  }, [allCities, search.citySlug]);
+  }, [allCities, search.citySlug, search.city?.value, dispatch]);
 
   useEffect(() => {
     if (search.city?.value) {
@@ -58,7 +58,7 @@ export default function SearchParamSync() {
     } else {
       dispatch(citySlugUpdated(null));
     }
-  }, [search.city]);
+  }, [search.city, dispatch]);
 
   // Redux → URL
   function updateParam(
@@ -109,19 +109,23 @@ export default function SearchParamSync() {
 
     writeFilterParams(newParams, filter);
     setParams(newParams, { replace: true });
-  }, [search, filter]);
+    // setParams is stable (react-router); including it keeps the linter happy
+  }, [search, filter, pathCitySlug, params, setParams]);
 
   // URL → Redux
-  function updateReduxFromParam(
-    paramName: string,
-    actionCreator: ActionCreatorWithPayload<string | null>,
-  ) {
-    const value = params.get(paramName);
-    dispatch(actionCreator(value ?? null));
-  }
+  const updateReduxFromParam = useCallback(
+    (
+      paramName: string,
+      actionCreator: ActionCreatorWithPayload<string | null>,
+    ) => {
+      const value = params.get(paramName);
+      dispatch(actionCreator(value ?? null));
+    },
+    [params, dispatch],
+  );
 
   /** Read city from localStorage and dispatch to Redux if it differs. */
-  function syncCityFromLocalStorage() {
+  const syncCityFromLocalStorage = useCallback(() => {
     const stored = localStorage.getItem("city");
     if (!stored) return;
     try {
@@ -133,7 +137,7 @@ export default function SearchParamSync() {
     } catch {
       /* ignore corrupt data */
     }
-  }
+  }, [search.citySlug, dispatch]);
 
   // The /:city path segment (e.g. /wien) is the authoritative city for that
   // page and overrides both the ?city= query param and localStorage.
@@ -141,7 +145,7 @@ export default function SearchParamSync() {
     if (pathCitySlug) {
       dispatch(citySlugUpdated(pathCitySlug));
     }
-  }, [pathCitySlug]);
+  }, [pathCitySlug, dispatch]);
 
   useEffect(() => {
     // City precedence: /:city path > ?city= query > localStorage. The path
@@ -224,6 +228,9 @@ export default function SearchParamSync() {
         : [...(filterObject.providers ?? []), legacyProvider];
     }
     dispatch(filterUpdated(filterObject));
+    // This effect intentionally runs only on mount to bootstrap Redux from URL.
+    // Listing all deps would cause an infinite loop (dispatch → state → params).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync city from localStorage when tab becomes visible again.

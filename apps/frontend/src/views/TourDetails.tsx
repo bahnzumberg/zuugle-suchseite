@@ -112,8 +112,12 @@ export default function DetailReworked() {
     city: cityOne,
   });
 
-  // SVG365 availability: check if an availability SVG exists for this tour
-  // Loads for inactive tours (valid_tour=0) and when no tour is found at all
+  // SVG365 availability: one SVG per tour showing 365-day reachability.
+  // These files are generated daily on an external server and copied to the
+  // production origin at www.zuugle.at.  There are tens of thousands of them
+  // (several GB in total), so they cannot be bundled with the frontend or
+  // distributed to dev/UAT environments.  Every environment fetches them from
+  // the CDN, which pulls from the production origin.
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [svgExists, setSvgExists] = useState(false);
   useEffect(() => {
@@ -121,20 +125,14 @@ export default function DetailReworked() {
     // Only fetch SVG when a tour exists (valid_tour >= 0)
     if (!tour) return;
     const suffix = idOne.slice(-2).padStart(2, "0");
-    const url = `/svg365/${suffix}/${idOne}.svg`;
+    const url = `https://cdn.zuugle.at/svg365/${suffix}/${idOne}.svg`;
     fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error("not found");
         return r.text();
       })
       .then((text) => {
-        // Inject preserveAspectRatio="none" so the 1px-tall SVG stretches.
-        // Keep <title> elements for native browser tooltips on hover.
-        const patched = text.replace(
-          "<svg ",
-          '<svg preserveAspectRatio="none" ',
-        );
-        setSvgMarkup(patched);
+        setSvgMarkup(text);
         setSvgExists(true);
       })
       .catch(() => {
@@ -878,7 +876,7 @@ export default function DetailReworked() {
                   dangerouslySetInnerHTML={{ __html: svgMarkup }}
                   sx={{
                     width: "100%",
-                    height: "60px",
+                    aspectRatio: "1885 / 31",
                     "& svg": {
                       width: "100%",
                       height: "100%",

@@ -9,7 +9,7 @@
  * The provider filter is locked via EmbedContext — see EmbedSearchParamSync.
  */
 
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import Search from "../components/Search/Search";

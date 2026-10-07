@@ -41,7 +41,7 @@ export default function TourCardContainer({
     if (needsMoreContent() && hasMore) {
       fetchMore();
     }
-  }, [tours]);
+  }, [tours, hasMore, fetchMore]);
 
   return (
     <InfiniteScroll

@@ -1,4 +1,3 @@
-import { cpSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
@@ -30,21 +29,7 @@ const BACKEND_PUBLIC_DIR = fileURLToPath(
   new URL("../backend/public", import.meta.url),
 );
 
-/** Kept in one place — the `svg365` build-output copy below has to match it. */
 const OUT_DIR = "build";
-
-/**
- * `svg365/` is the one hand-maintained tree that stayed behind in
- * `apps/frontend/public` instead of moving into the shared `assets/` folder
- *  — `scripts/cleanup_svg.py` regenerates it against a path hardcoded
- * relative to this checkout.
- */
-const FRONTEND_SVG365_DIR = fileURLToPath(
-  new URL("./public/svg365", import.meta.url),
-);
-const SVG365_OUT_DIR = fileURLToPath(
-  new URL(`./${OUT_DIR}/svg365`, import.meta.url),
-);
 
 /**
  * Base URL of the backend `public/` folder, resolved **once** for the whole
@@ -151,17 +136,6 @@ function backendGeneratedAssets(): Plugin {
   };
 }
 
-/** Dev/build bridge for `svg365/` — see the doc comment on its path above. */
-function frontendSvg365Assets(): Plugin {
-  return {
-    name: "zuugle:frontend-svg365-assets",
-    configureServer: sirvDevMiddleware("/svg365", FRONTEND_SVG365_DIR),
-    closeBundle() {
-      cpSync(FRONTEND_SVG365_DIR, SVG365_OUT_DIR, { recursive: true });
-    },
-  };
-}
-
 export default defineConfig({
   publicDir: "../../assets",
   plugins: [
@@ -172,7 +146,6 @@ export default defineConfig({
     svgr(),
     assetBaseUrl(),
     backendGeneratedAssets(),
-    frontendSvg365Assets(),
   ],
   server: {
     port: 3000,

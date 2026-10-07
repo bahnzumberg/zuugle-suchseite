@@ -20,8 +20,7 @@ import { defineConfig } from "vite-plus";
  * The embed talks to dev.zuugle.at for testing.
  * For production, override with VITE_API_URL=https://www.zuugle.at/api.
  */
-const API_URL =
-  process.env.VITE_API_URL?.trim() || "https://dev.zuugle.at/api";
+const API_URL = process.env.VITE_API_URL?.trim() || "https://dev.zuugle.at/api";
 
 /**
  * Asset base for the embed — on dev this is the dev server's /public path;
