@@ -122,14 +122,18 @@ const TOUR_WEATHER_HOUR_FIELDS = [
 ];
 
 /**
- * The detail endpoint contract: [] or WEATHER_FORECAST_DAYS days starting today,
- * each with local HH:MM sunrise/sunset and unique ascending local hours 0..23.
+ * The detail endpoint contract: [] or 1..WEATHER_FORECAST_DAYS days starting
+ * today, each with local HH:MM sunrise/sunset and unique ascending local
+ * hours 0..23. The endpoint filters out days with fewer than 6 hours in the
+ * display window (06-19), so on the edge of the forecast range the response
+ * may contain fewer than WEATHER_FORECAST_DAYS days.
  */
 function assertValidTourWeatherDetail(days) {
     expect(Array.isArray(days)).toBe(true);
     if (days.length === 0) return;
 
-    expect(days).toHaveLength(WEATHER_FORECAST_DAYS);
+    expect(days.length).toBeGreaterThanOrEqual(1);
+    expect(days.length).toBeLessThanOrEqual(WEATHER_FORECAST_DAYS);
     expect(days[0].date).toBe(todayInVienna());
     assertValidWeatherDays(days);
 
@@ -323,8 +327,13 @@ describe("Zuugle API UAT Tests", () => {
         expect(data.success).toBe(true);
         assertValidTourWeatherDetail(data.days);
 
-        // Same source table as the card strip, so the daily icons must agree.
-        expect(data.days.map((day) => day.icon)).toEqual(tour.weather.map((day) => day.icon));
+        // Same source table as the card strip, so the daily icons must agree
+        // for the days the detail endpoint returned. The strip always has
+        // WEATHER_FORECAST_DAYS entries, but the detail may have fewer (it
+        // filters days with too few hourly slots).
+        const detailDates = data.days.map((d) => d.date);
+        const stripDaysForDates = tour.weather.filter((d) => detailDates.includes(d.date));
+        expect(data.days.map((d) => d.icon)).toEqual(stripDaysForDates.map((d) => d.icon));
         expect(data.days.some((day) => day.hours.length > 0)).toBe(true);
     });
 
