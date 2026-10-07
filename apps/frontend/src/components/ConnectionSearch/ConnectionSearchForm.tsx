@@ -600,9 +600,9 @@ export default function ConnectionSearchForm({
                           "& .MuiOutlinedInput-root": {
                             borderRadius: "12px",
                           },
-                        }}
-                      />
-                    )}
+                        },
+                      },
+                    }}
                   />
                 </Box>
                 <Button
@@ -633,70 +633,15 @@ export default function ConnectionSearchForm({
                     "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
                   }}
                 >
-                  <Box>
-                    <Typography sx={sectionLabelSx}>
-                      {t("details.datum")}
-                    </Typography>
-                    <DatePicker
-                      value={selectedDate}
-                      onChange={(date) => {
-                        if (date) setSelectedDate(date);
-                      }}
-                      minDate={today}
-                      format="DD.MM.YYYY"
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          sx: {
-                            width: "150px",
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: "12px",
-                            },
-                          },
-                        },
-                      }}
+                  {isSearching ? (
+                    <CircularProgress
+                      size={22}
+                      sx={{ color: "#fff", mx: "24px" }}
                     />
-                  </Box>
-                  <Button
-                    variant="contained"
-                    aria-label={t("details.verbindung_suchen")}
-                    disabled={!canSearch || isSearching}
-                    onClick={(e) => {
-                      handleSearch();
-                      (e.currentTarget as HTMLButtonElement).blur();
-                    }}
-                    sx={{
-                      bgcolor: isSearching
-                        ? "var(--bzb-bahnblau)"
-                        : "var(--bzb-akelei)",
-                      color: "#fff",
-                      fontWeight: 600,
-                      fontSize: "14px",
-                      borderRadius: "12px",
-                      textTransform: "none",
-                      px: "16px",
-                      whiteSpace: "nowrap",
-                      "&:hover": {
-                        bgcolor: isSearching
-                          ? "var(--bzb-bahnblau)"
-                          : "#5a1d61",
-                      },
-                      "&:focus, &:focus-visible": {
-                        bgcolor: "var(--bzb-akelei)",
-                      },
-                      "&.Mui-disabled": { bgcolor: "#ccc", color: "#888" },
-                    }}
-                  >
-                    {isSearching ? (
-                      <CircularProgress
-                        size={22}
-                        sx={{ color: "#fff", mx: "24px" }}
-                      />
-                    ) : (
-                      t("details.verbindung_suchen")
-                    )}
-                  </Button>
-                </Box>
+                  ) : (
+                    t("details.verbindung_suchen")
+                  )}
+                </Button>
               </Box>
 
               {/* Row 2: Bedarfsverkehr left + powered by right */}
