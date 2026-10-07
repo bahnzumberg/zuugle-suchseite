@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
@@ -11,6 +11,7 @@ import {
 } from "../features/apiSlice";
 import { Tour } from "../models/Tour";
 import { useFavorites } from "./useFavorites";
+import { useEmbed } from "../utils/embedContext";
 import {
   DirectLink,
   extractCityFromLocation,
@@ -93,9 +94,45 @@ export function useSearchTours() {
     [favoritesOnly, filter, favoriteTourIds],
   );
 
+  const { isEmbed } = useEmbed();
+
+  const prevSearchRef = useRef({
+    filter,
+    citySlug: search.citySlug,
+    searchWithType: search.searchWithType,
+    language: search.language,
+    map: search.map,
+    geolocation: search.geolocation,
+    favoritesOnly,
+  });
+
   // Load tours when filter/search changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    // Never scroll the host window in embed mode, and never scroll when zooming/panning
+    // the map (bounds-only change) so the user's viewport stays stable.
+    const isBoundsOnlyChange =
+      prevSearchRef.current.filter === filter &&
+      prevSearchRef.current.citySlug === search.citySlug &&
+      prevSearchRef.current.searchWithType === search.searchWithType &&
+      prevSearchRef.current.language === search.language &&
+      prevSearchRef.current.map === search.map &&
+      prevSearchRef.current.geolocation === search.geolocation &&
+      prevSearchRef.current.favoritesOnly === favoritesOnly;
+
+    prevSearchRef.current = {
+      filter,
+      citySlug: search.citySlug,
+      searchWithType: search.searchWithType,
+      language: search.language,
+      map: search.map,
+      geolocation: search.geolocation,
+      favoritesOnly,
+    };
+
+    if (!isEmbed && !isBoundsOnlyChange) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
     setPageTours(1);
     setHasMore(true);
 
@@ -119,7 +156,7 @@ export function useSearchTours() {
     return () => {
       debouncedTrigger.cancel();
     };
-  }, [filter, search, favoritesOnly, favoritesReloadTourIds]);
+  }, [filter, search, favoritesOnly, favoritesReloadTourIds, isEmbed]);
 
   // Update tours from loaded data. Skipped while there's nothing to fetch, so a
   // stale non-favorites response resolving after the user switched to an empty

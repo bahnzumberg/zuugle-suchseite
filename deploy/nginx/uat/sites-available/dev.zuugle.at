@@ -19,7 +19,18 @@ server {
         expires 1h;
     }
 
+    # ── Embed widget assets (no auth, permissive CORS) ──────────
+    location /embed/ {
+        auth_basic off;
+        alias /root/suchseite/dev-embed/;
+        expires 1h;
+        add_header Cache-Control "public";
+        add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
+    }
+
+    # ── API proxy (no auth — required for cross-origin embed) ───
     location /api/ {
+        auth_basic off;
         proxy_pass http://localhost:7070;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -28,14 +39,9 @@ server {
     }
 
     location /public/ {
+        auth_basic off;
         alias /root/suchseite/dev-api/public/;
-    }
-
-    # Serve pre-generated availability SVGs directly; a missing SVG must
-    # return a real 404 so the frontend guard hides the reachability
-    # section, instead of the SPA fallback serving index.html with a 200.
-    location /svg365/ {
-        try_files $uri =404;
+        add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
     }
 
     location / {

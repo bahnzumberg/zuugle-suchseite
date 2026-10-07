@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { alpha } from "@mui/material/styles";
+import { SxProps, Theme, alpha } from "@mui/material/styles";
 import FilterButton from "./FilterButton";
 import AutocompleteSearch from "./AutocompleteSearch";
 import { useNavigate } from "react-router";
@@ -18,13 +18,17 @@ import { useAppDispatch } from "../../hooks";
 import { useEffect, useState } from "react";
 import SearchButton from "./SearchButton";
 
+import { useEmbed } from "../../utils/embedContext";
+
 export interface SearchProps {
   setFilterOn?: (filterOn: boolean) => void;
+  sx?: SxProps<Theme>;
 }
 
 export const emptySearch: SearchWithType = { term: "", type: "term" };
 
-export default function Search({ setFilterOn }: SearchProps) {
+export default function Search({ setFilterOn, sx: customSx }: SearchProps) {
+  const { isEmbed } = useEmbed();
   const navigate = useNavigate();
   const filter = useSelector((state: RootState) => state.filter);
   const externalLinks = useSelector(
@@ -33,7 +37,7 @@ export default function Search({ setFilterOn }: SearchProps) {
   const language = useSelector((state: RootState) => state.search.language);
   const city = useSelector((state: RootState) => state.search.city);
   const { data: allCities = [] } = useGetCitiesQuery();
-  const isSearchPage = window.location.pathname === "/search";
+  const isSearchPage = isEmbed || window.location.pathname === "/search";
   const currentSearch = useSelector(
     (state: RootState) => state.search.searchWithType,
   );
@@ -116,29 +120,41 @@ export default function Search({ setFilterOn }: SearchProps) {
 
   return (
     <Box
-      sx={{
-        zIndex: 20,
-        backgroundColor: "#FFF",
-        borderRadius: "15px",
-        padding: { xs: "10px 12px 10px 6px", sm: "12px 24px 12px 12px" },
-        border: "2px solid #ddd",
-        boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
-        transition: "border-color 0.2s ease",
-        boxSizing: "border-box",
-        width: { xs: "calc(100% - 24px)" },
-        maxWidth: "650px",
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "row",
-        "&:focus-within": {
-          borderColor: "primary.light",
-          boxShadow: (theme) =>
-            `0 0 2px 3px ${alpha(theme.palette.primary.light, 0.2)},
-             0 3px 20px 0 rgba(100, 100, 111, 0.3)`,
+      sx={[
+        {
+          zIndex: 20,
+          backgroundColor: "#FFF",
+          borderRadius: "15px",
+          padding: { xs: "10px 10px 10px 6px", sm: "12px 24px 12px 12px" },
+          border: "2px solid #ddd",
+          boxShadow: "rgba(100, 100, 111, 0.3) 0px 3px 20px 0px",
+          transition: "border-color 0.2s ease",
+          boxSizing: "border-box",
+          width: isEmbed ? "100%" : { xs: "calc(100% - 24px)" },
+          flex: isEmbed ? "1 1 auto" : undefined,
+          minWidth: isEmbed ? 0 : undefined,
+          maxWidth: "650px",
+          alignItems: "center",
+          display: "flex",
+          flexDirection: "row",
+          "&:focus-within": {
+            borderColor: "primary.light",
+            boxShadow: (theme: Theme) =>
+              `0 0 2px 3px ${alpha(theme.palette.primary.light, 0.2)},
+               0 3px 20px 0 rgba(100, 100, 111, 0.3)`,
+          },
         },
-      }}
+        ...(Array.isArray(customSx) ? customSx : customSx ? [customSx] : []),
+      ]}
     >
-      <Box sx={{ flexGrow: 1, width: "100%", marginX: "15px" }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          width: "100%",
+          marginX: { xs: "8px", sm: "15px" },
+          minWidth: 0,
+        }}
+      >
         <AutocompleteSearch
           inputVariant={"standard"}
           handleSearch={handleSearch}
