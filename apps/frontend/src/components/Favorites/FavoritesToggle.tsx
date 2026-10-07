@@ -4,13 +4,15 @@ import Tooltip from "@mui/material/Tooltip";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
-import { darken } from "@mui/material/styles";
+import { darken, lighten } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router";
 import { useFavorites } from "../../hooks/useFavorites";
 import { useAppDispatch } from "../../hooks";
 import { syncDialogOpened } from "../../features/favoritesSlice";
 import SearchBarButton from "../Search/SearchBarButton";
+import { useEmbed } from "../../utils/embedContext";
+import { theme } from "../../theme";
 
 // Lindgrün (Corporate Design) — same literal FilterButton uses for its
 // active state, so the hover shade can be derived the same way.
@@ -24,7 +26,39 @@ const INACTIVE_SX = {
   "&:hover": { bgcolor: "rgba(255, 255, 255, 0.28)" },
 };
 
-export default function FavoritesToggle() {
+const inactiveEmbedColor = theme.palette.secondary.main;
+const INACTIVE_EMBED_SX = {
+  bgcolor: lighten(inactiveEmbedColor, 0.9),
+  color: inactiveEmbedColor,
+  border: `1px solid ${lighten(inactiveEmbedColor, 0.3)}`,
+  boxShadow: `0 1px 4px ${lighten(inactiveEmbedColor, 0.7)}`,
+  "&:hover": {
+    bgcolor: lighten(inactiveEmbedColor, 0.84),
+    color: darken(inactiveEmbedColor, 0.08),
+    borderColor: inactiveEmbedColor,
+    boxShadow: `0 2px 8px ${lighten(inactiveEmbedColor, 0.62)}`,
+  },
+};
+
+const ACTIVE_EMBED_SX = {
+  bgcolor: "var(--bzb-lindgruen)",
+  color: "var(--bzb-bahnblau)",
+  border: "1px solid transparent",
+  boxShadow: "0 1px 4px rgba(37,73,128,0.25)",
+  "&:hover": {
+    bgcolor: darken(ACTIVE_BG, 0.08),
+    boxShadow: "0 2px 8px rgba(37,73,128,0.3)",
+  },
+};
+
+export interface FavoritesToggleProps {
+  hideSync?: boolean;
+}
+
+export default function FavoritesToggle({
+  hideSync,
+}: FavoritesToggleProps = {}) {
+  const { isEmbed } = useEmbed();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -40,13 +74,19 @@ export default function FavoritesToggle() {
 
   // Active state mirrors the filter button's language: brand Lindgrün on
   // Bahnblau text.
-  const stateSx = favoritesOnly
-    ? {
-        bgcolor: "var(--bzb-lindgruen)",
-        color: "var(--bzb-bahnblau)",
-        "&:hover": { bgcolor: darken(ACTIVE_BG, 0.08) },
-      }
-    : INACTIVE_SX;
+  const stateSx = isEmbed
+    ? favoritesOnly
+      ? ACTIVE_EMBED_SX
+      : INACTIVE_EMBED_SX
+    : favoritesOnly
+      ? {
+          bgcolor: "var(--bzb-lindgruen)",
+          color: "var(--bzb-bahnblau)",
+          "&:hover": { bgcolor: darken(ACTIVE_BG, 0.08) },
+        }
+      : INACTIVE_SX;
+
+  const showSync = !isEmbed && !hideSync;
 
   const handleToggle = () => {
     // When on a different page (e.g. the start page), the user wants to
@@ -68,7 +108,7 @@ export default function FavoritesToggle() {
     <Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
       {/* Sync button: only visible in favorites mode, positioned left of the
           toggle pill so the labelled "Zurück" button stays at the far right. */}
-      {favoritesOnly && (
+      {showSync && favoritesOnly && (
         <Tooltip title={t("favorites.sync.title")}>
           <IconButton
             onClick={() => dispatch(syncDialogOpened(null))}

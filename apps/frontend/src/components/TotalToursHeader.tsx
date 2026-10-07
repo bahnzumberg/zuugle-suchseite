@@ -8,6 +8,7 @@ import { RootState } from "..";
 import { useAppDispatch } from "../hooks";
 import { filterUpdated } from "../features/filterSlice";
 import { FilterObject } from "../models/Filter";
+import { useEmbed } from "../utils/embedContext";
 import {
   getCountryTranslationMap,
   getDifficultyTranslationMap,
@@ -32,6 +33,7 @@ export default function TotalToursHeader({
 }) {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const { isEmbed, fixedProviders } = useEmbed();
   const storedFilter = useSelector((state: RootState) => state.filter);
   const city = useSelector((state: RootState) => state.search.city);
 
@@ -227,6 +229,9 @@ export default function TotalToursHeader({
 
     if (storedFilter.providers && storedFilter.providers.length > 0) {
       for (const provider of storedFilter.providers) {
+        if (isEmbed || fixedProviders.includes(provider)) {
+          continue;
+        }
         chips.push({
           key: `provider-${provider}`,
           label: provider,

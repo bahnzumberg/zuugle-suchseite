@@ -88,18 +88,30 @@ interface CountFilterActiveArgs {
   geolocation: LocationWithRadius | null;
   defaultFilterValues: FilterObject;
   tempFilter: FilterObject;
+  fixedProviders?: string[];
 }
 
 export function countFilterActive({
   geolocation,
   defaultFilterValues,
   tempFilter,
+  fixedProviders = [],
 }: CountFilterActiveArgs) {
   const isGeolocationSearchActive = geolocation?.lat && geolocation?.lng;
-  return (
-    Object.values(getActiveFilterFields({ defaultFilterValues, tempFilter }))
-      .length + (isGeolocationSearchActive ? 1 : 0)
-  );
+  const activeFields = getActiveFilterFields({
+    defaultFilterValues,
+    tempFilter,
+  });
+  const activeKeys = Object.keys(activeFields).filter((key) => {
+    if (key === "providers" && fixedProviders.length > 0) {
+      const remaining = (activeFields.providers ?? []).filter(
+        (p) => !fixedProviders.includes(p),
+      );
+      return remaining.length > 0;
+    }
+    return true;
+  });
+  return activeKeys.length + (isGeolocationSearchActive ? 1 : 0);
 }
 /**
  *

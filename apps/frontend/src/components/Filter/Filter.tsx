@@ -57,7 +57,7 @@ export interface FilterProps {
 }
 
 export default function Filter({ showFilter, setShowFilter }: FilterProps) {
-  const { isEmbed } = useEmbed();
+  const { isEmbed, fixedProviders } = useEmbed();
   const dispatch = useAppDispatch();
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
@@ -503,6 +503,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
             geolocation,
             defaultFilterValues,
             tempFilter,
+            fixedProviders: isEmbed
+              ? fixedProviders.length
+                ? fixedProviders
+                : ["bahnzumberg"]
+              : fixedProviders,
           }) || ""}{" "}
           {t("filter.filter_anwenden")}
         </Button>

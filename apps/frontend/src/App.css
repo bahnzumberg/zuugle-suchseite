@@ -1198,3 +1198,43 @@ colLeft .domainItem {
   margin: 0;
   padding: 0;
 }
+
+/* --------------------------------------------------------------
+# - Embed Widget Layout (WordPress integration)
+-------------------------------------------------------------- */
+#zuugle-embed {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+#zuugle-embed .cards-container {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+/* Allow embed on WordPress to use the full theme width */
+body:has(#zuugle-embed) .site-main,
+.page-template-template-no-title:has(#zuugle-embed) .site-main,
+.page-id-101104 .site-main {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+body:has(#zuugle-embed) .entry-content,
+.page-id-101104 .entry-content {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+body:has(#zuugle-embed) .site-content,
+.page-id-101104 .site-content {
+  max-width: 100% !important;
+  width: 100% !important;
+}
