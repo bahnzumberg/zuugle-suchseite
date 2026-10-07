@@ -49,11 +49,18 @@ export default function FavoritesToggle() {
     : INACTIVE_SX;
 
   const handleToggle = () => {
-    toggleFavoritesOnly();
-    // The favorites page is always /search. Navigate there when
-    // entering favorites mode, and stay on /search when leaving.
+    // When on a different page (e.g. the start page), the user wants to
+    // enter favorites mode. Toggle first, then navigate — wrapping the
+    // navigation in a microtask so the Redux store has committed the new
+    // state before React Router mounts the search page.
     if (location.pathname !== "/search") {
-      navigate("/search");
+      if (!favoritesOnly) {
+        toggleFavoritesOnly();
+      }
+      // Microtask ensures the store update is visible to the new route.
+      queueMicrotask(() => navigate("/search"));
+    } else {
+      toggleFavoritesOnly();
     }
   };
 

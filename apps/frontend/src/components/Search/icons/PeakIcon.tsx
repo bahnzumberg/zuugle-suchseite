@@ -4,9 +4,13 @@ import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon";
  * Mountain peak with a summit cross (Gipfelkreuz).
  * Clean, geometric outlined style matching MUI outlined icons.
  */
-export default function PeakIcon(props: SvgIconProps) {
+export default function PeakIcon({ sx, ...rest }: SvgIconProps) {
   return (
-    <SvgIcon {...props} viewBox="0 0 24 24" sx={{ fill: "none", ...props.sx }}>
+    <SvgIcon
+      {...rest}
+      viewBox="0 0 24 24"
+      sx={[{ fill: "none" }, ...(Array.isArray(sx) ? sx : [sx])]}
+    >
       {/* Summit cross */}
       <line
         x1="12"

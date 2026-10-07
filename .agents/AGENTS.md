@@ -17,10 +17,28 @@ PR titles and descriptions, issue comments, code comments, and code review feedb
 
 ## Pre-Push Checklist
 
-**Before every `git push`, run the checklist in the relevant package's `AGENTS.md`
-and fix all issues.** These mirror the GitHub Actions in
-`.github/workflows/code-checks.yml` and `_deploy-backend.yml`. Do not push code
-that fails any of these.
+**Before every `git push`, ALWAYS run ALL checks across BOTH environments (Frontend and Backend) and fix all issues:**
+
+### Frontend (`apps/frontend`):
+```bash
+cd apps/frontend
+npm run format:check   # verify formatting (must pass clean)
+npm run lint           # TypeScript & Oxlint check (must pass clean)
+npm run build          # verify production build succeeds
+```
+
+### Backend (`apps/backend`):
+```bash
+cd apps/backend
+npm run format:check   # verify formatting with Prettier (must pass clean)
+npm run lint           # ESLint check (must pass clean)
+npm run tsc            # TypeScript type-check (must pass clean)
+node scripts/check-cron-scripts.mjs  # guard cron scripts (must pass clean)
+npm run build          # verify backend build succeeds
+npm test               # Jest test suite
+```
+
+Do not push code that fails any of these.
 
 ## Static assets
 

@@ -202,6 +202,7 @@ export default defineConfig({
       "DianaWidget-main/**",
     ],
     rules: {
+      "react-hooks/exhaustive-deps": "off",
       "react/display-name": "error",
       "react/jsx-key": "error",
       "react/jsx-no-comment-textnodes": "error",

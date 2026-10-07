@@ -178,11 +178,11 @@ export default function TourWeatherDay({
           <Box
             sx={{
               display: "flex",
-              gap: 2.25,
               flexWrap: "wrap",
               fontSize: 14,
               color: MUTED,
               py: 1,
+              pl: "45px",
               "& > span": {
                 display: "inline-flex",
                 alignItems: "center",
@@ -192,19 +192,26 @@ export default function TourWeatherDay({
             }}
           >
             <span>
-              <WbTwilightIcon sx={{ fontSize: 18, color: TWILIGHT_COLOR }} />
+              <WbTwilightIcon
+                sx={{
+                  fontSize: 18,
+                  color: TWILIGHT_COLOR,
+                  display: { xs: "none", sm: "inline" },
+                }}
+              />
               {t("weather.detail.sunrise")} <time>{day.sunrise}</time>
             </span>
-            <span>
+            <Box component="span" sx={{ ml: "auto" }}>
               <WbTwilightIcon
                 sx={{
                   fontSize: 18,
                   color: TWILIGHT_COLOR,
                   transform: "scaleY(-1)",
+                  display: { xs: "none", sm: "inline" },
                 }}
               />
               {t("weather.detail.sunset")} <time>{day.sunset}</time>
-            </span>
+            </Box>
           </Box>
         )}
         {hours.length > 0 && (

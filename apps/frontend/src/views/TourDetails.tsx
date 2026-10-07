@@ -799,6 +799,7 @@ export default function DetailReworked() {
                       sx={{
                         width: "100%",
                         aspectRatio: "1 / 1",
+                        maxHeight: "50vh",
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",
@@ -826,6 +827,7 @@ export default function DetailReworked() {
                 component="section"
                 aria-labelledby="tour-svg365-title"
                 sx={{
+                  display: { xs: "none", sm: "block" },
                   mt: "24px",
                   bgcolor: "rgba(170, 181, 215, 0.25)",
                   borderRadius: "12px",
