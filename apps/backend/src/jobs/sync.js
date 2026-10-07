@@ -19,39 +19,76 @@ const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorg�
 const inFlightGpxWrites = new Set(); // Verhindert parallele Doppel-Generierung für dieselbe Datei
 const MAX_CONCURRENT_WRITES = 10; // Maximale Anzahl gleichzeitiger Schreibvorgänge
 
-async function update_tours_from_tracks() {
-    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-    // This is the new query, which updates city2tour table. Every city gets its own lat/lon train stop, to be more accurate on the map.
+export async function fixTourCoordinates() {
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon in city2tour.
+    // Prefers transit arrival stop from tracks, falls back to hike start from gpx.
     await knex.raw(`UPDATE city2tour AS c2t
                     SET connection_arrival_stop_lon=b.stop_lon,
-                    connection_arrival_stop_lat=b.stop_lat
+                        connection_arrival_stop_lat=b.stop_lat
                     FROM (
                         SELECT
-                        tour_id,
-                        city_slug,
-                        stop_lon,
-                        stop_lat
+                            tour_id,
+                            city_slug,
+                            stop_lon,
+                            stop_lat
                         FROM (
                             SELECT 
-                            t.id AS tour_id,
-                            f.hashed_url,
-                            f.city_slug,
-                            tracks.track_point_lon AS stop_lon,
-                            tracks.track_point_lat AS stop_lat,
-                            MIN(calendar_date),
-                            rank() OVER (PARTITION BY t.id, f.city_slug ORDER BY MIN(calendar_date) ASC)
+                                t.id AS tour_id,
+                                f.hashed_url,
+                                f.city_slug,
+                                COALESCE(tracks.track_point_lon, gpx.lon) AS stop_lon,
+                                COALESCE(tracks.track_point_lat, gpx.lat) AS stop_lat,
+                                MIN(calendar_date),
+                                rank() OVER (PARTITION BY t.id, f.city_slug ORDER BY MIN(calendar_date) ASC) AS rank
                             FROM tour as t
                             INNER JOIN fahrplan AS f
-                            ON t.hashed_url=f.hashed_url
-                            INNER JOIN tracks AS tracks
-                            ON f.totour_track_key=tracks.track_key
-                            WHERE tracks.track_point_sequence=1
+                                ON t.hashed_url=f.hashed_url
+                            INNER JOIN gpx
+                                ON gpx.hashed_url=f.hashed_url AND gpx.waypoint=1
+                            LEFT OUTER JOIN tracks AS tracks
+                                ON f.totour_track_key=tracks.track_key
+                               AND tracks.track_point_sequence=1
                             GROUP BY 1, 2, 3, 4, 5
                         ) AS a 
                         WHERE rank=1
                     ) AS b
                     WHERE b.tour_id=c2t.tour_id
-                    AND b.city_slug=c2t.city_slug`);
+                      AND b.city_slug=c2t.city_slug`);
+
+    // Select the primary stop per tour and country
+    await knex.raw(`UPDATE city2tour as ct
+                    SET stop_selector='y'
+                    FROM (
+                        SELECT
+                        d.tour_id,
+                        d.city_slug
+                        FROM (
+                            SELECT
+                            c.tour_id,
+                            c.city_slug,
+                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
+                            FROM city2tour AS c
+                            INNER JOIN (
+                                SELECT 
+                                COUNT(*),
+                                tour_id,
+                                connection_arrival_stop_lon,
+                                connection_arrival_stop_lat,
+                                reachable_from_country,
+                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
+                                FROM city2tour
+                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
+                            ) AS a 
+                            ON c.tour_id=a.tour_id
+                            AND c.reachable_from_country=a.reachable_from_country
+                            AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
+                            AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
+                            AND a.lon_lat_order=1
+                        ) AS d
+                        WHERE d.city_order=1
+                    ) AS e
+                    WHERE ct.tour_id=e.tour_id
+                    AND ct.city_slug=e.city_slug;`);
 }
 
 export async function fixTours() {
@@ -113,7 +150,7 @@ export async function fixTours() {
                     f.tour_provider AS provider,
                     f.hashed_url,
                     f.city_slug,
-                    EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60 AS min_connection_dur
+                    COALESCE(EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60,0) AS min_connection_dur
                     FROM fahrplan AS f
                     WHERE f.city_any_connection='yes'
                     GROUP BY f.tour_provider, f.hashed_url, f.city_slug
@@ -155,9 +192,12 @@ export async function fixTours() {
                     SELECT 
                     f.hashed_url,
                     f.city_slug,
-                    ROUND(AVG(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600 +
-                    EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600 +
-                    t.duration)*100)/100 AS avg_total_tour_duration
+                    ROUND(
+                    AVG(
+                    COALESCE(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600,0) +
+                    COALESCE(EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600,0) +
+                    COALESCE(t.duration,0)
+                    )*100)/100 AS avg_total_tour_duration
                     FROM fahrplan AS f
                     INNER JOIN tour AS t
                     ON f.hashed_url=t.hashed_url
@@ -166,104 +206,8 @@ export async function fixTours() {
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
 
-    if (process.env.NODE_ENV == "production") {
-        // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-
-        await update_tours_from_tracks();
-    } else {
-        // On local development there are no tracks. How do we update the two columns in table tours?
-        // If not set, the map can not be filled with data.
-        // We set the stop wrongly with the first track point of the hike. Better than having no data here.
-
-        await knex.raw(`UPDATE city2tour AS c2t
-                        SET connection_arrival_stop_lon=b.lon,
-                        connection_arrival_stop_lat=b.lat
-                        FROM (
-                            SELECT
-                            g.hashed_url,
-                            g.lat-0.5 as lat,
-                            g.lon-0.5 as lon
-                            FROM gpx AS g
-                            WHERE g.typ='first'
-                        ) AS b
-                        WHERE b.hashed_url=c2t.hashed_url`);
-
-        // Generating at least one point for the tracks
-        await knex.raw(`TRUNCATE tracks`);
-
-        try {
-            await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
-                        SELECT
-                        f.totour_track_key AS track_key,
-                        ROW_NUMBER() OVER(PARTITION BY f.totour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
-                        ct.connection_arrival_stop_lon-0.5 AS track_point_lon,
-                        ct.connection_arrival_stop_lat-0.5 AS track_point_lat,
-                        0 AS track_point_elevation
-                        FROM fahrplan AS f
-                        INNER JOIN city2tour AS ct
-                        ON ct.hashed_url=f.hashed_url
-                        AND f.city_slug=ct.city_slug
-                        WHERE ct.connection_arrival_stop_lon IS NOT NULL
-                        AND ct.connection_arrival_stop_lat IS NOT NULL
-                        GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
-        } catch (e) {
-            logger.info(e);
-        }
-
-        try {
-            await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
-                        SELECT
-                        f.fromtour_track_key AS track_key,
-                        ROW_NUMBER() OVER(PARTITION BY f.fromtour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
-                        ct.connection_arrival_stop_lon+1 AS track_point_lon,
-                        ct.connection_arrival_stop_lat+1 AS track_point_lat,
-                        0 AS track_point_elevation
-                        FROM fahrplan AS f
-                        INNER JOIN city2tour AS ct
-                        ON ct.hashed_url=f.hashed_url
-                        AND f.city_slug=ct.city_slug
-                        WHERE f.fromtour_track_key NOT IN (SELECT track_key FROM tracks)
-                        AND ct.connection_arrival_stop_lon IS NOT NULL
-                        AND ct.connection_arrival_stop_lat IS NOT NULL
-                        GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
-        } catch (e) {
-            logger.info(e);
-        }
-    }
-
-    await knex.raw(`UPDATE city2tour as ct
-                    SET stop_selector='y'
-                    FROM (
-                        SELECT
-                        d.tour_id,
-                        d.city_slug
-                        FROM (
-                            SELECT
-                            c.tour_id,
-                            c.city_slug,
-                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
-                            FROM city2tour AS c
-                            INNER JOIN (
-                                SELECT 
-                                COUNT(*),
-                                tour_id,
-                                connection_arrival_stop_lon,
-                                connection_arrival_stop_lat,
-                                reachable_from_country,
-                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
-                                FROM city2tour
-                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
-                            ) AS a 
-                            ON c.tour_id=a.tour_id
-                            AND c.reachable_from_country=a.reachable_from_country
-                            AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
-                            AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
-                            AND a.lon_lat_order=1
-                        ) AS d
-                        WHERE d.city_order=1
-                    ) AS e
-                    WHERE ct.tour_id=e.tour_id
-                    AND ct.city_slug=e.city_slug;`);
+    // Fill connection coordinates and compute stop selector
+    await fixTourCoordinates();
 
     await knex.raw(`ANALYZE city2tour;`);
 
@@ -358,8 +302,12 @@ export async function truncateAll() {
         try {
             await knex.raw(`TRUNCATE ${tbl};`);
         } catch (err) {
-            // Ignore errors for missing tables (e.g., canonical_alternate may not exist yet)
-            logger.warn(`TRUNCATE ${tbl} failed (ignored):`, err.message);
+            // Only ignore error if the table does not exist yet (PostgreSQL error 42P01)
+            if (err.code === "42P01") {
+                logger.warn(`TRUNCATE ${tbl} skipped (table does not exist)`);
+            } else {
+                throw err;
+            }
         }
     }
 }
@@ -682,7 +630,7 @@ export async function populateCity2TourFlat() {
             t.ascent, 
             t.descent, 
             t.difficulty, 
-            t.duration, 
+            COALESCE(t.duration, 0) as duration, 
             t.distance, 
             t.number_of_days, 
             t.traverse, 

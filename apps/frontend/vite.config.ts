@@ -1,4 +1,3 @@
-import { cpSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
@@ -30,21 +29,7 @@ const BACKEND_PUBLIC_DIR = fileURLToPath(
   new URL("../backend/public", import.meta.url),
 );
 
-/** Kept in one place — the `svg365` build-output copy below has to match it. */
 const OUT_DIR = "build";
-
-/**
- * `svg365/` is the one hand-maintained tree that stayed behind in
- * `apps/frontend/public` instead of moving into the shared `assets/` folder
- *  — `scripts/cleanup_svg.py` regenerates it against a path hardcoded
- * relative to this checkout.
- */
-const FRONTEND_SVG365_DIR = fileURLToPath(
-  new URL("./public/svg365", import.meta.url),
-);
-const SVG365_OUT_DIR = fileURLToPath(
-  new URL(`./${OUT_DIR}/svg365`, import.meta.url),
-);
 
 /**
  * Base URL of the backend `public/` folder, resolved **once** for the whole
@@ -108,26 +93,17 @@ function assetBaseUrl(): Plugin {
         return code.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE);
       },
     },
-    transformIndexHtml(html) {
-      return {
-        html: html.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE),
-        tags: ASSET_BASE_HINTS,
-      };
+    transformIndexHtml: {
+      order: "pre",
+      handler(html) {
+        return {
+          html: html.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE),
+          tags: ASSET_BASE_HINTS,
+        };
+      },
     },
   };
 }
-
-/**
- * Mounts `dir` under `prefix` for dev — `sirv` re-reads the folder per
- * request, so a newly added asset is picked up without a restart, and calls
- * `next()` when it finds no file, falling through to whatever's registered
- * after it (Vite's own static serving, or another `configureServer` plugin).
- */
-const sirvDevMiddleware =
-  (prefix: string, dir: string): NonNullable<Plugin["configureServer"]> =>
-  (server) => {
-    server.middlewares.use(prefix, sirv(dir, { dev: true, etag: true }));
-  };
 
 /**
  * Serves what's left in the backend's local `public/` folder under `/public`
@@ -147,17 +123,19 @@ function backendGeneratedAssets(): Plugin {
   return {
     name: "zuugle:backend-generated-assets",
     apply: "serve",
-    configureServer: sirvDevMiddleware("/public", BACKEND_PUBLIC_DIR),
-  };
-}
-
-/** Dev/build bridge for `svg365/` — see the doc comment on its path above. */
-function frontendSvg365Assets(): Plugin {
-  return {
-    name: "zuugle:frontend-svg365-assets",
-    configureServer: sirvDevMiddleware("/svg365", FRONTEND_SVG365_DIR),
-    closeBundle() {
-      cpSync(FRONTEND_SVG365_DIR, SVG365_OUT_DIR, { recursive: true });
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (req.url === "/favicon.ico") {
+          req.url = "/public/favicon.ico";
+        }
+        next();
+      });
+      // sirv re-reads the folder per request, so a newly added asset is
+      // picked up without a restart, and falls through when file is not found.
+      server.middlewares.use(
+        "/public",
+        sirv(BACKEND_PUBLIC_DIR, { dev: true, etag: true }),
+      );
     },
   };
 }
@@ -172,7 +150,6 @@ export default defineConfig({
     svgr(),
     assetBaseUrl(),
     backendGeneratedAssets(),
-    frontendSvg365Assets(),
   ],
   server: {
     port: 3000,
@@ -229,6 +206,7 @@ export default defineConfig({
       "DianaWidget-main/**",
     ],
     rules: {
+      "react-hooks/exhaustive-deps": "off",
       "react/display-name": "error",
       "react/jsx-key": "error",
       "react/jsx-no-comment-textnodes": "error",

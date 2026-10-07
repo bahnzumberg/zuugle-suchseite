@@ -8,10 +8,11 @@ import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
-import { ConnectionResult } from "../models/Connections";
 import { API_BASE_URL } from "../utils/apiBase";
-import { apiImageUrl, publicAssetUrl } from "../utils/assetUrl";
+import { apiImageUrl, assetUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
+import type { TourWeatherDetailDay } from "../models/tourWeather";
+import type { WeatherMetadata } from "../models/weatherOverlay";
 
 export interface CitiesResponse {
   success: boolean;
@@ -59,6 +60,11 @@ export interface TourParams {
 export interface TourResponse {
   success: boolean;
   tour: Tour;
+}
+
+interface TourWeatherResponse {
+  success: boolean;
+  days: TourWeatherDetailDay[];
 }
 
 export interface ToursResponse {
@@ -143,16 +149,6 @@ export interface FilterResponse {
 export interface FilterWithProviders {
   filter: FilterObject;
   providers: Provider[];
-}
-
-export interface ConnectionParams {
-  id: string;
-  city: string;
-}
-
-export interface ConnectionResponse {
-  success: boolean;
-  result: ConnectionResult[];
 }
 
 export interface LicensePublisher {
@@ -293,6 +289,10 @@ export const api = createApi({
         return withLocalAssetUrls(response.tour);
       },
     }),
+    getTourWeather: build.query<TourWeatherDetailDay[], string>({
+      query: (id) => `tours/${id}/weather`,
+      transformResponse: (response: TourWeatherResponse) => response.days,
+    }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
         const { bounds, geolocation, filter, ...rest } = params;
@@ -365,20 +365,36 @@ export const api = createApi({
       },
     }),
 
+    /**
+     * The map overlay's metadata; its `generated_at` is also the "Stand" of the
+     * detail page's weather panel. Unfiltered; the maps read it through
+     * `useWeatherOverlay`.
+     */
+    getWeatherMetadata: build.query<WeatherMetadata, void>({
+      queryFn: async () => {
+        try {
+          const res = await fetchAsset(
+            assetUrl("weather/weather_metadata.json"),
+          );
+          if (!res.ok) {
+            return { error: { status: res.status, data: null } };
+          }
+          return { data: (await res.json()) as WeatherMetadata };
+        } catch (error) {
+          console.warn("Could not load weather metadata:", error);
+          return {
+            error: { status: "FETCH_ERROR", error } as FetchBaseQueryError,
+          };
+        }
+      },
+    }),
+
     getProviderGpxOk: build.query<boolean, string>({
       query: (provider) => `tours/provider/${provider}`,
       transformResponse: (response: {
         success: boolean;
         allow_gpx_download: string;
       }) => response.allow_gpx_download === "y",
-    }),
-    getConnectionsExtended: build.query<ConnectionResult[], ConnectionParams>({
-      query: (params) => {
-        return `tours/${params.id}/connections-extended?city=${params.city}&domain=${domain}`;
-      },
-      transformResponse: (response: ConnectionResponse) => {
-        return response.result;
-      },
     }),
     getCities2Tour: build.query<Cities2TourCity[], string>({
       query: (id) => {
@@ -492,13 +508,12 @@ export const {
   useLazyGetFilterQuery,
   useGetTourQuery,
   useLazyGetTourQuery,
+  useGetTourWeatherQuery,
+  useGetWeatherMetadataQuery,
   useGetGPXQuery,
   useLazyGetGPXQuery,
   useGetProviderGpxOkQuery,
   useLazyGetProviderGpxOkQuery,
-  useGetConnectionsExtendedQuery,
-  useLazyGetConnectionsExtendedQuery,
-
   useGetCities2TourQuery,
   useGetLicensesQuery,
 
