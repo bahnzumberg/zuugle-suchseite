@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useTranslation } from "react-i18next";
 import { useGetTourWeatherQuery } from "../../features/apiSlice";
@@ -66,7 +66,7 @@ export default memo(function TourWeatherPanel({
     >
       <Box sx={{ display: "flex", alignItems: "center", mx: "2px", mb: 1.25 }}>
         {/* Styled like the map's Wanderwetter button, so both read as the same feature. */}
-        <CloudQueueOutlinedIcon
+        <WbSunnyRoundedIcon
           aria-hidden
           sx={{ fontSize: 20, color: "var(--bzb-akelei)", mr: "7px" }}
         />
