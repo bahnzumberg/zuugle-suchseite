@@ -1019,19 +1019,6 @@ ul.about-bullets {
   align-items: flex-start;
 }
 
-.countrySwitch {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  padding: 15px;
-  width: 173.02px;
-  background: rgba(37, 73, 128, 0.2);
-  border-radius: 20px;
-  cursor: pointer;
-}
-
 .rowing {
   display: flex;
   flex-direction: row;

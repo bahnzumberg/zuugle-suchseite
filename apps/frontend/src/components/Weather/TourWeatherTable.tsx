@@ -43,7 +43,7 @@ const CELL = {
   p: "5px 0",
   textAlign: "center",
   whiteSpace: "nowrap",
-  minWidth: { xs: 38, sm: 39 },
+  minWidth: 38,
   fontWeight: 400,
 } as const;
 
@@ -209,7 +209,9 @@ function buildRows(
         const pct = hour.thunderstorm_pct;
         if (pct === null) return null;
         if (pct < 1) return NONE;
-        return pct < THUNDERSTORM_FAINT_PCT ? faint(format(pct)) : format(pct);
+        return pct < THUNDERSTORM_FAINT_PCT
+          ? faint(`${format(pct)}%`)
+          : `${format(pct)}%`;
       },
     },
   ];
@@ -234,9 +236,9 @@ function buildRows(
 }
 
 /**
- * The night shading of each column. A column stands for hour..hour+1; sampling
- * the darkness across it keeps dawn and dusk a continuous gradient over the
- * column borders.
+ * The night shading of each column. A column with backend `hour` covers the
+ * period hour..hour+1 (labeled as hour+1); sampling the darkness across it
+ * keeps dawn and dusk a continuous gradient over the column borders.
  */
 function nightShading(day: TourWeatherDetailDay, hours: TourWeatherHour[]) {
   return hours.map((hour) => {
@@ -346,7 +348,7 @@ export default function TourWeatherTable({
               >
                 {t("weather.detail.hour")}
               </Box>
-              {hours.map((hour, col) => (
+              {hours.slice(0, -1).map((hour) => (
                 <Box
                   component="th"
                   scope="col"
@@ -355,12 +357,15 @@ export default function TourWeatherTable({
                     ...CELL,
                     fontWeight: 700,
                     pt: "2px",
-                    ...night[col],
+                    position: "relative",
+                    left: "19px",
                   }}
                 >
-                  {String(hour.hour).padStart(2, "0")}
+                  {String(hour.hour + 1).padStart(2, "0")}
                 </Box>
               ))}
+              {/* Empty cell for the last data column (no label needed) */}
+              <Box component="th" scope="col" sx={{ ...CELL, pt: "2px" }} />
             </tr>
             <tr>
               <Box component="th" scope="row" sx={LABEL}>

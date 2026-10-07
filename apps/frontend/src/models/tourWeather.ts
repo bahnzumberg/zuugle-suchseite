@@ -8,7 +8,7 @@ export interface TourWeatherDay {
   score: number | null; // 0..100
 }
 
-/** One local hour of `/tours/:id/weather`. Sunshine and precipitation are sums from this hour to the next. */
+/** One local hour of `/tours/:id/weather`. Sunshine and precipitation are sums from the hour before till this hour. */
 export interface TourWeatherHour {
   hour: number; // local 0..23, Europe/Vienna
   icon: number | null;
@@ -185,14 +185,14 @@ const FALLBACK_WINDOW: [number, number] = [6, 20];
 
 /**
  * The hours the detail table shows: from the hour before sunrise to the hour
- * after sunset, clamped to 5–22. That is ~6–20 in October, ~5–21 in summer
- * and ~7–17 in winter.
+ * after sunset, clamped to 5–20 (labeled 06–21, since each column label is the
+ * end of the period: column "21" = 20:00–21:00).
  */
 function hourWindow(day: TourWeatherDetailDay): [number, number] {
   if (!day.sunrise || !day.sunset) return FALLBACK_WINDOW;
   return [
     Math.max(5, Math.floor(timeToHours(day.sunrise)) - 1),
-    Math.min(22, Math.ceil(timeToHours(day.sunset)) + 1),
+    Math.min(20, Math.ceil(timeToHours(day.sunset)) + 1),
   ];
 }
 
