@@ -38,6 +38,7 @@ import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
 import { todayInVienna, upcomingDays } from "../models/tourWeather";
 import TourCard from "../components/TourCard";
 import FavoriteButton from "../components/Favorites/FavoriteButton";
+import MobileQuickNav from "../components/MobileQuickNav";
 
 import { useAppDispatch } from "../hooks";
 import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
@@ -581,7 +582,7 @@ export default function DetailReworked() {
 
             {/* ─── Description (full width, under title) ─── */}
             {tour?.description && (
-              <Box sx={{ textAlign: "left", pb: "12px" }}>
+              <Box sx={{ textAlign: "left", pb: "50px" }}>
                 <Typography variant="body1" sx={{ lineHeight: "1.6" }}>
                   {tour.description}
                 </Typography>
@@ -590,7 +591,7 @@ export default function DetailReworked() {
 
             {/* ─── Warning for validTour === 2 ─── */}
             {validTour === 2 && (
-              <Alert severity="warning" sx={{ mb: "16px" }}>
+              <Alert severity="warning" sx={{ mb: "50px" }}>
                 {t("details.tour_andere_city_warnung")}
               </Alert>
             )}
@@ -600,8 +601,9 @@ export default function DetailReworked() {
               sx={{
                 display: "flex",
                 flexDirection: { xs: "column", md: "row" },
-                gap: "16px",
-                pb: "16px",
+                rowGap: "50px",
+                columnGap: "16px",
+                pb: "50px",
                 alignItems: { md: "stretch" },
               }}
             >
@@ -702,8 +704,8 @@ export default function DetailReworked() {
                   display: "flex",
                   flexDirection: { xs: "column", md: "row" },
                   alignItems: { md: "flex-start" },
-                  gap: "16px",
-                  mt: "8px",
+                  rowGap: "50px",
+                  columnGap: "16px",
                   /* Make these panels fill most of the viewport */
                   minHeight: { md: "calc(100vh - 320px)" },
                 }}
@@ -729,6 +731,7 @@ export default function DetailReworked() {
                       p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
                       flex: 1,
                       minWidth: 0,
+                      minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                     }}
                   >
                     <Box
@@ -769,7 +772,13 @@ export default function DetailReworked() {
                     />
                   </Box>
                   {idOne && (
-                    <Box sx={{ mt: "16px" }}>
+                    <Box
+                      sx={{
+                        mt: "50px",
+                        minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
+                      }}
+                      className="tour-weather-panel"
+                    >
                       <TourWeatherPanel
                         tourId={idOne}
                         activityDate={activityDate}
@@ -792,14 +801,16 @@ export default function DetailReworked() {
                     top: { md: "72px" },
                     alignSelf: { md: "flex-start" },
                     width: { xs: "100%", md: "auto" },
+                    minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                   }}
                 >
                   {track && (
                     <Box
                       sx={{
                         width: "100%",
-                        aspectRatio: "1 / 1",
-                        maxHeight: "50vh",
+                        aspectRatio: { sm: "1 / 1" },
+                        height: { xs: "66vh" },
+                        maxHeight: { sm: "50vh" },
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",
@@ -828,7 +839,7 @@ export default function DetailReworked() {
                 aria-labelledby="tour-svg365-title"
                 sx={{
                   display: { xs: "none", sm: "block" },
-                  mt: "24px",
+                  mt: "50px",
                   bgcolor: "rgba(170, 181, 215, 0.25)",
                   borderRadius: "12px",
                   p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
@@ -923,6 +934,8 @@ export default function DetailReworked() {
             )}
           </Box>
           <Footer></Footer>
+          {/* Spacer so fixed MobileQuickNav doesn't cover footer on mobile */}
+          <Box sx={{ height: { xs: "56px", sm: 0 } }} />
         </Box>
       )}
       <Snackbar
@@ -940,6 +953,7 @@ export default function DetailReworked() {
           {t("Details.gpx_download_error")}
         </Alert>
       </Snackbar>
+      <MobileQuickNav />
     </>
   );
 }
