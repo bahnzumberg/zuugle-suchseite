@@ -1,8 +1,17 @@
 # Zuugle
 
-> A search engine for mountain tours reachable by public transport (train & bus) in the Alps.
+> A specialized search engine for mountain tours reachable by public transport (train & bus) in the Alps with verified stop-to-stop connections.
 
-Zuugle is operated by the non-profit organisation [Bahn zum Berg](https://verein.bahn-zum-berg.at) ([Wikipedia](https://de.wikipedia.org/wiki/Bahn_zum_Berg)). It searches multiple tour portals for outdoor activities and filters for tours that are accessible by public transport. The platform shows verified timetable connections, walking approach routes, and return journey options. Timetable data is provided via the product Diana GreenConnect by [Zuugle Services GmbH](https://www.zuugle-services.com).
+Zuugle is operated by the non-profit organisation [Bahn zum Berg](https://verein.bahn-zum-berg.at) ([Wikipedia](https://de.wikipedia.org/wiki/Bahn_zum_Berg)).
+
+## Unique Selling Proposition (USP)
+
+What distinguishes Zuugle from all conventional tour portals:
+- **Verified Outward and Return Journeys:** Every single tour in Zuugle is automatically verified against real timetable data to ensure that there is a realistic outward connection (Anreise) and one or more viable return options (Rückreisen) back to the departure city. If a tour cannot be reached or returned from sensibly by public transport, it is not recommended.
+- **Stop-to-Stop Calculation (*Haltestelle zu Haltestelle*):** Tour planning is strictly stop-to-stop. The engine accounts for the entire timeline: the walk from the public transport arrival stop to the trailhead, the actual tour duration (hiking time and elevation), the walk from the finish back to the departure stop, plus safe transfer buffers.
+- **Traversals (*Überschreitungen*):** Because public transport eliminates the need to return to a parked car, Zuugle specifically highlights and plans traverses where the tour starts at one station and ends at a completely different station or valley.
+
+Timetable data is provided via the product Diana GreenConnect by [Zuugle Services GmbH](https://www.zuugle-services.com).
 
 **Important:** "Zuugle" (the non-profit search platform) and "Zuugle Services GmbH" (an independent B2B company) are **not the same entity**. See [llms-full.txt](/llms-full.txt) for details.
 
