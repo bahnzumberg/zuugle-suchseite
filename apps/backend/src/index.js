@@ -11,6 +11,7 @@ import searchAutocomplete from "./routes/searchAutocomplete";
 import diana from "./routes/diana";
 import licenses from "./routes/licenses";
 import lists from "./routes/lists";
+import seo from "./routes/seo";
 import matomoBotTracker from "./middlewares/matomoBotTracker";
 import { swaggerDocs } from "./utils/swagger";
 import logger from "./utils/logger";
@@ -67,6 +68,7 @@ app.use("/api/licenses", cors(corsOptions), licenses);
 // Rate limiting for these routes is applied inside routes/lists.js itself,
 // next to the route definitions it governs.
 app.use("/api/lists", cors(corsOptions), hostMiddleware, lists);
+app.use("/api/seo", cors(corsOptions), hostMiddleware, seo);
 swaggerDocs(app);
 
 app.listen(API_PORT, () => logger.info("Running on localhost:" + API_PORT));
