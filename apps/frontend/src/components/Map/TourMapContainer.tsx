@@ -447,7 +447,7 @@ export default function TourMapContainer({
       sx={{
         height: isFullscreen
           ? "100vh"
-          : { xs: "calc(100vh - 161px - 56px)", sm: "600px" },
+          : { xs: "calc(100vh - 161px - 112px)", sm: "600px" },
         maxHeight: isFullscreen ? "none" : { xs: "none", sm: "60vh" },
         width: "100%",
         maxWidth: isFullscreen ? "none" : "1400px",
