@@ -78,10 +78,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         assetFileNames: "zuugle-embed.[ext]",
+        banner:
+          "if(typeof window!=='undefined'&&!window.process){window.process={env:{NODE_ENV:'production'}}};",
       },
     },
   },
   define: {
+    "process.env.NODE_ENV": JSON.stringify("production"),
+    "process.env": JSON.stringify({ NODE_ENV: "production" }),
     __BUILD_HASH__: JSON.stringify(Date.now().toString(36)),
     __ASSET_BASE__: JSON.stringify(ASSET_BASE),
     // Override the API base URL for the embed — it must be absolute since

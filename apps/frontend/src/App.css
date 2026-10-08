@@ -919,12 +919,13 @@ ul.about-bullets {
   z-index: 0;
 }
 
-/* On mobile the map goes edge-to-edge; above 600px (two-column tile grid)
-   the inline 30px padding keeps it aligned with the cards below. */
+/* On mobile the map uses the same 10px side padding as .cards-container;
+   above 600px (two-column tile grid) the inline 30px padding keeps it
+   aligned with the cards below. */
 @media (max-width: 599px) {
   .map-fullscreen-container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 }
 
@@ -1217,24 +1218,53 @@ colLeft .domainItem {
   width: 100%;
 }
 
+#zuugle-embed .map-fullscreen-container {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+@media (max-width: 599px) {
+  #zuugle-embed .map-fullscreen-container {
+    height: calc(100vh - 296px) !important;
+    height: calc(100dvh - 296px) !important;
+    min-height: 250px !important;
+  }
+}
+
 /* Allow embed on WordPress to use the full theme width */
 body:has(#zuugle-embed) .site-main,
+.page-template-template-fullwidth-no-title:has(#zuugle-embed) .site-main,
 .page-template-template-no-title:has(#zuugle-embed) .site-main,
 .page-id-101104 .site-main {
   max-width: 100% !important;
   width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 body:has(#zuugle-embed) .entry-content,
 .page-id-101104 .entry-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 body:has(#zuugle-embed) .site-content,
 .page-id-101104 .site-content {
   max-width: 100% !important;
   width: 100% !important;
+  padding: 0 !important;
+}
+
+body:has(#zuugle-embed) article,
+.page-id-101104 article {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }

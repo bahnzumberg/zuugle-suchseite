@@ -93,7 +93,7 @@ export default function FavoritesToggle({
     // enter favorites mode. Toggle first, then navigate — wrapping the
     // navigation in a microtask so the Redux store has committed the new
     // state before React Router mounts the search page.
-    if (location.pathname !== "/search") {
+    if (!isEmbed && location.pathname !== "/search") {
       if (!favoritesOnly) {
         toggleFavoritesOnly();
       }

@@ -444,16 +444,19 @@ export default function TourMapContainer({
     <Box
       ref={containerRef}
       className={`map-fullscreen-container ${isWeatherActive ? "weather-active-map" : ""}`}
-      style={{
-        height: isFullscreen ? "100vh" : "600px",
-        maxHeight: isFullscreen ? "none" : "60vh",
+      sx={{
+        height: isFullscreen
+          ? "100vh"
+          : { xs: "calc(100vh - 161px - 56px)", sm: "600px" },
+        maxHeight: isFullscreen ? "none" : { xs: "none", sm: "60vh" },
         width: "100%",
         maxWidth: isFullscreen ? "none" : "1400px",
-        padding: isFullscreen ? "0" : "0 30px",
+        padding: isFullscreen ? "0" : { xs: "0 10px", sm: "0 30px" },
         boxSizing: "border-box",
         position: "relative",
         overflow: "hidden",
-        margin: "auto",
+        marginX: "auto",
+        marginBottom: { xs: "10px", sm: 0 },
       }}
     >
       <MapContainer
