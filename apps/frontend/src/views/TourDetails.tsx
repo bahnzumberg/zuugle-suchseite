@@ -38,7 +38,34 @@ import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
 import { todayInVienna, upcomingDays } from "../models/tourWeather";
 import TourCard from "../components/TourCard";
 import FavoriteButton from "../components/Favorites/FavoriteButton";
-import MobileQuickNav from "../components/MobileQuickNav";
+import MobileQuickNav, {
+  type QuickNavSection,
+} from "../components/MobileQuickNav";
+import DirectionsTransitRoundedIcon from "@mui/icons-material/DirectionsTransitRounded";
+import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+
+/** Sections the mobile quick-nav scrolls to on the tour detail page. */
+const DETAIL_SECTIONS: QuickNavSection[] = [
+  {
+    id: "fahrplan",
+    selector: ".tour-fahrplan-panel",
+    icon: <DirectionsTransitRoundedIcon sx={{ fontSize: 26 }} />,
+    label: "Fahrplan",
+  },
+  {
+    id: "wetter",
+    selector: ".tour-weather-panel",
+    icon: <WbSunnyRoundedIcon sx={{ fontSize: 26 }} />,
+    label: "Wetter",
+  },
+  {
+    id: "karte",
+    selector: ".tour-detail-map-container",
+    icon: <MapOutlinedIcon sx={{ fontSize: 26 }} />,
+    label: "Karte",
+  },
+];
 
 import { useAppDispatch } from "../hooks";
 import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
@@ -953,7 +980,7 @@ export default function DetailReworked() {
           {t("Details.gpx_download_error")}
         </Alert>
       </Snackbar>
-      <MobileQuickNav />
+      <MobileQuickNav sections={DETAIL_SECTIONS} />
     </>
   );
 }

@@ -23,11 +23,17 @@ import { useEmbed } from "../../utils/embedContext";
 export interface SearchProps {
   setFilterOn?: (filterOn: boolean) => void;
   sx?: SxProps<Theme>;
+  /** Called after a search is submitted on the current page (mobile scroll). */
+  onSearchSubmit?: () => void;
 }
 
 export const emptySearch: SearchWithType = { term: "", type: "term" };
 
-export default function Search({ setFilterOn, sx: customSx }: SearchProps) {
+export default function Search({
+  setFilterOn,
+  sx: customSx,
+  onSearchSubmit,
+}: SearchProps) {
   const { isEmbed } = useEmbed();
   const navigate = useNavigate();
   const filter = useSelector((state: RootState) => state.filter);
@@ -95,6 +101,7 @@ export default function Search({ setFilterOn, sx: customSx }: SearchProps) {
           dispatch(boundsUpdated(null));
         }
       }
+      onSearchSubmit?.();
     } else {
       const searchParams = new URLSearchParams();
       if (externalLinks) {
