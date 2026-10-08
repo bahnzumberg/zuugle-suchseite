@@ -17,7 +17,7 @@ import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
 import {
-  cityUpdated,
+  citySlugUpdated,
   CityObject,
   geolocationUpdated,
 } from "../../features/searchSlice";
@@ -217,7 +217,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     } else {
       dispatch(geolocationUpdated(null));
     }
-    dispatch(cityUpdated(tempCity));
+    dispatch(citySlugUpdated(tempCity?.value ?? null));
     setShowFilter(false);
   }
 
