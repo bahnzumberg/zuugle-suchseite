@@ -6,6 +6,18 @@ Zuugle is a specialised search engine for outdoor tours in the Alps that are rea
 
 Zuugle aggregates tours from multiple tour portals across the Alpine region, then matches each tour with real public transport timetable data. The result is a platform where users can find mountain tours along with verified train and bus connections  -  departure times, transfers, walking approach distances, and multiple return journey options  -  all in one place.
 
+### Unique Selling Proposition (USP): Verified Stop-to-Stop Feasibility
+
+The decisive difference between Zuugle and conventional outdoor portals:
+- **Guaranteed Outward and Return Connections:** Other portals often merely note a nearby bus or train stop without checking if connections actually work. Zuugle verifies every indexed tour against real schedule data to ensure that there is a workable outward connection (*Anreise*) **and** one or more viable return connections (*Rückreisen*) back to the user's selected departure city.
+- **Stop-to-Stop Duration Calculation (*Haltestelle zu Haltestelle*):** Zuugle's routing engine does not simply calculate mountain hiking time; it calculates the complete journey from public transport stop to public transport stop:
+  1. Walking approach from the public transit arrival stop to the official trailhead (*Zustieg*).
+  2. The actual hiking duration, accounting for distance, elevation gain, and difficulty.
+  3. Walking descent from the tour endpoint to the public transit departure stop (*Abstieg*).
+  4. Sensible buffer times so hikers reliably catch their scheduled return train or bus.
+  If the time window between arrival and the last return connection is insufficient to complete the tour safely, the connection is not presented as viable.
+- **Traversals (*Überschreitungen*):** One of the greatest advantages of public transport over private cars is that hikers do not need to return to their starting point or parking lot. Zuugle natively supports and calculates traversals where the hike starts at one stop (e.g. in one valley) and finishes at a completely different stop (e.g. over a mountain pass into another valley), coordinating both regional timetables seamlessly.
+
 The timetable data is provided by [Diana GreenConnect](https://www.zuugle-services.com), a product of Zuugle Services GmbH, which is made available to Bahn zum Berg free of charge.
 
 ## Domains and Languages
@@ -81,9 +93,10 @@ An interactive map shows the GPS track (GPX), the public transport stops, and ap
 
 ### Timetable (An- & Abreise)
 Zuugle provides public transport timetable suggestions for the next 7 days:
-- **Best outward journey**: The optimal connection to reach the tour start
-- **Return journeys**: Multiple return options from the tour end
-- Each connection shows departure/arrival times, transfers, and transport operators
+- **Best outward journey**: The optimal connection to reach the arrival stop closest to the tour start.
+- **Return journeys**: Multiple return options from the departure stop closest to the tour end.
+- **Stop-to-stop coordination**: The timing between arrival and return connections strictly incorporates the full duration from transit stop to transit stop (walking approach + tour duration + walking descent + safety margin).
+- Each connection displays precise departure/arrival times, required transfers, walking legs, and transport operators.
 
 ### Downloads
 - **GPX download**: Download the GPS track for use in navigation apps (available when a connection exists)

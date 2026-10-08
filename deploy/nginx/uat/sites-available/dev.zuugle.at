@@ -44,6 +44,27 @@ server {
         add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
     }
 
+    # ── Generated per-country sitemaps (backend public/) ───────
+    location ~ ^/(sitemap_[a-z][a-z]\.xml)$ {
+        alias /root/suchseite/dev-api/public/$1;
+        default_type application/xml;
+    }
+
+    # ── Crawler / OpenGraph preview for tours ──────────────────
+    location ~ ^/tour/([0-9]+) {
+        if ($is_crawler = 1) {
+            auth_basic off;
+            proxy_pass http://localhost:7070/api/seo$request_uri;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            break;
+        }
+        rewrite ^/(.+)/$ /$1 permanent;
+        try_files $uri $uri/ /index.html;
+    }
+
     location / {
         rewrite ^/(.+)/$ /$1 permanent;
         try_files $uri $uri/ /index.html;
