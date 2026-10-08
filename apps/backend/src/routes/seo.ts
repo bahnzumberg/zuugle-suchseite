@@ -289,6 +289,16 @@ function resolveOgImage(
         return `${origin}/opengraph.jpg`;
     }
 
+    // Sanitise: the sync job can double-append "?width=…&height=…" leaving
+    // two "?" in the URL.  Keep only the first query string.
+    const firstQ = img.indexOf("?");
+    if (firstQ >= 0) {
+        const secondQ = img.indexOf("?", firstQ + 1);
+        if (secondQ >= 0) {
+            img = img.slice(0, secondQ);
+        }
+    }
+
     if (img.startsWith("http://") || img.startsWith("https://")) {
         return img;
     }

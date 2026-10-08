@@ -4,9 +4,6 @@ server {
     root /root/suchseite/dev-app;
     index index.html;
 
-    auth_basic "Geschützter Bereich";
-    auth_basic_user_file /etc/nginx/.htpasswd;
-
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
 
@@ -21,7 +18,6 @@ server {
 
     # ── Embed widget assets (no auth, permissive CORS) ──────────
     location /embed/ {
-        auth_basic off;
         alias /root/suchseite/dev-embed/;
         expires 1h;
         add_header Cache-Control "public";
@@ -30,7 +26,6 @@ server {
 
     # ── API proxy (no auth — required for cross-origin embed) ───
     location /api/ {
-        auth_basic off;
         proxy_pass http://localhost:7070;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -39,7 +34,6 @@ server {
     }
 
     location /public/ {
-        auth_basic off;
         alias /root/suchseite/dev-api/public/;
         add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
     }
@@ -52,14 +46,14 @@ server {
 
     # ── Crawler / OpenGraph preview for tours ──────────────────
     location ~ ^/tour/([0-9]+) {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
         if ($is_crawler = 1) {
-            auth_basic off;
-            proxy_pass http://localhost:7070/api/seo$request_uri;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            break;
+            rewrite ^(.*)$ /api/seo$1 break;
+            proxy_pass http://localhost:7070;
         }
         rewrite ^/(.+)/$ /$1 permanent;
         try_files $uri $uri/ /index.html;
