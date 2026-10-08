@@ -56,6 +56,7 @@ const MapBtn = () => {
       color="primary"
       startIcon={isMobile ? undefined : icon} // show icon as main content on mobile
       sx={{
+        display: { xs: "none", sm: "inline-flex" },
         padding: "8px 20px",
         position: "fixed",
         left: "50%",
