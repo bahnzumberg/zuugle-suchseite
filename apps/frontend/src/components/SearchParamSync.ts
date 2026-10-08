@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useSearchParams, useParams } from "react-router";
 import { RootState } from "..";
 import { useSelector } from "react-redux";
@@ -40,25 +40,29 @@ export default function SearchParamSync() {
   const dispatch = useAppDispatch();
   const { data: allCities = [] } = useGetCitiesQuery();
 
-  // special treatment for city
+  // Capture the initial URL lang value so the Redux→URL effect doesn't need
+  // `params` in its dependency array (which would cause an infinite loop
+  // because setParams mutates params).
+  const initialLangRef = useRef(params.get("lang"));
+
+  // Derive the city object from citySlug. This is a one-way sync:
+  // citySlug is the single source of truth (set by URL params, filter
+  // submit, localStorage, etc.), and the city object is derived from it.
+  // A bidirectional sync (city↔citySlug) caused an infinite oscillation
+  // loop because dispatching one triggered the other effect.
   useEffect(() => {
     if (
       allCities &&
+      allCities.length > 0 &&
       search.citySlug &&
       search.citySlug !== search.city?.value
     ) {
       const city = allCities.find((c) => c.value === search.citySlug);
       dispatch(cityUpdated(city ?? null));
+    } else if (!search.citySlug && search.city) {
+      dispatch(cityUpdated(null));
     }
   }, [allCities, search.citySlug, search.city?.value, dispatch]);
-
-  useEffect(() => {
-    if (search.city?.value) {
-      dispatch(citySlugUpdated(search.city.value));
-    } else {
-      dispatch(citySlugUpdated(null));
-    }
-  }, [search.city, dispatch]);
 
   // Redux → URL
   function updateParam(
@@ -75,8 +79,17 @@ export default function SearchParamSync() {
 
   useEffect(() => {
     const newParams = new URLSearchParams();
-    // use Redux value when available, fall back to URL during initialisation (when language is null)
-    updateParam(newParams, "lang", search.language ?? params.get("lang"));
+    // Use Redux value when available; fall back to the URL value captured at
+    // mount time during initialisation (before language is set in Redux).
+    // We read from initialLangRef instead of `params` to avoid an infinite
+    // loop: setParams() changes params, and having params as a dependency
+    // would re-trigger this effect endlessly.
+    updateParam(newParams, "lang", search.language ?? initialLangRef.current);
+    // Once Redux owns the language, clear the ref so it doesn't override
+    // future Redux-driven updates.
+    if (search.language) {
+      initialLangRef.current = null;
+    }
     // On a /:city route the slug already lives in the path — don't duplicate it
     // into ?city= so the clean /wien URL is preserved.
     updateParam(newParams, "city", pathCitySlug ? null : search.citySlug);
@@ -109,8 +122,12 @@ export default function SearchParamSync() {
 
     writeFilterParams(newParams, filter);
     setParams(newParams, { replace: true });
-    // setParams is stable (react-router); including it keeps the linter happy
-  }, [search, filter, pathCitySlug, params, setParams]);
+    // IMPORTANT: `params` is intentionally excluded from this dependency array.
+    // Including it causes an infinite loop because setParams() updates params,
+    // which would re-trigger this effect. The only use of `params` was the lang
+    // fallback, now handled by initialLangRef.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, filter, pathCitySlug, setParams]);
 
   // URL → Redux
   const updateReduxFromParam = useCallback(
