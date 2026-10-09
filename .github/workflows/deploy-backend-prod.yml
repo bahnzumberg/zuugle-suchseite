@@ -15,6 +15,7 @@ jobs:
             environment: PROD
             api_base_url: https://www.zuugle.at
             do_backup: true
+            run_migrations: true
         secrets:
             SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
             REMOTE_HOST: ${{ secrets.PROD_REMOTE_HOST }}

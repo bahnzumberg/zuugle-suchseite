@@ -16,6 +16,8 @@ jobs:
     with:
       with_backup: true
       asset_base_url: "https://cdn.zuugle.at"
+      embed_api_url: "https://www.zuugle.at/api"
+      embed_asset_base_url: "https://cdn.zuugle.at"
     secrets:
       DEPLOY_ACCESS: ${{ secrets.DEPLOY_ACCESS }}
       SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
@@ -23,3 +25,4 @@ jobs:
       REMOTE_USER: ${{ secrets.PROD_REMOTE_USER }}
       REMOTE_TARGET: ${{ secrets.PROD_REMOTE_TARGET_SUCHSEITE }}
       REMOTE_PORT: ${{ secrets.PROD_REMOTE_PORT }}
+      REMOTE_TARGET_EMBED: ${{ secrets.PROD_REMOTE_TARGET_EMBED }}

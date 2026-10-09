@@ -129,6 +129,13 @@ Build outputs are saved to `apps/frontend/build-embed/`:
 
 ### Deployment Workflow
 
-1. Run `npm run embed:build` in `apps/frontend/`.
-2. Commit the updated build artifacts in `apps/frontend/build-embed/`.
-3. Synchronize `build-embed/zuugle-embed.js` and `build-embed/zuugle-embed.css` to `/root/suchseite/dev-embed/` on the target server.
+The embed is built and deployed by CI (`_deploy.yml`) on every frontend deploy; `build-embed/` is not committed.
+
+- DEV: API `https://dev.zuugle.at/api` → `/root/suchseite/dev-embed/` (secret `DEV_REMOTE_TARGET_EMBED`)
+- PROD: API `https://www.zuugle.at/api` → `/root/suchseite/embed/` (secret `PROD_REMOTE_TARGET_EMBED`), served at `https://www.zuugle.at/embed/`
+
+To build locally, set the target explicitly, the build fails otherwise:
+
+```bash
+VITE_API_URL=https://dev.zuugle.at/api VITE_ASSET_BASE_URL=https://dev.zuugle.at/public npm run embed:build
+```

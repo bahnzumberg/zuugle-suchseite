@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
@@ -124,12 +126,6 @@ function backendGeneratedAssets(): Plugin {
     name: "zuugle:backend-generated-assets",
     apply: "serve",
     configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        if (req.url === "/favicon.ico") {
-          req.url = "/public/favicon.ico";
-        }
-        next();
-      });
       // sirv re-reads the folder per request, so a newly added asset is
       // picked up without a restart, and falls through when file is not found.
       server.middlewares.use(
@@ -140,8 +136,41 @@ function backendGeneratedAssets(): Plugin {
   };
 }
 
+/**
+ * Strips repository documentation files (such as assets/README-ASSETS.md)
+ * that Vite's publicDir copies into OUT_DIR, so internal docs are never
+ * deployed to the server or served over HTTP.
+ */
+function cleanDocsFromBuild(): Plugin {
+  return {
+    name: "zuugle:clean-docs-from-build",
+    apply: "build",
+    closeBundle() {
+      if (!fs.existsSync(OUT_DIR)) return;
+      const files = fs.readdirSync(OUT_DIR, { recursive: true }) as string[];
+      for (const file of files) {
+        if (file.endsWith(".md")) {
+          const fullPath = path.join(OUT_DIR, file);
+          if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+            fs.unlinkSync(fullPath);
+          }
+        }
+      }
+    },
+  };
+}
+
 export default defineConfig({
   publicDir: "../../assets",
+  resolve: {
+    alias: {
+      react: fileURLToPath(new URL("node_modules/react", import.meta.url)),
+      "react-dom": fileURLToPath(
+        new URL("node_modules/react-dom", import.meta.url),
+      ),
+    },
+    dedupe: ["react", "react-dom"],
+  },
   plugins: [
     react(),
     babel({
@@ -150,6 +179,7 @@ export default defineConfig({
     svgr(),
     assetBaseUrl(),
     backendGeneratedAssets(),
+    cleanDocsFromBuild(),
   ],
   server: {
     port: 3000,

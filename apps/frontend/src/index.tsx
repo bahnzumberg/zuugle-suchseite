@@ -8,7 +8,6 @@ import App from "./App";
 import i18n from "./translations/i18n";
 import { I18nextProvider } from "react-i18next";
 import { getBackgroundImageUrl, getTLD } from "./utils/globals";
-import { assetUrl } from "./utils/assetUrl";
 import searchReducer, { CityObject } from "./features/searchSlice";
 import filterReducer from "./features/filterSlice";
 import favoritesReducer, {
@@ -201,19 +200,15 @@ if (!rootElement) {
               <link
                 rel="icon"
                 type="image/png"
-                href={assetUrl("/favicon-96x96.png")}
+                href="/favicon-96x96.png"
                 sizes="96x96"
               />
-              <link
-                rel="icon"
-                type="image/svg+xml"
-                href={assetUrl("/favicon.svg")}
-              />
-              <link rel="shortcut icon" href={assetUrl("/favicon.ico")} />
+              <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+              <link rel="shortcut icon" href="/favicon.ico" />
               <link
                 rel="apple-touch-icon"
                 sizes="180x180"
-                href={assetUrl("/apple-touch-icon.png")}
+                href="/apple-touch-icon.png"
               />
               <link rel="manifest" href="/site.webmanifest" />
               {shouldPreload && (

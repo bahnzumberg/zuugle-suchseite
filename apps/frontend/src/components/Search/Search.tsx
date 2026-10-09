@@ -8,6 +8,7 @@ import { RootState } from "../..";
 import { SearchWithType, useGetCitiesQuery } from "../../features/apiSlice";
 import {
   boundsUpdated,
+  citySlugUpdated,
   cityUpdated,
   geolocationUpdated,
   searchWithTypeUpdated,
@@ -81,6 +82,7 @@ export default function Search({
       if (matchedCity) {
         cityUpdate = matchedCity.value;
         if (isSearchPage) {
+          dispatch(citySlugUpdated(matchedCity.value));
           dispatch(cityUpdated(matchedCity));
           dispatch(searchWithTypeUpdated(null));
           setDraftSearch(emptySearch);

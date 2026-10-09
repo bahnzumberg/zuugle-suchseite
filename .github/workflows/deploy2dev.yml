@@ -16,9 +16,12 @@ jobs:
     uses: ./.github/workflows/_deploy.yml
     with:
       asset_base_url: "/public"
+      embed_api_url: "https://dev.zuugle.at/api"
+      embed_asset_base_url: "https://dev.zuugle.at/public"
     secrets:
       DEPLOY_ACCESS: ${{ secrets.DEPLOY_ACCESS }}
       SSH_PRIVATE_KEY: ${{ secrets.UAT_SSH_PRIVATE_KEY }}
       REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
       REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
       REMOTE_TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
+      REMOTE_TARGET_EMBED: ${{ secrets.DEV_REMOTE_TARGET_EMBED }}

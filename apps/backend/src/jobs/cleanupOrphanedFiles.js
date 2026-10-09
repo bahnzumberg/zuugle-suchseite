@@ -30,6 +30,10 @@ async function loadValidTourIds() {
     const tourRows = await knex("tour").select("id");
     const tourIds = new Set(tourRows.map((r) => String(r.id)));
     console.log(`  -> ${tourIds.size} tour IDs loaded.`);
+    if (tourIds.size === 0) {
+        // An empty table (failed import, wrong DB) would mark every file as orphaned
+        throw new Error("tour table is empty -- refusing to run, every file would be deleted.");
+    }
     return tourIds;
 }
 

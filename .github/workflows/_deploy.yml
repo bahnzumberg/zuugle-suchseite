@@ -13,6 +13,16 @@ on:
           PROD points at the CDN pull zone, UAT/DEV serve their own /public.
         type: string
         default: "/public"
+      embed_api_url:
+        description: >-
+          Absolute API URL baked into the embed widget (e.g. https://www.zuugle.at/api).
+          Leave empty to skip building and deploying the embed.
+        type: string
+        default: ""
+      embed_asset_base_url:
+        description: "Base URL for fonts/images loaded by the embed widget"
+        type: string
+        default: ""
     secrets:
       DEPLOY_ACCESS:
         required: true
@@ -25,6 +35,9 @@ on:
       REMOTE_TARGET:
         required: true
       REMOTE_PORT:
+        required: false
+      REMOTE_TARGET_EMBED:
+        description: "Directory served under /embed/ (required if embed_api_url is set)"
         required: false
 
 jobs:
@@ -52,6 +65,13 @@ jobs:
           VITE_ASSET_BASE_URL: ${{ inputs.asset_base_url }}
         run: npm run build
 
+      - name: Build embed widget
+        if: inputs.embed_api_url != ''
+        env:
+          VITE_API_URL: ${{ inputs.embed_api_url }}
+          VITE_ASSET_BASE_URL: ${{ inputs.embed_asset_base_url }}
+        run: npm run embed:build
+
       - name: Unlock network access to server
         run: |
           curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" "${{ secrets.DEPLOY_ACCESS }}"
@@ -74,8 +94,19 @@ jobs:
         uses: easingthemes/ssh-deploy@2cc5b27bf3029d0455dd5e09fe02633904031447 # v6.0.3
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
+          ARGS: "-rlgoDzvc -i --delete --exclude='*.md'"
           SOURCE: "apps/frontend/build/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}
+
+      - name: Deploy embed widget to server
+        if: inputs.embed_api_url != ''
+        uses: easingthemes/ssh-deploy@2cc5b27bf3029d0455dd5e09fe02633904031447 # v6.0.3
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i"
+          SOURCE: "apps/frontend/build-embed/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET_EMBED }}

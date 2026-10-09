@@ -249,7 +249,7 @@ export default function SearchResults() {
           {!!tours && tours.length > 0 && (
             <Box
               className="cards-container"
-              sx={{ marginTop: { xs: "20px", md: 0, lg: "14px" } }}
+              sx={{ marginTop: { xs: "76px", md: 0, lg: "14px" } }}
             >
               <TourCardContainer
                 tours={tours}
