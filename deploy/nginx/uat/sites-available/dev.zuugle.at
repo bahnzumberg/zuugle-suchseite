@@ -1,8 +1,34 @@
+# Only social-preview bots may skip auth (search engines / AI bots stay behind it).
+map $http_user_agent $dev_social_bot {
+    default 0;
+    ~*facebookexternalhit 1;
+    ~*Facebot             1;
+    ~*Twitterbot          1;
+    ~*LinkedInBot         1;
+    ~*WhatsApp            1;
+    ~*TelegramBot         1;
+    ~*Discordbot          1;
+    ~*Slackbot            1;
+    ~*SkypeUriPreview     1;
+}
+
+# auth_basic is not allowed inside `if`, so the exemption is a map:
+# social bots may fetch the tour preview page and the images it references,
+# everything else gets the login prompt. Uses $request_uri because $uri is
+# rewritten to /api/seo/... by the crawler location before auth runs.
+map "$dev_social_bot$request_uri" $dev_auth_realm {
+    default "Geschützter Bereich";
+    "~^1/(tour/[0-9]+|opengraph\.jpg|range-image/)" off;
+}
+
 server {
     server_name dev.zuugle.at;
 
     root /root/suchseite/dev-app;
     index index.html;
+
+    auth_basic $dev_auth_realm;
+    auth_basic_user_file /etc/nginx/.htpasswd;
 
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
@@ -18,6 +44,7 @@ server {
 
     # ── Embed widget assets (no auth, permissive CORS) ──────────
     location /embed/ {
+        auth_basic off;
         alias /root/suchseite/dev-embed/;
         expires 1h;
         add_header Cache-Control "public";
@@ -26,6 +53,7 @@ server {
 
     # ── API proxy (no auth — required for cross-origin embed) ───
     location /api/ {
+        auth_basic off;
         proxy_pass http://localhost:7070;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -34,6 +62,7 @@ server {
     }
 
     location /public/ {
+        auth_basic off;
         alias /root/suchseite/dev-api/public/;
         add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
     }
@@ -45,6 +74,7 @@ server {
     }
 
     # ── Crawler / OpenGraph preview for tours ──────────────────
+    # Social bots bypass auth (see $dev_auth_realm); other crawlers get 401.
     location ~ ^/tour/([0-9]+) {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
