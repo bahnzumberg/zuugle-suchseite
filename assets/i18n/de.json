@@ -414,7 +414,6 @@
   "weather": {
     "button": "Wanderwetter",
     "today": "Heute",
-    "tomorrow": "Morgen",
     "legend_title": "Wetter-Legende",
     "as_of": "Stand: {{date}} Uhr",
     "grade": {

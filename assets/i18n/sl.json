@@ -415,7 +415,6 @@
   "weather": {
     "button": "Pohodno vreme",
     "today": "Danes",
-    "tomorrow": "Jutri",
     "legend_title": "Legenda vremena",
     "as_of": "Stanje: {{date}}",
     "grade": {
@@ -447,7 +446,6 @@
       "daylight_label": "Dnevna svetloba",
       "empty_help": "Prazna polja: za to uro ni napovedi.",
       "hour": "Ura",
-      "no_hours": "Urna napoved za ta dan ni na voljo.",
       "outside_window": "Za tvoj datum aktivnosti napovedi še ni – sega 4 dni vnaprej.",
       "sunrise": "Sončni vzhod",
       "sunset": "Sončni zahod",

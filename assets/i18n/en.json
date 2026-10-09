@@ -413,7 +413,6 @@
   "weather": {
     "button": "Hiking weather",
     "today": "Today",
-    "tomorrow": "Tomorrow",
     "legend_title": "Weather Legend",
     "as_of": "As of: {{date}}",
     "grade": {
@@ -445,7 +444,6 @@
       "daylight_label": "Daylight",
       "empty_help": "Empty cells: there is no forecast for that hour.",
       "hour": "Time",
-      "no_hours": "Hourly forecast not available for this day.",
       "outside_window": "There is no forecast for your activity date yet – it covers the next 4 days.",
       "sunrise": "Sunrise",
       "sunset": "Sunset",
