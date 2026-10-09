@@ -753,20 +753,8 @@ const tourWeatherWrapper = async (req, res) => {
         }
 
         const hasForecast = dayRows.some((day) => day.icon !== null) || hourRows.length > 0;
-        // Only include days that have at least 6 hours in the display
-        // window (06-19) — enough for a meaningful forecast. Days at
-        // the edge of the provider's range often have just 1-2 hours.
-        const HOUR_MIN = 6;
-        const HOUR_MAX = 19;
-        const MIN_HOURS_IN_WINDOW = 6;
         const days = hasForecast
-            ? dayRows
-                  .map((day) => ({ ...day, hours: hoursByDate.get(day.date) ?? [] }))
-                  .filter(
-                      (day) =>
-                          day.hours.filter((h) => h.hour >= HOUR_MIN && h.hour <= HOUR_MAX)
-                              .length >= MIN_HOURS_IN_WINDOW,
-                  )
+            ? dayRows.map((day) => ({ ...day, hours: hoursByDate.get(day.date) ?? [] }))
             : [];
 
         const responseData = { success: true, days };

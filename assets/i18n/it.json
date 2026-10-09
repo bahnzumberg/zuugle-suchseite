@@ -412,7 +412,6 @@
   "weather": {
     "button": "Meteo escursioni",
     "today": "Oggi",
-    "tomorrow": "Domani",
     "legend_title": "Legenda meteo",
     "as_of": "Aggiornato al: {{date}}",
     "grade": {
@@ -444,8 +443,7 @@
       "daylight_label": "Luce del giorno",
       "empty_help": "Celle vuote: per quell’ora non c’è previsione.",
       "hour": "Ora",
-      "no_hours": "Previsioni orarie non disponibili per questo giorno.",
-      "outside_window": "Per la tua data di attività non ci sono ancora previsioni – coprono i prossimi 4 giorni.",
+      "outside_window": "Per la tua data di attività non ci sono ancora previsioni.",
       "sunrise": "Alba",
       "sunset": "Tramonto",
       "tour_day": "Giorno del tour",

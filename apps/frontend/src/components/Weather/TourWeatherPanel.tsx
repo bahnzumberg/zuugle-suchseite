@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
@@ -6,17 +6,18 @@ import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useTranslation } from "react-i18next";
 import { useGetTourWeatherQuery } from "../../features/apiSlice";
-import { upcomingDays, hoursInWindow } from "../../models/tourWeather";
 import TourWeatherDay from "./TourWeatherDay";
 import TourWeatherInfoDialog from "./TourWeatherInfoDialog";
 import { MUTED } from "./weatherStyles";
 
 interface TourWeatherPanelProps {
   tourId: string;
-  /** "YYYY-MM-DD" from the connection search; that day opens. */
+  /** "YYYY-MM-DD" from the connection search; only marked as the tour day. */
   activityDate: string | null;
+  /** The day shown by the panel and the map; it opens when it is in the forecast. */
+  selectedDate: string | null;
   maxEle?: number;
-  onSelectDate?: (date: string) => void;
+  onSelectDate: (date: string) => void;
 }
 
 /**
@@ -27,28 +28,18 @@ interface TourWeatherPanelProps {
 export default memo(function TourWeatherPanel({
   tourId,
   activityDate,
+  selectedDate,
   maxEle,
   onSelectDate,
 }: TourWeatherPanelProps) {
   const { t } = useTranslation();
-  const { data } = useGetTourWeatherQuery(tourId);
+  const { data: days = [] } = useGetTourWeatherQuery(tourId);
   // One day at a time: an open day's table is tall, the closed rows already compare the days.
-  const [openDay, setOpenDay] = useState<string | null>(null);
+  const [open, setOpen] = useState(true);
   const [infoOpen, setInfoOpen] = useState(false);
-
-  const days = upcomingDays(data ?? []).filter(
-    (day) => hoursInWindow(day).length > 0,
-  );
-
-  useEffect(() => {
-    if (!days || days.length === 0) return;
-    if (activityDate && days.some((day) => day.date === activityDate)) {
-      setOpenDay(activityDate);
-    } else {
-      setOpenDay(null);
-    }
-  }, [activityDate, days]);
   if (days.length === 0) return null;
+
+  const openDay = open ? selectedDate : null;
 
   const activityOutsideForecast =
     activityDate !== null && !days.some((day) => day.date === activityDate);
@@ -106,8 +97,8 @@ export default memo(function TourWeatherPanel({
             day={day}
             expanded={openDay === day.date}
             onToggle={() => {
-              setOpenDay((current) => (current === day.date ? null : day.date));
-              onSelectDate?.(day.date);
+              setOpen(!(open && day.date === selectedDate));
+              onSelectDate(day.date);
             }}
             isTourDay={day.date === activityDate}
             maxEle={maxEle}

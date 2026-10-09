@@ -72,7 +72,6 @@ export default function TourWeatherStrip({
 
   return (
     <Box
-      className="tour-weather-strip"
       role="group"
       aria-label={t("weather.button", "Wanderwetter")}
       // Hides the whole subtree from assistive tech, so the cells below need no

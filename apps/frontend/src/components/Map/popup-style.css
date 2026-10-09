@@ -20,6 +20,11 @@
   box-shadow: none; /* Remove box shadow */
 }
 
+.request-popup .tour-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .request-popup .leaflet-popup-tip {
   display: none; /* Remove the popup tip */
 }

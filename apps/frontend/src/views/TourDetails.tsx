@@ -11,7 +11,7 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import DirectionsTransitIcon from "@mui/icons-material/DirectionsTransit";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
@@ -31,11 +31,9 @@ import {
   useGetGPXQuery,
   useGetProviderGpxOkQuery,
   useGetTourQuery,
-  useGetTourWeatherQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
-import { todayInVienna, upcomingDays } from "../models/tourWeather";
 import TourCard from "../components/TourCard";
 import FavoriteButton from "../components/Favorites/FavoriteButton";
 import MobileQuickNav, {
@@ -105,25 +103,11 @@ export default function DetailReworked() {
     return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
   });
 
-  const { data: weatherData } = useGetTourWeatherQuery(idOne || "", {
-    skip: !idOne,
-  });
-  const weatherDays = useMemo(
-    () => upcomingDays(weatherData ?? []),
-    [weatherData],
-  );
-
-  // If the chosen activity date is covered by the weather forecast, select it;
-  // otherwise default both weather components to "Heute" (first available day or today).
-  const isDateCoveredByWeather = useMemo(
-    () => weatherDays.some((d) => d.date === activityDate),
-    [weatherDays, activityDate],
-  );
-
-  const selectedWeatherDate = useMemo(() => {
-    if (isDateCoveredByWeather) return activityDate;
-    return weatherDays[0]?.date ?? todayInVienna();
-  }, [isDateCoveredByWeather, activityDate, weatherDays]);
+  // The day the weather panel and the map show. It follows the tour date, but
+  // picking a day there must not change the tour date or the connection search.
+  // If the forecast does not have that day, neither shows one.
+  const [weatherDate, setWeatherDate] = useState(activityDate);
+  useEffect(() => setWeatherDate(activityDate), [activityDate]);
 
   const handleDateChange = useCallback((newDate: string) => {
     setActivityDate(newDate);
@@ -810,7 +794,8 @@ export default function DetailReworked() {
                         tourId={idOne}
                         activityDate={activityDate}
                         maxEle={tour?.max_ele}
-                        onSelectDate={handleDateChange}
+                        selectedDate={weatherDate}
+                        onSelectDate={setWeatherDate}
                       />
                     </Box>
                   )}
@@ -848,8 +833,8 @@ export default function DetailReworked() {
                         gpxPositions={track || []}
                         scrollWheelZoom={true}
                         hoveredStop={hoveredStop}
-                        selectedWeatherDate={selectedWeatherDate}
-                        onSelectWeatherDate={handleDateChange}
+                        selectedWeatherDate={weatherDate}
+                        onSelectWeatherDate={setWeatherDate}
                       />
                     </Box>
                   )}
