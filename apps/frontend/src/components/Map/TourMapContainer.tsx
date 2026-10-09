@@ -157,7 +157,7 @@ export default function TourMapContainer({
   pois,
   isLoading,
 }: TourMapContainerProps) {
-  const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
+  const [triggerTourDetails] = useLazyGetTourQuery();
   const [triggerGPX] = useLazyGetGPXQuery();
   const domain = getTopLevelDomain();
   const mapCenter = getDefaultBoundsForDomain(domain).center;
@@ -262,28 +262,30 @@ export default function TourMapContainer({
     }
 
     setClickPosition(null);
+    let cancelled = false;
     const loadTracks = async () => {
       try {
         const tour = await triggerTourDetails({
           id: String(activeMarker.id),
           city: city?.value ?? "no-city",
         }).unwrap();
+        if (cancelled) return;
 
         setSelectedTour(tour);
-        setGpxTrack(
-          tour.gpx_file ? await triggerGPX(tour.gpx_file).unwrap() : [],
-        );
+        const gpx = tour.gpx_file
+          ? await triggerGPX(tour.gpx_file).unwrap()
+          : [];
+        if (!cancelled) setGpxTrack(gpx);
       } catch (err) {
         console.error("Error loading tour details or GPX:", err);
       }
     };
 
     loadTracks();
+    return () => {
+      cancelled = true;
+    };
   }, [activeMarker, city]);
-
-  useEffect(() => {
-    if (tourDetails) setSelectedTour(tourDetails);
-  }, [tourDetails]);
 
   // --- Load GPX tracks for all visible markers when zoomed in ---
   useEffect(() => {
