@@ -101,8 +101,17 @@ export default function TotalToursHeader({
       chips.push({
         key: "ascent",
         label: `${t("filter.anstieg")}: ${storedFilter.minAscent ?? 0}–${storedFilter.maxAscent ?? "∞"} hm`,
-        onDelete: () =>
-          removeFilterKey("minAscent", "maxAscent", "minDescent", "maxDescent"),
+        onDelete: () => removeFilterKey("minAscent", "maxAscent"),
+      });
+    }
+    if (
+      storedFilter.minDescent !== undefined ||
+      storedFilter.maxDescent !== undefined
+    ) {
+      chips.push({
+        key: "descent",
+        label: `${t("main.abstieg")}: ${storedFilter.minDescent ?? 0}–${storedFilter.maxDescent ?? "∞"} hm`,
+        onDelete: () => removeFilterKey("minDescent", "maxDescent"),
       });
     }
     if (
