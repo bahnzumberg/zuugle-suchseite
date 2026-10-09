@@ -12,7 +12,7 @@ interface FavoriteButtonProps {
   // details page.
   variant: "icon" | "labeled";
   // "compact" is for the map popup, where the heart sits inline next to the
-  // title instead of as a top-right overlay and has less room to spare.
+  // title instead of as a top-right overlay, as a bare heart without circle.
   size?: "default" | "compact";
 }
 
@@ -41,8 +41,9 @@ export default function FavoriteButton({
   const icon = saved ? <FavoriteRoundedIcon /> : <FavoriteBorderRoundedIcon />;
 
   if (variant === "icon") {
-    const dimension = size === "compact" ? 26 : 36;
-    const iconSize = size === "compact" ? 16 : 20;
+    const compact = size === "compact";
+    const dimension = compact ? 32 : 36;
+    const iconSize = 20;
     return (
       <IconButton
         onClick={toggle}
@@ -52,9 +53,10 @@ export default function FavoriteButton({
         sx={{
           width: dimension,
           height: dimension,
-          bgcolor: "rgba(255, 255, 255, 0.9)",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-          "&:hover": { bgcolor: "#fff" },
+          // Compact (map popup) is a bare heart without the circle.
+          bgcolor: compact ? "transparent" : "rgba(255, 255, 255, 0.9)",
+          boxShadow: compact ? "none" : "0 2px 8px rgba(0,0,0,0.25)",
+          "&:hover": { bgcolor: compact ? "transparent" : "#fff" },
           // Unsaved is a neutral grey outline ("you could save this"); saving
           // adds the brand color, so the color arriving is itself the state
           // cue. The circle stays white so the filled Akelei heart is visible.
