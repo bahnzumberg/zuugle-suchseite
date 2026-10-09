@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import CloudQueueOutlinedIcon from "@mui/icons-material/CloudQueueOutlined";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 import { WeatherMetadata } from "../../models/weatherOverlay";
 import { theme } from "../../theme";
 import { formatWeatherDayLabel } from "../../models/tourWeather";
@@ -108,7 +108,7 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
               "background-color 0.18s ease-in-out, border-color 0.18s ease-in-out, color 0.18s ease-in-out",
           }}
         >
-          <CloudQueueOutlinedIcon
+          <WbSunnyRoundedIcon
             sx={{
               fontSize: 20,
               color: isActive ? "#ffffff" : "#712579",
