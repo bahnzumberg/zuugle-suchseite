@@ -11,23 +11,31 @@
  * Run with: vp build --config vite.config.embed.ts
  */
 
+import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
 import svgr from "vite-plugin-svgr";
 import { defineConfig } from "vite-plus";
 
-/**
- * The embed talks to dev.zuugle.at for testing.
- * For production, override with VITE_API_URL=https://www.zuugle.at/api.
- */
-const API_URL = process.env.VITE_API_URL?.trim() || "https://dev.zuugle.at/api";
+const isBuild = process.argv.includes("build");
 
 /**
- * Asset base for the embed — on dev this is the dev server's /public path;
- * for production, set VITE_ASSET_BASE_URL=https://cdn.zuugle.at.
+ * Both URLs are baked into the bundle, so a build must state which environment
+ * it targets (CI passes them, see `_deploy.yml`). Only the dev server falls
+ * back to dev.zuugle.at.
  */
-const ASSET_BASE = (
-  process.env.VITE_ASSET_BASE_URL?.trim() || "https://dev.zuugle.at/public"
+function requiredEnv(name: string, devDefault: string): string {
+  const value = process.env[name]?.trim();
+  if (value) return value;
+  if (isBuild) throw new Error(`${name} must be set for the embed build`);
+  return devDefault;
+}
+
+const API_URL = requiredEnv("VITE_API_URL", "https://dev.zuugle.at/api");
+
+const ASSET_BASE = requiredEnv(
+  "VITE_ASSET_BASE_URL",
+  "https://dev.zuugle.at/public",
 ).replace(/\/+$/, "");
 
 const ASSET_BASE_TOKEN = "__ASSET_BASE__";
@@ -37,6 +45,17 @@ const CSS_ID = /\.css(?:$|\?)/;
 
 export default defineConfig({
   publicDir: false, // embed doesn't serve static assets
+  // SVGs now live outside this package (repo-root assets/), so their `react`
+  // import must be pinned to this package's copy — same as vite.config.ts.
+  resolve: {
+    alias: {
+      react: fileURLToPath(new URL("node_modules/react", import.meta.url)),
+      "react-dom": fileURLToPath(
+        new URL("node_modules/react-dom", import.meta.url),
+      ),
+    },
+    dedupe: ["react", "react-dom"],
+  },
   plugins: [
     react(),
     babel({
