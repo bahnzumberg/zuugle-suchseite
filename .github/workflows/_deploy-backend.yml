@@ -28,7 +28,7 @@ on:
                 type: boolean
                 default: false
             run_migrations:
-                description: "Run knex migrations (npm run migrate) after deploy (UAT/DEV)"
+                description: "Run knex migrations (npm run migrate) before restarting the API (UAT/DEV/PROD)"
                 required: false
                 type: boolean
                 default: false
