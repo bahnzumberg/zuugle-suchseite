@@ -124,9 +124,7 @@ const TOUR_WEATHER_HOUR_FIELDS = [
 /**
  * The detail endpoint contract: [] or 1..WEATHER_FORECAST_DAYS days starting
  * today, each with local HH:MM sunrise/sunset and unique ascending local
- * hours 0..23. The endpoint filters out days with fewer than 6 hours in the
- * display window (06-19), so on the edge of the forecast range the response
- * may contain fewer than WEATHER_FORECAST_DAYS days.
+ * hours 0..23.
  */
 function assertValidTourWeatherDetail(days) {
     expect(Array.isArray(days)).toBe(true);

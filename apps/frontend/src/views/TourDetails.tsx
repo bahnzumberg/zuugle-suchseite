@@ -35,7 +35,10 @@ import {
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
-import { todayInVienna, upcomingDays } from "../models/tourWeather";
+import {
+  todayInVienna,
+  type TourWeatherDetailDay,
+} from "../models/tourWeather";
 import TourCard from "../components/TourCard";
 import FavoriteButton from "../components/Favorites/FavoriteButton";
 import MobileQuickNav, {
@@ -77,6 +80,8 @@ import { CustomIcon } from "../icons/CustomIcon";
  * Whether the search tab that opened this one is still around. Tour cards open
  * this page with `target="_blank"`, so the search tab is our `window.opener`.
  */
+const EMPTY_WEATHER_DAYS: TourWeatherDetailDay[] = [];
+
 function hasOpenSearchTab(): boolean {
   try {
     return !!window.opener && !window.opener.closed;
@@ -105,12 +110,9 @@ export default function DetailReworked() {
     return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
   });
 
-  const { data: weatherData } = useGetTourWeatherQuery(idOne || "", {
-    skip: !idOne,
-  });
-  const weatherDays = useMemo(
-    () => upcomingDays(weatherData ?? []),
-    [weatherData],
+  const { data: weatherDays = EMPTY_WEATHER_DAYS } = useGetTourWeatherQuery(
+    idOne || "",
+    { skip: !idOne },
   );
 
   // If the chosen activity date is covered by the weather forecast, select it;

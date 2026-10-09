@@ -180,26 +180,30 @@ function timeToHours(time: string): number {
   return hours + minutes / 60;
 }
 
-/** Used when a day lacks sunrise/sunset: a typical hiking day. */
-const FALLBACK_WINDOW: [number, number] = [6, 20];
-
 /**
- * The hours the detail table shows: from the hour before sunrise to the hour
- * after sunset, clamped to 5–20 (labeled 06–21, since each column label is the
- * end of the period: column "21" = 20:00–21:00).
+ * The hours the detail table shows, as labeled: 06–21. Each column label is the
+ * end of its period (column "21" = 20:00–21:00), so the backend hours are 5–20.
  */
-function hourWindow(day: TourWeatherDetailDay): [number, number] {
-  if (!day.sunrise || !day.sunset) return FALLBACK_WINDOW;
-  return [
-    Math.max(5, Math.floor(timeToHours(day.sunrise)) - 1),
-    Math.min(20, Math.ceil(timeToHours(day.sunset)) + 1),
-  ];
+const FIRST_HOUR = 6;
+const LAST_HOUR = 20;
+
+/** The day's hours inside the fixed window; empty when the import has none there. */
+export function hoursInWindow(day: TourWeatherDetailDay): TourWeatherHour[] {
+  return day.hours.filter(
+    (hour) => hour.hour >= FIRST_HOUR && hour.hour <= LAST_HOUR,
+  );
 }
 
-/** The day's hours inside `hourWindow`; empty when the import has none there. */
-export function hoursInWindow(day: TourWeatherDetailDay): TourWeatherHour[] {
-  const [from, to] = hourWindow(day);
-  return day.hours.filter((hour) => hour.hour >= from && hour.hour <= to);
+/** Fewer hours than this, as at the edge of the provider's range, are not a forecast worth showing. */
+const MIN_HOURS_IN_WINDOW = 6;
+
+/** The upcoming days of a tour's detail forecast that have enough hours to show. */
+export function forecastDays(
+  days: TourWeatherDetailDay[],
+): TourWeatherDetailDay[] {
+  return upcomingDays(days).filter(
+    (day) => hoursInWindow(day).length >= MIN_HOURS_IN_WINDOW,
+  );
 }
 
 /** Half the length of dawn and dusk, in hours: the light changes from 30 min before to 30 min after. */

@@ -6,9 +6,9 @@ import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useTranslation } from "react-i18next";
 import { useGetTourWeatherQuery } from "../../features/apiSlice";
-import { upcomingDays, hoursInWindow } from "../../models/tourWeather";
 import TourWeatherDay from "./TourWeatherDay";
 import TourWeatherInfoDialog from "./TourWeatherInfoDialog";
+import type { TourWeatherDetailDay } from "../../models/tourWeather";
 import { MUTED } from "./weatherStyles";
 
 interface TourWeatherPanelProps {
@@ -18,6 +18,8 @@ interface TourWeatherPanelProps {
   maxEle?: number;
   onSelectDate?: (date: string) => void;
 }
+
+const EMPTY_DAYS: TourWeatherDetailDay[] = [];
 
 /**
  * Today and the next three days for one tour, each expandable to an hourly
@@ -31,14 +33,10 @@ export default memo(function TourWeatherPanel({
   onSelectDate,
 }: TourWeatherPanelProps) {
   const { t } = useTranslation();
-  const { data } = useGetTourWeatherQuery(tourId);
+  const { data: days = EMPTY_DAYS } = useGetTourWeatherQuery(tourId);
   // One day at a time: an open day's table is tall, the closed rows already compare the days.
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
-
-  const days = upcomingDays(data ?? []).filter(
-    (day) => hoursInWindow(day).length > 0,
-  );
 
   useEffect(() => {
     if (!days || days.length === 0) return;

@@ -11,7 +11,7 @@ import { parseGPX } from "../utils/gpx_utils";
 import { API_BASE_URL } from "../utils/apiBase";
 import { apiImageUrl, assetUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
-import type { TourWeatherDetailDay } from "../models/tourWeather";
+import { forecastDays, type TourWeatherDetailDay } from "../models/tourWeather";
 import type { WeatherMetadata } from "../models/weatherOverlay";
 
 export interface CitiesResponse {
@@ -291,7 +291,8 @@ export const api = createApi({
     }),
     getTourWeather: build.query<TourWeatherDetailDay[], string>({
       query: (id) => `tours/${id}/weather`,
-      transformResponse: (response: TourWeatherResponse) => response.days,
+      transformResponse: (response: TourWeatherResponse) =>
+        forecastDays(response.days),
     }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
