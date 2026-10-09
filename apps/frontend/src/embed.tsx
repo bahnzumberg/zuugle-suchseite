@@ -10,9 +10,19 @@
  *   <div id="zuugle-embed"
  *        data-lang="de"
  *        data-city="amstetten"
- *        data-map="true">
+ *        data-map="true"
+ *        data-api="www.zuugle.at"
+ *        data-sticky-header-height="64">
  *   </div>
  *   <script src="https://www.zuugle.at/embed/zuugle-embed.js" defer></script>
+ *
+ * `data-api` overrides the backend the widget talks to at runtime, so you
+ * don't need to rebuild the bundle when switching between dev / uat / prod.
+ * Pass just the hostname (e.g. "dev.zuugle.at") or a full origin.
+ *
+ * `data-sticky-header-height` tells the widget how tall the host page's
+ * sticky/fixed header is (in pixels), so the widget's own sticky search bar
+ * is positioned directly below it instead of overlapping.
  *
  * The provider is hard-coded to "bahnzumberg" and cannot be changed by the
  * user. All other filters (region, difficulty, season, …) work normally.
@@ -32,7 +42,8 @@ import filterReducer from "./features/filterSlice";
 import favoritesReducer, {
   initialFavoritesState,
 } from "./features/favoritesSlice";
-import { api } from "./features/apiSlice";
+import { api, setZuugleDomain } from "./features/apiSlice";
+import { setApiBaseUrl } from "./utils/apiBase";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme";
 import EmbedSearchResults from "./views/EmbedSearchResults";
@@ -93,6 +104,14 @@ const FIXED_PROVIDER = "bahnzumberg";
 
 /**
  * Reads data-* attributes from the container element to configure the widget.
+ *
+ * Supported attributes:
+ *   data-lang="de"                 — UI language (default: "de")
+ *   data-city="amstetten"          — pre-selected city slug
+ *   data-map="true"                — show the map view on load
+ *   data-search="Rax"              — pre-filled search term
+ *   data-api="www.zuugle.at"       — API host (default: build-time value)
+ *   data-sticky-header-height="64" — host page's sticky header height in px
  */
 function readConfig(el: HTMLElement) {
   return {
@@ -100,10 +119,50 @@ function readConfig(el: HTMLElement) {
     city: el.dataset.city || null,
     map: el.dataset.map === "true",
     search: el.dataset.search || null,
+    api: el.dataset.api || null,
+    stickyHeaderHeight: Number(el.dataset.stickyHeaderHeight) || 0,
   };
 }
 
+/**
+ * Derives the full API base URL and the `?domain=` value from a hostname.
+ *
+ * @example
+ *   apiFromHost("www.zuugle.at")  → { baseUrl: "https://www.zuugle.at/api", domain: "www.zuugle.at" }
+ *   apiFromHost("dev.zuugle.at")  → { baseUrl: "https://dev.zuugle.at/api", domain: "dev.zuugle.at" }
+ */
+function apiFromHost(host: string): { baseUrl: string; domain: string } {
+  // Strip a trailing slash and any /api suffix the user might have added
+  const clean = host.replace(/\/+$/, "").replace(/\/api\/?$/, "");
+  // If the value already includes a scheme, use it as-is; otherwise assume https
+  const origin = /^https?:\/\//i.test(clean) ? clean : `https://${clean}`;
+  const url = new URL(origin);
+  return {
+    baseUrl: `${url.origin}/api`,
+    domain: url.hostname,
+  };
+}
+
+/**
+ * Permitted host domains for the embed widget:
+ * - localhost / 127.0.0.1 (local development)
+ * - Zuugle domains (*.zuugle.{at,de,ch,it,si,li,fr} for testbeds like embed.html)
+ * - Bahn zum Berg domains (*.bahn-zum-berg.{at,de,ch,it})
+ */
+const ALLOWED_HOSTS_PATTERN =
+  /^(localhost|127\.0\.0\.1|(.+\.)?zuugle\.(at|de|ch|it|si|li|fr)|(.+\.)?bahn-zum-berg\.(at|de|ch|it))$/i;
+
 function bootstrap() {
+  if (
+    typeof window !== "undefined" &&
+    !ALLOWED_HOSTS_PATTERN.test(window.location.hostname)
+  ) {
+    console.error(
+      `[zuugle-embed] Embedding is not permitted on "${window.location.hostname}". Allowed domains: bahn-zum-berg.(at|de|ch|it)`,
+    );
+    return;
+  }
+
   const container = document.getElementById("zuugle-embed");
   if (!container) {
     console.error("[zuugle-embed] No element with id='zuugle-embed' found.");
@@ -111,6 +170,18 @@ function bootstrap() {
   }
 
   const config = readConfig(container);
+
+  // ── Override API target at runtime ──────────────────────────────────────
+  // Must happen before the Redux store is created so the very first RTK
+  // Query requests already point at the right backend.
+  if (config.api) {
+    const { baseUrl, domain } = apiFromHost(config.api);
+    setApiBaseUrl(baseUrl);
+    setZuugleDomain(domain);
+    console.info(
+      `[zuugle-embed] API overridden → ${baseUrl} (domain=${domain})`,
+    );
+  }
 
   // Set the language before the store is created
   if (config.lang) {
@@ -160,6 +231,7 @@ function bootstrap() {
     isEmbed: true,
     fixedProviders: [FIXED_PROVIDER],
     externalLinks: true,
+    stickyHeaderHeight: config.stickyHeaderHeight,
   };
 
   const head = createHead();

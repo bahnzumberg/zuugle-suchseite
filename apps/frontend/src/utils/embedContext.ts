@@ -23,12 +23,21 @@ export interface EmbedConfig {
    * (e.g. bahn-zum-berg.at) instead of the internal /tour/ detail pages.
    */
   externalLinks: boolean;
+  /**
+   * Pixel height of the host page's sticky/fixed header.
+   * The widget offsets its own sticky search bar by this amount so it
+   * appears directly below the host header instead of overlapping it.
+   * Set via `data-sticky-header-height` on the container element.
+   * Defaults to 0 (no offset).
+   */
+  stickyHeaderHeight: number;
 }
 
 const defaultConfig: EmbedConfig = {
   isEmbed: false,
   fixedProviders: [],
   externalLinks: false,
+  stickyHeaderHeight: 0,
 };
 
 export const EmbedContext = createContext<EmbedConfig>(defaultConfig);

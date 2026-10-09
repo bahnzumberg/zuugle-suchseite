@@ -5,8 +5,13 @@
  * file that can be loaded on any third-party page:
  *
  *   <link rel="stylesheet" href="https://www.zuugle.at/embed/zuugle-embed.css">
- *   <div id="zuugle-embed" data-lang="de" data-city="amstetten"></div>
+ *   <div id="zuugle-embed" data-lang="de" data-city="amstetten"
+ *        data-api="www.zuugle.at" data-sticky-header-height="64"></div>
  *   <script src="https://www.zuugle.at/embed/zuugle-embed.js" defer></script>
+ *
+ * The API URL baked into the build (VITE_API_URL / `__ZUUGLE_DOMAIN__`) serves
+ * as the default; it can be overridden at runtime via `data-api` on the
+ * container element, so a single build works against dev / uat / prod.
  *
  * Run with: vp build --config vite.config.embed.ts
  */

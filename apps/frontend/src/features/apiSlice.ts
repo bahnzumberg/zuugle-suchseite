@@ -8,7 +8,7 @@ import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
-import { API_BASE_URL } from "../utils/apiBase";
+import { getApiBaseUrl } from "../utils/apiBase";
 import { apiImageUrl, assetUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
 import type { TourWeatherDetailDay } from "../models/tourWeather";
@@ -235,12 +235,20 @@ export const errorStatus = (error: unknown): number | null => {
  * …). The embed widget runs on a third-party host (e.g. `www.bahn-zum-berg.at`)
  * but must still tell the API which Zuugle domain it represents — the build
  * sets `__ZUUGLE_DOMAIN__` to the correct value (e.g. `dev.zuugle.at`).
+ *
+ * The embed widget can override this at runtime via `setZuugleDomain()`,
+ * which is called from `embed.tsx` before the store is created.
  */
 declare const __ZUUGLE_DOMAIN__: string | undefined;
-const domain =
+let domain =
   typeof __ZUUGLE_DOMAIN__ !== "undefined"
     ? __ZUUGLE_DOMAIN__
     : window.location.hostname;
+
+/** Override the `?domain=` value at runtime (used by the embed widget). */
+export function setZuugleDomain(d: string): void {
+  domain = d;
+}
 
 /**
  * The API returns GPX links as absolute URLs built from the `domain` above, so
@@ -260,9 +268,7 @@ const withLocalRangeImageUrl = (range: RangeObject): RangeObject => ({
 });
 
 export const api = createApi({
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-  }),
+  baseQuery: (...args) => fetchBaseQuery({ baseUrl: getApiBaseUrl() })(...args),
   tagTypes: ["FavoritesList"],
   endpoints: (build) => ({
     getCities: build.query<CityObject[], void>({

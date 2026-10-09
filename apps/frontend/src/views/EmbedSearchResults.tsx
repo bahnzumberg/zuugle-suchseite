@@ -28,6 +28,7 @@ import FavoritesEmptyState from "../components/Favorites/FavoritesEmptyState";
 import MobileQuickNav, { QuickNavSection } from "../components/MobileQuickNav";
 import { useSearchTours } from "../hooks/useSearchTours";
 import { useAppDispatch } from "../hooks";
+import { useEmbed } from "../utils/embedContext";
 import { mapUpdated } from "../features/searchSlice";
 
 const TourMapContainer = lazy(
@@ -48,6 +49,7 @@ export default function EmbedSearchResults() {
   } = useSearchTours();
 
   const dispatch = useAppDispatch();
+  const { stickyHeaderHeight } = useEmbed();
 
   /** Sections the mobile quick-nav scrolls to in embed mode. */
   const searchSections: QuickNavSection[] = useMemo(
@@ -128,7 +130,7 @@ export default function EmbedSearchResults() {
         className="sticky-header"
         sx={{
           position: "sticky",
-          top: 0,
+          top: stickyHeaderHeight,
           zIndex: 100,
           backgroundColor: "#fff",
           borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
