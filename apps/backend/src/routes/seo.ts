@@ -198,7 +198,7 @@ function formatDifficulty(
 }
 
 /**
- * Builds the rich OpenGraph description string combining title, provider, and metrics in the target language.
+ * Builds the rich OpenGraph description string combining provider and metrics in the target language.
  */
 function buildOgDescription(
     tour: {
@@ -219,13 +219,8 @@ function buildOgDescription(
     const providerName = tour.provider_name || t.defaultProvider;
     const parts: string[] = [];
 
-    // Title and provider prefix
-    const tourFromStr = t.tourFrom(providerName);
-    if (tour.title) {
-        parts.push(`${tour.title} – ${tourFromStr}`);
-    } else {
-        parts.push(tourFromStr);
-    }
+    // Provider prefix (the title is already in og:title)
+    parts.push(t.tourFrom(providerName));
 
     // Sport type (e.g. Wandern, Planinarjenje, Escursionismo)
     const formattedType = formatTourType(tour.type, lang);
