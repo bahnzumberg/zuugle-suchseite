@@ -236,11 +236,11 @@ export default function TourMapContainer({
 
   const activeWeatherDay = useMemo(() => {
     if (!weatherMetadata?.days) return null;
-    return (
-      weatherMetadata.days.find((d) => d.date === selectedWeatherDate) ??
-      weatherMetadata.days[0] ??
-      null
-    );
+    const { days } = weatherMetadata;
+    // A chosen day the overlay does not have shows nothing rather than another day.
+    return selectedWeatherDate
+      ? (days.find((d) => d.date === selectedWeatherDate) ?? null)
+      : (days[0] ?? null);
   }, [weatherMetadata, selectedWeatherDate]);
 
   const activeOverlayUrl = useMemo(() => {

@@ -446,7 +446,7 @@
       "daylight_label": "Dnevna svetloba",
       "empty_help": "Prazna polja: za to uro ni napovedi.",
       "hour": "Ura",
-      "outside_window": "Za tvoj datum aktivnosti napovedi še ni – sega 4 dni vnaprej.",
+      "outside_window": "Za tvoj datum aktivnosti napovedi še ni.",
       "sunrise": "Sončni vzhod",
       "sunset": "Sončni zahod",
       "tour_day": "Dan ture",

@@ -444,7 +444,7 @@
       "daylight_label": "Lumière du jour",
       "empty_help": "Cases vides : aucune prévision pour cette heure.",
       "hour": "Heure",
-      "outside_window": "Pas encore de prévisions pour ta date d’activité – elles couvrent les 4 prochains jours.",
+      "outside_window": "Pas encore de prévisions pour ta date d’activité.",
       "sunrise": "Lever du soleil",
       "sunset": "Coucher du soleil",
       "tour_day": "Jour de rando",

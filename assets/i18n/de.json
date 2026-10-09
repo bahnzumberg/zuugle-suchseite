@@ -445,7 +445,7 @@
       "daylight_label": "Tageslicht",
       "empty_help": "Leere Felder: Für diese Stunde liegt keine Vorhersage vor.",
       "hour": "Uhr",
-      "outside_window": "Für dein Aktivitätsdatum gibt es noch keine Vorhersage – sie reicht 4 Tage voraus.",
+      "outside_window": "Für dein Aktivitätsdatum gibt es noch keine Vorhersage.",
       "sunrise": "Sonnenaufgang",
       "sunset": "Sonnenuntergang",
       "tour_day": "Tourentag",

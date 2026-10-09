@@ -444,7 +444,7 @@
       "daylight_label": "Daylight",
       "empty_help": "Empty cells: there is no forecast for that hour.",
       "hour": "Time",
-      "outside_window": "There is no forecast for your activity date yet – it covers the next 4 days.",
+      "outside_window": "There is no forecast for your activity date yet.",
       "sunrise": "Sunrise",
       "sunset": "Sunset",
       "tour_day": "Tour day",
