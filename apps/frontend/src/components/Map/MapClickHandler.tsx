@@ -1,6 +1,7 @@
 import Button from "@mui/material/Button";
 import { MapPinAreaIcon } from "@phosphor-icons/react";
 import { t } from "i18next";
+import { useRef } from "react";
 import { Popup, useMapEvents } from "react-leaflet";
 
 export interface ClickHandlerProps {
@@ -13,8 +14,27 @@ export function MapClickHandler({
   clickPosition,
   setClickPosition,
 }: ClickHandlerProps) {
+  // Popups (tour card, area search) currently open on the map
+  const openPopups = useRef(new Set<L.Popup>());
+  // Set on preclick (before Leaflet closes popups) so a click that merely
+  // dismisses a popup doesn't trigger the area search popup
+  const clickClosesPopup = useRef(false);
+
   const map = useMapEvents({
+    popupopen(e) {
+      openPopups.current.add(e.popup);
+    },
+    popupclose(e) {
+      openPopups.current.delete(e.popup);
+    },
+    preclick() {
+      clickClosesPopup.current = openPopups.current.size > 0;
+    },
     click(e) {
+      if (clickClosesPopup.current) {
+        clickClosesPopup.current = false;
+        return;
+      }
       const target = e.originalEvent?.target as HTMLElement | null;
       if (
         target?.closest(".leaflet-control") ||
