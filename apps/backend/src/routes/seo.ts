@@ -328,7 +328,8 @@ router.get(["/tour/:id", "/tour/:id/:city"], async (req, res) => {
         return;
     }
 
-    const host = (req.get("x-forwarded-host") || req.get("host") || "www.zuugle.at").split(":")[0];
+    // Host is validated by hostMiddleware; X-Forwarded-Host is client-controlled (nginx doesn't set it).
+    const host = (req.get("host") || "www.zuugle.at").split(":")[0];
     const proto = req.get("x-forwarded-proto") || "https";
     const origin = `${proto}://${host}`;
     const lang = detectLanguage(host, req.query.lang);
@@ -438,7 +439,7 @@ router.get(["/tour/:id", "/tour/:id/:city"], async (req, res) => {
 
   <!-- Schema.org JSON-LD -->
   <script type="application/ld+json">
-${JSON.stringify(schemaJson, null, 2)}
+${JSON.stringify(schemaJson, null, 2).replace(/</g, "\\u003c")}
   </script>
 </head>
 <body>
