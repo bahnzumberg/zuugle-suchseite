@@ -30,6 +30,7 @@ export const getZuugleCors = () => {
         "https://www2.zuugle.si",
         "https://www2.zuugle.fr",
         "https://dev.zuugle.at",
+        "https://www.bahn-zum-berg.at",
     ];
 
     const corsOptions = {
@@ -76,6 +77,7 @@ export const hostMiddleware = (
         "www2.zuugle.si",
         "www2.zuugle.li",
         "dev.zuugle.at",
+        "www.bahn-zum-berg.at",
     ];
     try {
         const host = req.headers["host"];

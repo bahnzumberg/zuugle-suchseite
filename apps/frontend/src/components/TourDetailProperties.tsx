@@ -11,13 +11,19 @@ import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
 import TerrainIcon from "@mui/icons-material/Terrain";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { formatWeatherDayLabel, numberLocale } from "../models/tourWeather";
 
 export interface TourDetailPropertiesProps {
   tour?: Tour;
+  tourDate?: string | null;
 }
 
-const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
-  const { t } = useTranslation();
+const TourDetailProperties = ({
+  tour,
+  tourDate,
+}: TourDetailPropertiesProps) => {
+  const { t, i18n } = useTranslation();
 
   const translateTourType = (type: string) => {
     let translatedType = null;
@@ -105,6 +111,24 @@ const TourDetailProperties = ({ tour }: TourDetailPropertiesProps) => {
       value: formatNumber(tour.max_ele ?? 0, " " + hm),
       icon: <TerrainIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
     },
+    ...(tourDate
+      ? [
+          {
+            key: "tourentag",
+            label: t("weather.detail.tour_day"),
+            value: formatWeatherDayLabel(
+              tourDate,
+              t,
+              numberLocale(i18n.language),
+            ),
+            icon: (
+              <CalendarMonthIcon
+                sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

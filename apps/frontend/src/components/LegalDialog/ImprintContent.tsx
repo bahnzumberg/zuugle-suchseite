@@ -213,6 +213,20 @@ export default function ImprintContent() {
         />
       </Typography>
 
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.icons_meteocons"
+          components={[
+            <a
+              key="meteocons"
+              href="https://github.com/basmilius/meteocons"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
+      </Typography>
+
       {isLoading && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <CircularProgress size={24} />

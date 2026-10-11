@@ -5,30 +5,63 @@ import {
   Marker,
   Polyline,
   ZoomControl,
+  ImageOverlay,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { assetUrl } from "../utils/assetUrl";
+import { useWeatherOverlay } from "../hooks/useWeatherOverlay";
+import {
+  WeatherButtonAndDays,
+  WeatherLegend,
+  WeatherPane,
+  WeatherClassWatcher,
+  FullscreenControl,
+} from "./Map/WeatherControls";
+import { useWeatherOverlayPrefetch } from "../hooks/useWeatherOverlayPrefetch";
 
 export interface InteractiveMapProps {
   gpxPositions: L.LatLngExpression[];
-  anreiseGpxPositions: L.LatLngExpression[];
-  abreiseGpxPositions: L.LatLngExpression[];
+  anreiseGpxPositions?: L.LatLngExpression[];
+  abreiseGpxPositions?: L.LatLngExpression[];
   scrollWheelZoom?: boolean;
   hoveredStop?: { lat: number; lon: number } | null;
+  selectedWeatherDate?: string | null;
+  onSelectWeatherDate?: (date: string) => void;
 }
 
 export default function InteractiveMap({
   gpxPositions,
-  anreiseGpxPositions,
-  abreiseGpxPositions,
+  anreiseGpxPositions = [],
+  abreiseGpxPositions = [],
   scrollWheelZoom = false,
   hoveredStop,
+  selectedWeatherDate: externalWeatherDate,
+  onSelectWeatherDate,
 }: InteractiveMapProps) {
   const [map, setMap] = useState<L.Map | null>(null);
   const [poly, setPoly] = useState<L.Polyline | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // --- Weather overlay state ---
+  const {
+    weatherMetadata,
+    selectedWeatherDate: hookWeatherDate,
+    setSelectedWeatherDate: setHookWeatherDate,
+  } = useWeatherOverlay();
+  const [isWeatherActive, setIsWeatherActive] = useState(false);
+
+  // Controlled date from prop, fallback to hook state
+  const effectiveWeatherDate = externalWeatherDate ?? hookWeatherDate;
+
+  const handleSelectDate = useCallback(
+    (date: string) => {
+      setHookWeatherDate(date);
+      onSelectWeatherDate?.(date);
+    },
+    [onSelectWeatherDate, setHookWeatherDate],
+  );
 
   const startIcon = L.icon({
     iconUrl: assetUrl("/img/startpunkt.svg"),
@@ -58,7 +91,34 @@ export default function InteractiveMap({
     if (map && poly) {
       map.fitBounds(poly.getBounds());
     }
+  }, [map, poly]);
+
+  // Handle container resizing (e.g. aspect ratio layout calculation)
+  useEffect(() => {
+    if (!map || !containerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, [map]);
+
+  const activeDay = weatherMetadata?.days?.find(
+    (d) => d.date === effectiveWeatherDate,
+  );
+  const activeOverlayUrl = activeDay
+    ? assetUrl(`weather/${activeDay.file}`)
+    : null;
+
+  const { onOverlayLoad } = useWeatherOverlayPrefetch(
+    weatherMetadata,
+    isWeatherActive,
+    activeDay?.file,
+  );
+
+  const toggleWeather = useCallback(() => {
+    setIsWeatherActive((prev) => !prev);
+  }, []);
 
   // Invalidate map size after fullscreen change
   useEffect(() => {
@@ -131,10 +191,15 @@ export default function InteractiveMap({
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      }}
     >
       <MapContainer
         ref={setMap}
+        className={`leaflet-container ${isWeatherActive ? "weather-active-map" : ""}`}
         scrollWheelZoom={scrollWheelZoom}
         maxZoom={15}
         center={[47.800499, 13.04441]}
@@ -142,11 +207,25 @@ export default function InteractiveMap({
         style={{ height: "100%", width: "100%" }}
         zoomControl={false}
       >
+        <WeatherPane />
+        <WeatherClassWatcher isActive={isWeatherActive} />
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
           maxZoom={17}
           attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
         />
+        {isWeatherActive && activeOverlayUrl && weatherMetadata?.bounds && (
+          <ImageOverlay
+            key={activeOverlayUrl}
+            url={activeOverlayUrl}
+            bounds={weatherMetadata.bounds}
+            opacity={0.65}
+            pane="weatherPane"
+            eventHandlers={{
+              load: onOverlayLoad,
+            }}
+          />
+        )}
         {!!gpxPositions && gpxPositions.length > 0 && (
           <Polyline
             ref={setPoly}
@@ -181,6 +260,18 @@ export default function InteractiveMap({
           />
         )}
         <ZoomControl position="bottomright" />
+        <FullscreenControl
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
+        <WeatherButtonAndDays
+          metadata={weatherMetadata}
+          isActive={isWeatherActive}
+          selectedDate={effectiveWeatherDate}
+          onToggleActive={toggleWeather}
+          onSelectDate={handleSelectDate}
+        />
+        <WeatherLegend metadata={weatherMetadata} isActive={isWeatherActive} />
         {hoveredStop && (
           <Marker
             position={[hoveredStop.lat, hoveredStop.lon]}
@@ -188,31 +279,6 @@ export default function InteractiveMap({
           />
         )}
       </MapContainer>
-      {/* Fullscreen toggle button */}
-      <button
-        onClick={toggleFullscreen}
-        title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-          zIndex: 1000,
-          width: "34px",
-          height: "34px",
-          border: "2px solid rgba(0,0,0,0.2)",
-          borderRadius: "4px",
-          backgroundColor: "#fff",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "18px",
-          lineHeight: 1,
-          padding: 0,
-        }}
-      >
-        {isFullscreen ? "✕" : "⛶"}
-      </button>
     </div>
   );
 }

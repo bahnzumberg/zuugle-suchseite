@@ -1,14 +1,13 @@
 # Agent Guidelines — Zuugle Frontend
 
-## Language
-
-All content on GitHub must be written in **English**. This includes commit messages,
-PR titles and descriptions, issue comments, code comments, and code review feedback.
+See the repo-root [`.agents/AGENTS.md`](../../.agents/AGENTS.md) for language, git
+workflow, and commit guidelines that apply to the whole monorepo.
 
 ## Design constraints
 
 1. Match our current design system — before proposing anything, look at
-   [component library / existing pages / design tokens file] and extract
+   [component library / existing pages / design tokens file] as well as
+   our Corporate_Design.md and extract
    the actual patterns in use: color palette, type scale, spacing units,
    border-radius, shadow style, component conventions (buttons, forms,
    cards, etc.)
@@ -28,13 +27,6 @@ Do not duplicate documentation.
 
 - If code is self-evident, write no comment. A comment that restates what the code plainly does is
   a second copy to keep in sync, for no gain.
-
-## Git Workflow
-
-- **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
-  local development is to let the user test changes locally first.
-- `uat` is the main development branch — **never commit or push directly to `main`**.
-- Feature branches should be created from `uat`.
 
 ## Pre-Push Checklist
 
@@ -64,24 +56,6 @@ npm run build         # verify the production build succeeds
 - All lint and TypeScript errors must be fixed before committing.
 - Avoid `// oxlint-disable` comments — fix the underlying issue instead.
 
-## Commit Guidelines
-
-- **One logical change per commit.** If changes belong together, commit them together —
-  but don't group unrelated work.
-- **Keep the first line under 72 characters.** It is the subject shown in
-  `git log --oneline`, GitHub PR views, and notification emails — long subjects get
-  truncated and are hard to scan. Put extra detail in the body (separated by a blank line).
-- **Write a high-level commit message** that describes the intention or reason for
-  the change, not just what files were touched.
-- **Reference related GitHub issues** in the commit message when they exist
-  (e.g. `Fixes #42`).
-- If the changed code already carries a docstring or comment explaining it, keep the commit message
-  short. Anyone who needs details reads the changed lines, where the reasoning already is.
-- Add a commit body only for reasoning that exists nowhere in the diff.
-
-Bad: `fix stuff`, `wip`, `changes`
-Good: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by difficulty level`
-
 <!--VITE PLUS START-->
 
 # Using Vite+, the Unified Toolchain for the Web
@@ -89,6 +63,17 @@ Good: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by d
 This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
 
 Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
+
+## Built-in Commands vs Scripts
+
+`vp <name>` runs a built-in command. `vp run <name>` runs a `package.json` script or a `vite.config.ts` task. Scripts cannot overwrite built-ins, so `vp dev` and `vp run dev` may do different things. Check `package.json` and `vite.config.ts` first, and run `vp run <name>` when the project defines a script or task with that name.
+
+## Tool Versions
+
+Run `vp toolchain` to show versions and relationships in the active Vite+
+release. Add a tool name to select part of the graph. For example, run
+`vp toolchain vite`. Use `--global` to ignore the local `vite-plus` package. Use
+`vp why <package>` to show the package-manager dependency graph.
 
 ## Review Checklist
 

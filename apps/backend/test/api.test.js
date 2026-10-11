@@ -1,4 +1,42 @@
+import http from "node:http";
 import { baseUrl, getHeaders, waitForServer } from "./testConfig.js";
+
+/**
+ * Issues a request with an arbitrary Host header, which fetch() forbids.
+ * Only usable against a local server — hence the guards on its callers.
+ */
+const requestAsHost = (host, { method, path, body }) =>
+    new Promise((resolve, reject) => {
+        const url = new URL(baseUrl);
+        const payload = body === undefined ? null : JSON.stringify(body);
+        const req = http.request(
+            {
+                hostname: url.hostname,
+                port: url.port,
+                method,
+                path,
+                headers: {
+                    ...getHeaders(),
+                    Host: host,
+                    ...(payload ? { "Content-Type": "application/json" } : {}),
+                },
+            },
+            (res) => {
+                let data = "";
+                res.on("data", (chunk) => (data += chunk));
+                res.on("end", () => {
+                    try {
+                        resolve({ status: res.statusCode, ...JSON.parse(data || "{}") });
+                    } catch {
+                        resolve({ status: res.statusCode });
+                    }
+                });
+            },
+        );
+        req.on("error", reject);
+        if (payload) req.write(payload);
+        req.end();
+    });
 
 const TOURS_API_SEARCH_PARAMS = {
     domain: "www.zuugle.at",
@@ -31,11 +69,118 @@ const TOURS_API_FILTER_BODY = {
     ],
 };
 
+/** Today in Europe/Vienna as YYYY-MM-DD — the same idiom the frontend uses. */
+const todayInVienna = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
+
+const WEATHER_FORECAST_DAYS = 4;
+
+/**
+ * The weather strip contract: null, or exactly WEATHER_FORECAST_DAYS ascending
+ * entries starting today. Individual entries may carry a null icon/score where
+ * the weather import has no data for that day.
+ */
+function assertValidTourWeather(tour) {
+    if (tour.weather === null || tour.weather === undefined) return;
+
+    expect(Array.isArray(tour.weather)).toBe(true);
+    expect(tour.weather).toHaveLength(WEATHER_FORECAST_DAYS);
+    expect(tour.weather[0].date).toBe(todayInVienna());
+
+    assertValidWeatherDays(tour.weather);
+}
+
+/** Shared by the card strip and the detail endpoint: ascending dates, icon 1..18, score 0..100. */
+function assertValidWeatherDays(days) {
+    let previousDate = null;
+    for (const day of days) {
+        expect(day.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        if (previousDate !== null) expect(day.date > previousDate).toBe(true);
+        previousDate = day.date;
+
+        if (day.icon !== null) {
+            expect(Number.isInteger(day.icon)).toBe(true);
+            expect(day.icon).toBeGreaterThanOrEqual(1);
+            expect(day.icon).toBeLessThanOrEqual(18);
+        }
+        if (day.score !== null) {
+            expect(typeof day.score).toBe("number");
+            expect(day.score).toBeGreaterThanOrEqual(0);
+            expect(day.score).toBeLessThanOrEqual(100);
+        }
+    }
+}
+
+const TOUR_WEATHER_HOUR_FIELDS = [
+    "temp_high_c",
+    "temp_low_c",
+    "sunshine_h",
+    "precipitation_mm",
+    "wind_speed_kmh",
+    "wind_direction_deg",
+    "thunderstorm_pct",
+    "freezing_level_m",
+];
+
+/**
+ * The detail endpoint contract: [] or 1..WEATHER_FORECAST_DAYS days starting
+ * today, each with local HH:MM sunrise/sunset and unique ascending local
+ * hours 0..23.
+ */
+function assertValidTourWeatherDetail(days) {
+    expect(Array.isArray(days)).toBe(true);
+    if (days.length === 0) return;
+
+    expect(days.length).toBeGreaterThanOrEqual(1);
+    expect(days.length).toBeLessThanOrEqual(WEATHER_FORECAST_DAYS);
+    expect(days[0].date).toBe(todayInVienna());
+    assertValidWeatherDays(days);
+
+    for (const day of days) {
+        for (const time of [day.sunrise, day.sunset]) {
+            if (time !== null) expect(time).toMatch(/^\d{2}:\d{2}$/);
+        }
+
+        expect(Array.isArray(day.hours)).toBe(true);
+        let previousHour = -1;
+        for (const hour of day.hours) {
+            expect(Number.isInteger(hour.hour)).toBe(true);
+            expect(hour.hour).toBeGreaterThan(previousHour);
+            expect(hour.hour).toBeLessThanOrEqual(23);
+            previousHour = hour.hour;
+
+            if (hour.icon !== null) {
+                expect(hour.icon).toBeGreaterThanOrEqual(1);
+                expect(hour.icon).toBeLessThanOrEqual(18);
+            }
+            for (const field of TOUR_WEATHER_HOUR_FIELDS) {
+                expect(hour[field] === null || typeof hour[field] === "number").toBe(true);
+            }
+        }
+    }
+}
+
 function assertValidToursResponse({ response, data }) {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.tours).toBeDefined();
     expect(Array.isArray(data.tours)).toBe(true);
+
+    // `total` comes from the cached tour-ID list, `tours` from the main search
+    // query — so an empty page 1 alongside a non-zero total means that query
+    // failed. Without this check a broken join (e.g. tour_weather_daily missing)
+    // looks exactly like a search that legitimately matched nothing, and every
+    // assertion below passes vacuously over an empty array. Page > 1 is exempt:
+    // requesting a page past the end returns [] with the full total by design.
+    if (Number(data.page) === 1 && data.total > 0) {
+        expect(data.tours.length).toBeGreaterThan(0);
+    }
+
+    for (const tour of data.tours) {
+        // The list path does not run prepareTourEntry, so nothing strips
+        // hashed_url for it — it must never be selected in the first place.
+        expect(tour.hashed_url).toBeUndefined();
+        assertValidTourWeather(tour);
+    }
 }
 
 describe("Zuugle API UAT Tests", () => {
@@ -114,6 +259,94 @@ describe("Zuugle API UAT Tests", () => {
                 maxTransportDuration: expect.any(Number),
             }),
         );
+    });
+
+    test("POST /api/tours returns a 4-day weather strip", async () => {
+        /**
+         * tour_weather_daily is filled by the external weather import and is
+         * truncated by `npm run import-data`, so a local database legitimately
+         * has no weather at all. Warn and skip rather than fail — this suite
+         * also runs against environments where the import has not run yet.
+         */
+        const url = `${baseUrl}/api/tours?${new URLSearchParams(TOURS_API_SEARCH_PARAMS)}`;
+        const response = await fetch(url, {
+            method: "POST",
+            headers: getHeaders(),
+        });
+        const data = await response.json();
+
+        assertValidToursResponse({ response, data });
+
+        const withWeather = data.tours.filter((tour) => Array.isArray(tour.weather));
+        if (withWeather.length === 0) {
+            console.warn("No tour on page 1 has weather data — skipping populated-path assertions");
+            return;
+        }
+
+        const icons = withWeather.flatMap((tour) =>
+            tour.weather.map((day) => day.icon).filter((icon) => icon !== null),
+        );
+        expect(icons.length).toBeGreaterThan(0);
+    });
+
+    test("GET /api/tours/:id/weather rejects invalid and unknown ids", async () => {
+        for (const id of ["abc", "0", "2147483648"]) {
+            const response = await fetch(`${baseUrl}/api/tours/${id}/weather`, {
+                headers: getHeaders(),
+            });
+            expect(response.status).toBe(400);
+        }
+        const response = await fetch(`${baseUrl}/api/tours/2147483647/weather`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(404);
+    });
+
+    test("GET /api/tours/:id/weather returns the hourly forecast", async () => {
+        /**
+         * Like the strip test above: the weather import may not have run on
+         * this environment, so a missing forecast warns instead of failing.
+         */
+        const searchUrl = `${baseUrl}/api/tours?${new URLSearchParams(TOURS_API_SEARCH_PARAMS)}`;
+        const search = await (
+            await fetch(searchUrl, { method: "POST", headers: getHeaders() })
+        ).json();
+        const tour = search.tours?.find((candidate) => Array.isArray(candidate.weather));
+        if (!tour) {
+            console.warn("No tour on page 1 has weather data — skipping /weather assertions");
+            return;
+        }
+
+        const response = await fetch(`${baseUrl}/api/tours/${tour.id}/weather`, {
+            headers: getHeaders(),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        assertValidTourWeatherDetail(data.days);
+
+        // Same source table as the card strip, so the daily icons must agree
+        // for the days the detail endpoint returned. The strip always has
+        // WEATHER_FORECAST_DAYS entries, but the detail may have fewer (it
+        // filters days with too few hourly slots).
+        const detailDates = data.days.map((d) => d.date);
+        const stripDaysForDates = tour.weather.filter((d) => detailDates.includes(d.date));
+        expect(data.days.map((d) => d.icon)).toEqual(stripDaysForDates.map((d) => d.icon));
+        expect(data.days.some((day) => day.hours.length > 0)).toBe(true);
+    });
+
+    test("POST /api/tours returns page 1 in a stable order", async () => {
+        const url = `${baseUrl}/api/tours?${new URLSearchParams(TOURS_API_SEARCH_PARAMS)}`;
+        const fetchIds = async () => {
+            const response = await fetch(url, { method: "POST", headers: getHeaders() });
+            const data = await response.json();
+            assertValidToursResponse({ response, data });
+            return data.tours.map((tour) => tour.id);
+        };
+
+        const first = await fetchIds();
+        expect(first.length).toBeLessThanOrEqual(9);
+        expect(await fetchIds()).toEqual(first);
     });
 
     test("POST /api/tours with ranges=true returns tours and ranges", async () => {
@@ -416,7 +649,7 @@ describe("User Lists API", () => {
         const response = await fetch(`${baseUrl}/api/lists`, {
             method: "POST",
             headers: { ...getHeaders(), "Content-Type": "application/json" },
-            body: JSON.stringify({ domain: "www.zuugle.at" }),
+            body: JSON.stringify({}),
         });
         expect(response.status).toBe(201);
         const data = await response.json();
@@ -434,7 +667,6 @@ describe("User Lists API", () => {
             body: JSON.stringify({
                 name: "Sommertouren 2026",
                 language: "de",
-                domain: "www.zuugle.at",
             }),
         });
         expect(response.status).toBe(201);
@@ -447,7 +679,7 @@ describe("User Lists API", () => {
         const response = await fetch(`${baseUrl}/api/lists`, {
             method: "POST",
             headers: { ...getHeaders(), "Content-Type": "application/json" },
-            body: JSON.stringify({ language: "en", domain: "www.zuugle.at" }),
+            body: JSON.stringify({ language: "en" }),
         });
         expect(response.status).toBe(201);
         const data = await response.json();
@@ -576,5 +808,322 @@ describe("User Lists API", () => {
             headers: getHeaders(),
         });
         expect(response.status).toBe(404);
+    });
+});
+
+// ─── Favourites device sync (#882) ────────────────────────────────
+describe("User Lists sync", () => {
+    const json = { "Content-Type": "application/json" };
+
+    const createList = async () => {
+        const response = await fetch(`${baseUrl}/api/lists`, {
+            method: "POST",
+            headers: { ...getHeaders(), ...json },
+            body: JSON.stringify({}),
+        });
+        return (await response.json()).key;
+    };
+
+    const issueCode = async (key) => {
+        const response = await fetch(`${baseUrl}/api/lists/${key}/pairing-code`, {
+            method: "POST",
+            headers: { ...getHeaders(), ...json },
+        });
+        return { status: response.status, ...(await response.json()) };
+    };
+
+    const pair = async (code, key) => {
+        const response = await fetch(`${baseUrl}/api/lists/pair`, {
+            method: "POST",
+            headers: { ...getHeaders(), ...json },
+            body: JSON.stringify({ code, key }),
+        });
+        return { status: response.status, ...(await response.json()) };
+    };
+
+    const getList = async (key) => {
+        const response = await fetch(`${baseUrl}/api/lists/${key}`, { headers: getHeaders() });
+        return { status: response.status, ...(await response.json()) };
+    };
+
+    const addTour = async (key, tourId) => {
+        const response = await fetch(`${baseUrl}/api/lists/${key}/tours`, {
+            method: "POST",
+            headers: { ...getHeaders(), ...json },
+            body: JSON.stringify({ tour_id: tourId }),
+        });
+        return { status: response.status, ...(await response.json()) };
+    };
+
+    // Two real tour IDs, so the merged lists have distinguishable contents.
+    let tourA;
+    let tourB;
+
+    beforeAll(async () => {
+        if (baseUrl.startsWith("http")) {
+            await waitForServer(`${baseUrl}/api/cities?domain=www.zuugle.at`);
+        }
+        const response = await fetch(`${baseUrl}/api/tours?domain=www.zuugle.at&city=wien`, {
+            method: "POST",
+            headers: getHeaders(),
+        });
+        const data = await response.json();
+        tourA = data.tours[0].id;
+        tourB = data.tours[1].id;
+    }, 130000);
+
+    test("POST /api/lists/:key/pairing-code issues a typeable code", async () => {
+        const key = await createList();
+        const result = await issueCode(key);
+
+        expect(result.status).toBe(201);
+        expect(result.success).toBe(true);
+        expect(result.code).toMatch(/^[0-9A-HJKMNP-TV-Z]{8}$/);
+        expect(new Date(result.expires_at).getTime()).toBeGreaterThan(Date.now());
+    });
+
+    test("POST /api/lists/:key/pairing-code for an unknown key returns 404", async () => {
+        const result = await issueCode("this-key-does-not-exist");
+        expect(result.status).toBe(404);
+    });
+
+    test("issuing a new code retires the previous one", async () => {
+        const key = await createList();
+        const first = await issueCode(key);
+        await issueCode(key);
+
+        const result = await pair(first.code, await createList());
+        expect(result.status).toBe(404);
+    });
+
+    test("pairing merges the union into the code-issuing list", async () => {
+        const keyB = await createList(); // shows the code, survives
+        const keyA = await createList(); // enters the code, migrates
+        await addTour(keyB, tourA);
+        await addTour(keyA, tourB);
+
+        const { code } = await issueCode(keyB);
+        const result = await pair(code, keyA);
+
+        expect(result.status).toBe(200);
+        expect(result.success).toBe(true);
+        // The device that showed the code keeps its key.
+        expect(result.key).toBe(keyB);
+        // One tour crossed in each direction.
+        expect(result.received).toBe(1);
+        expect(result.sent).toBe(1);
+        expect(result.total).toBe(2);
+
+        const merged = await getList(keyB);
+        expect(merged.tours.map((t) => t.id).sort()).toEqual([tourA, tourB].sort());
+    });
+
+    // The counts are reported to the device that entered the code, so they have
+    // to be stated from its side — not from the surviving list's.
+    test("an empty list entering a code receives that list's tours", async () => {
+        const keyB = await createList();
+        const keyA = await createList(); // enters the code, has nothing
+        await addTour(keyB, tourA);
+        await addTour(keyB, tourB);
+
+        const { code } = await issueCode(keyB);
+        const result = await pair(code, keyA);
+
+        expect(result.received).toBe(2);
+        expect(result.sent).toBe(0);
+        expect(result.total).toBe(2);
+    });
+
+    test("entering a code with nothing on the other side sends, receives none", async () => {
+        const keyB = await createList(); // shows the code, has nothing
+        const keyA = await createList();
+        await addTour(keyA, tourA);
+
+        const { code } = await issueCode(keyB);
+        const result = await pair(code, keyA);
+
+        expect(result.received).toBe(0);
+        expect(result.sent).toBe(1);
+        expect(result.total).toBe(1);
+    });
+
+    test("the absorbed key is tombstoned, not broken", async () => {
+        const keyB = await createList();
+        const keyA = await createList();
+        await addTour(keyA, tourA);
+
+        const { code } = await issueCode(keyB);
+        await pair(code, keyA);
+
+        // A device still holding the absorbed key is redirected rather than 404ed.
+        const stale = await getList(keyA);
+        expect(stale.status).toBe(200);
+        expect(stale.moved_to).toBe(keyB);
+        expect(stale.list.key).toBe(keyB);
+        expect(stale.tours.map((t) => t.id)).toEqual([tourA]);
+    });
+
+    test("writes against a tombstoned key land on the surviving list", async () => {
+        const keyB = await createList();
+        const keyA = await createList();
+
+        const { code } = await issueCode(keyB);
+        await pair(code, keyA);
+
+        const added = await addTour(keyA, tourB);
+        expect(added.status).toBe(200);
+        expect(added.moved_to).toBe(keyB);
+
+        const survivor = await getList(keyB);
+        expect(survivor.tours.map((t) => t.id)).toEqual([tourB]);
+    });
+
+    test("a third pairing does not strand the devices already sharing a list", async () => {
+        // A and B share keyB; then A pairs into C. B must still find its way.
+        const keyB = await createList();
+        const keyA = await createList();
+        const first = await issueCode(keyB);
+        await pair(first.code, keyA);
+
+        const keyC = await createList();
+        await addTour(keyC, tourA);
+        const second = await issueCode(keyC);
+        const result = await pair(second.code, keyB);
+        expect(result.key).toBe(keyC);
+
+        // B never acted and still holds keyB — one hop behind the chain head.
+        const stranded = await getList(keyB);
+        expect(stranded.status).toBe(200);
+        expect(stranded.moved_to).toBe(keyC);
+
+        // A holds the key it adopted first. The B→C merge repoints A directly
+        // at C too (chains are flattened at merge time), not through B.
+        const older = await getList(keyA);
+        expect(older.status).toBe(200);
+        expect(older.moved_to).toBe(keyC);
+    });
+
+    test("a tour in both lists keeps the earlier added_at", async () => {
+        const keyB = await createList();
+        const keyA = await createList();
+
+        await addTour(keyA, tourA); // earlier
+        const before = await getList(keyA);
+        const earliest = before.tours[0].added_at;
+
+        await new Promise((r) => setTimeout(r, 1100));
+        await addTour(keyB, tourA); // later
+
+        const { code } = await issueCode(keyB);
+        await pair(code, keyA);
+
+        const merged = await getList(keyB);
+        expect(merged.total).toBe(1);
+        expect(new Date(merged.tours[0].added_at).getTime()).toBe(new Date(earliest).getTime());
+    });
+
+    test("pairing a list with itself is a no-op", async () => {
+        const key = await createList();
+        await addTour(key, tourA);
+
+        const { code } = await issueCode(key);
+        const result = await pair(code, key);
+
+        expect(result.status).toBe(200);
+        expect(result.key).toBe(key);
+        expect(result.received).toBe(0);
+        expect(result.sent).toBe(0);
+
+        const list = await getList(key);
+        expect(list.tours.map((t) => t.id)).toEqual([tourA]);
+    });
+
+    test("pairing without a list of one's own just adopts the key", async () => {
+        const keyB = await createList();
+        await addTour(keyB, tourA);
+
+        const { code } = await issueCode(keyB);
+        const result = await pair(code, null);
+
+        expect(result.status).toBe(200);
+        expect(result.key).toBe(keyB);
+        expect(result.received).toBe(1);
+        expect(result.sent).toBe(0);
+        expect(result.total).toBe(1);
+    });
+
+    test("a code cannot be used twice", async () => {
+        const keyB = await createList();
+        const { code } = await issueCode(keyB);
+
+        expect((await pair(code, await createList())).status).toBe(200);
+        expect((await pair(code, await createList())).status).toBe(404);
+    });
+
+    test("unknown and malformed codes are indistinguishable", async () => {
+        const key = await createList();
+        const unknown = await pair("ZZZZZZZZ", key);
+        const malformed = await pair("nope", key);
+        const empty = await pair("", key);
+
+        expect(unknown.status).toBe(404);
+        expect(malformed.status).toBe(404);
+        expect(empty.status).toBe(404);
+        // Same body, so the endpoint can't be used to probe which codes exist.
+        expect(unknown.message).toBe(malformed.message);
+        expect(malformed.message).toBe(empty.message);
+    });
+
+    test("codes are read case-insensitively and ignore the display separator", async () => {
+        const keyB = await createList();
+        const { code } = await issueCode(keyB);
+        const typed = `${code.slice(0, 4)}-${code.slice(4)}`.toLowerCase();
+
+        const result = await pair(typed, await createList());
+        expect(result.status).toBe(200);
+        expect(result.key).toBe(keyB);
+    });
+
+    // Spoofing Host needs the raw http client, so this only runs locally.
+    // Against a deployed host the TLD is fixed by the domain under test.
+    const localOnly = baseUrl.startsWith("http://localhost") ? test : test.skip;
+
+    localOnly("lists on different Zuugle domains refuse to pair", async () => {
+        const german = await requestAsHost("www.zuugle.de", {
+            method: "POST",
+            path: "/api/lists",
+            body: {},
+        });
+        expect(german.key).toBeDefined();
+
+        const { code } = await issueCode(german.key);
+        // ...entered on an Austrian device.
+        const result = await pair(code, await createList());
+
+        expect(result.status).toBe(409);
+        expect(result.success).toBe(false);
+    });
+
+    test("two devices pairing into each other at once converge on one list", async () => {
+        const keyA = await createList();
+        const keyB = await createList();
+        await addTour(keyA, tourA);
+        await addTour(keyB, tourB);
+
+        const codeA = (await issueCode(keyA)).code;
+        const codeB = (await issueCode(keyB)).code;
+
+        const [first, second] = await Promise.all([pair(codeB, keyA), pair(codeA, keyB)]);
+
+        expect(first.status).toBe(200);
+        expect(second.status).toBe(200);
+        // Whichever won, both callers are told the same surviving key...
+        expect(first.key).toBe(second.key);
+
+        // ...and both original keys resolve to it with the full union.
+        const viaA = await getList(keyA);
+        const viaB = await getList(keyB);
+        expect(viaA.list.key).toBe(viaB.list.key);
+        expect(viaA.tours.map((t) => t.id).sort()).toEqual([tourA, tourB].sort());
     });
 });

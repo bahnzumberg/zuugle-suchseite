@@ -1,3 +1,5 @@
+import type { TourWeatherDay } from "./tourWeather";
+
 export interface Tour {
   id: number;
   provider: string;
@@ -33,11 +35,15 @@ export interface Tour {
   quality_rating: number;
   month_order: number;
   gpx_file: string;
-  totour_gpx_file: string;
-  fromtour_gpx_file: string;
   provider_name: string;
   valid_tour?: number;
   description?: string;
+  /**
+   * Today and the next three days, ascending, in Europe/Vienna. Null when the
+   * weather import has no forecast for this tour; absent on the endpoints that
+   * do not return a weather strip at all.
+   */
+  weather?: TourWeatherDay[] | null;
   canonical: Canonical[];
 }
 

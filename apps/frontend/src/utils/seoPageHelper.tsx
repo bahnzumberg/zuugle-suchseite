@@ -1,5 +1,6 @@
 import { useHead } from "@unhead/react";
 import { CityObject } from "../features/searchSlice";
+import { useEmbed } from "./embedContext";
 
 export interface DirectLink {
   header: string;
@@ -7,6 +8,7 @@ export interface DirectLink {
 }
 
 export const usePageHeader = (directLink?: DirectLink) => {
+  const { isEmbed } = useEmbed();
   const defaultTitle = "Zuugle";
   const defaultDescription =
     "Zuugle zeigt dir geprüfte Verbindungen mit Bahn und Bus zu Bergtouren, Wanderungen, Skitouren, Schneeschuhwanderungen, etc. von deinem Wohnort aus an.";
@@ -15,30 +17,35 @@ export const usePageHeader = (directLink?: DirectLink) => {
   const title = directLink?.header ?? defaultTitle;
   const description = directLink?.description ?? defaultDescription;
 
-  useHead({
-    title,
-    meta: [
-      {
-        property: "og:title",
-        content: directLink?.header,
-      },
-      {
-        property: "og:description",
-        content: directLink?.description,
-      },
-      {
-        name: "title",
-        content: directLink?.header ?? defaultMetaTitle,
-      },
-      {
-        name: "description",
-        content: description,
-      },
-    ].filter(
-      // only keep meta tags with content
-      (meta): meta is Exclude<typeof meta, undefined> => !!meta?.content,
-    ),
-  });
+  // In embed mode, do not modify the host page's head / title
+  useHead(
+    isEmbed
+      ? {}
+      : {
+          title,
+          meta: [
+            {
+              property: "og:title",
+              content: directLink?.header,
+            },
+            {
+              property: "og:description",
+              content: directLink?.description,
+            },
+            {
+              name: "title",
+              content: directLink?.header ?? defaultMetaTitle,
+            },
+            {
+              name: "description",
+              content: description,
+            },
+          ].filter(
+            // only keep meta tags with content
+            (meta): meta is Exclude<typeof meta, undefined> => !!meta?.content,
+          ),
+        },
+  );
 };
 
 export const extractCityFromLocation = (

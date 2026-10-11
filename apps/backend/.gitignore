@@ -16,9 +16,8 @@ public/gpx-image/*/*.webp
 public/gpx-track/fromtour/*/*.gpx
 public/gpx-track/totour/*/*.gpx
 public/gpx/*/*.gpx
-public/range-image/*.jpg
-public/range-image/desktop.ini
 public/sitemap_*.xml
+public/weather/
 src/firebase.json
 src/diana-config.js
 test.json

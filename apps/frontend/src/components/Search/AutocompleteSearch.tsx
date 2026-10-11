@@ -125,6 +125,12 @@ export default function AutocompleteSearch({
           slotProps={{
             ...params.slotProps,
 
+            htmlInput: {
+              ...params.slotProps?.htmlInput,
+              enterKeyHint: "search",
+              inputMode: "search",
+            },
+
             input: {
               ...params.slotProps?.input,
               disableUnderline: true,

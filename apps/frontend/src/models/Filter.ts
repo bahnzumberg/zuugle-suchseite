@@ -32,4 +32,5 @@ export interface FilterObject {
   difficulties?: number[];
   providers?: string[];
   countries?: string[];
+  favoriteTourIds?: number[];
 }

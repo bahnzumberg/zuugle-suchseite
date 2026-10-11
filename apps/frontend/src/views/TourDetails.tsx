@@ -8,8 +8,10 @@ import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
 import DownloadIcon from "@mui/icons-material/Download";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
+import DirectionsTransitIcon from "@mui/icons-material/DirectionsTransit";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useHead } from "@unhead/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
@@ -19,25 +21,55 @@ import DomainMenu from "../components/DomainMenu";
 import Footer from "../components/Footer/Footer";
 import InteractiveMap from "../components/InteractiveMap";
 import Itinerary from "../components/Itinerary/Itinerary";
+import TourWeatherPanel from "../components/Weather/TourWeatherPanel";
 import TourDetailProperties from "../components/TourDetailProperties";
 import { get_currLanguage, parseFileName } from "../utils/globals";
-import { absoluteAssetUrl } from "../utils/assetUrl";
+import { absoluteAssetUrl, assetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
 import {
   useGetCitiesQuery,
+  useGetGPXQuery,
+  useGetProviderGpxOkQuery,
   useGetTourQuery,
-  useLazyGetGPXQuery,
-  useLazyGetProviderGpxOkQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
+import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
 import TourCard from "../components/TourCard";
+import FavoriteButton from "../components/Favorites/FavoriteButton";
+import MobileQuickNav, {
+  type QuickNavSection,
+} from "../components/MobileQuickNav";
+import DirectionsTransitRoundedIcon from "@mui/icons-material/DirectionsTransitRounded";
+import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+
+/** Sections the mobile quick-nav scrolls to on the tour detail page. */
+const DETAIL_SECTIONS: QuickNavSection[] = [
+  {
+    id: "fahrplan",
+    selector: ".tour-fahrplan-panel",
+    icon: <DirectionsTransitRoundedIcon sx={{ fontSize: 26 }} />,
+    label: "Fahrplan",
+  },
+  {
+    id: "wetter",
+    selector: ".tour-weather-panel",
+    icon: <WbSunnyRoundedIcon sx={{ fontSize: 26 }} />,
+    label: "Wetter",
+  },
+  {
+    id: "karte",
+    selector: ".tour-detail-map-container",
+    icon: <MapOutlinedIcon sx={{ fontSize: 26 }} />,
+    label: "Karte",
+  },
+];
 
 import { useAppDispatch } from "../hooks";
 import { citySlugUpdated, cityUpdated } from "../features/searchSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../";
 import { CustomIcon } from "../icons/CustomIcon";
-import LanguageMenu from "../components/LanguageMenu";
 
 /**
  * Whether the search tab that opened this one is still around. Tour cards open
@@ -62,6 +94,26 @@ export default function DetailReworked() {
     lon: number;
   } | null>(null);
 
+  // "YYYY-MM-DD" chosen in the connection search or weather; persisted in localStorage
+  const [activityDate, setActivityDate] = useState<string>(() => {
+    const stored = getStoredTourDate();
+    if (stored) return stored;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
+  });
+
+  // The day the weather panel and the map show. It follows the tour date, but
+  // picking a day there must not change the tour date or the connection search.
+  // If the forecast does not have that day, neither shows one.
+  const [weatherDate, setWeatherDate] = useState(activityDate);
+  useEffect(() => setWeatherDate(activityDate), [activityDate]);
+
+  const handleDateChange = useCallback((newDate: string) => {
+    setActivityDate(newDate);
+    setStoredTourDate(newDate);
+  }, []);
+
   // Whether the last GPX download attempt failed
   const [gpxDownloadFailed, setGpxDownloadFailed] = useState(false);
 
@@ -72,8 +124,12 @@ export default function DetailReworked() {
     city: cityOne,
   });
 
-  // SVG365 availability: check if an availability SVG exists for this tour
-  // Loads for inactive tours (valid_tour=0) and when no tour is found at all
+  // SVG365 availability: one SVG per tour showing 365-day reachability.
+  // These files are generated daily on an external server and copied to the
+  // production origin at www.zuugle.at.  There are tens of thousands of them
+  // (several GB in total), so they cannot be bundled with the frontend or
+  // distributed to dev/UAT environments.  Every environment fetches them from
+  // the CDN, which pulls from the production origin.
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [svgExists, setSvgExists] = useState(false);
   useEffect(() => {
@@ -81,20 +137,14 @@ export default function DetailReworked() {
     // Only fetch SVG when a tour exists (valid_tour >= 0)
     if (!tour) return;
     const suffix = idOne.slice(-2).padStart(2, "0");
-    const url = `/svg365/${suffix}/${idOne}.svg`;
+    const url = `https://cdn.zuugle.at/svg365/${suffix}/${idOne}.svg`;
     fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error("not found");
         return r.text();
       })
       .then((text) => {
-        // Inject preserveAspectRatio="none" so the 1px-tall SVG stretches.
-        // Keep <title> elements for native browser tooltips on hover.
-        const patched = text.replace(
-          "<svg ",
-          '<svg preserveAspectRatio="none" ',
-        );
-        setSvgMarkup(patched);
+        setSvgMarkup(text);
         setSvgExists(true);
       })
       .catch(() => {
@@ -103,18 +153,20 @@ export default function DetailReworked() {
       });
   }, [idOne, tour]);
 
-  const [triggerProviderPermit, { data: providerPermit }] =
-    useLazyGetProviderGpxOkQuery();
-
-  const [triggerGPX, { data: track, isLoading: isGpxLoading }] =
-    useLazyGetGPXQuery();
-  const [triggerFromTourGPX, { data: fromTourTrack }] = useLazyGetGPXQuery();
-  const [triggerToTourGPX, { data: toTourTrack }] = useLazyGetGPXQuery();
-
   const dispatch = useAppDispatch();
   const { data: allCities = [], isSuccess: areCitiesLoaded } =
     useGetCitiesQuery();
   const city = useSelector((state: RootState) => state.search.city);
+
+  const { data: providerPermit } = useGetProviderGpxOkQuery(
+    tour?.provider ?? "",
+    { skip: !tour?.provider },
+  );
+
+  const { data: track, isLoading: isGpxLoading } = useGetGPXQuery(
+    tour?.gpx_file ?? "",
+    { skip: !tour?.gpx_file },
+  );
 
   const [
     triggerLoadTours,
@@ -200,19 +252,6 @@ export default function DetailReworked() {
       <CircularProgress size={50} />
     </div>
   );
-
-  useEffect(() => {
-    if (tour?.provider) {
-      triggerProviderPermit(tour.provider);
-    }
-    if (tour && idOne) {
-      triggerGPX(tour.gpx_file);
-      if (city) {
-        triggerFromTourGPX(tour.fromtour_gpx_file);
-        triggerToTourGPX(tour.totour_gpx_file);
-      }
-    }
-  }, [tour, city]);
 
   useEffect(() => {
     if (!isTourLoading && !tour) {
@@ -409,9 +448,6 @@ export default function DetailReworked() {
               </Box>
               <DomainMenu />
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <LanguageMenu />
-            </Box>
           </Box>
         </Box>
       </Box>
@@ -501,30 +537,63 @@ export default function DetailReworked() {
             }}
           >
             {/* ─── Title ─── */}
-            <Box className="tour-detail-header">
-              <Typography
-                variant="title"
-                component="h1"
-                sx={{ color: "#101010" }}
-              >
-                {tour?.title}
-              </Typography>
-              {tour?.range && (
-                <Chip
-                  label={tour.range}
-                  size="small"
+            <Box
+              className="tour-detail-header"
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "16px",
+              }}
+            >
+              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                <Typography
+                  variant="title"
+                  component="h1"
+                  sx={{ color: "#101010" }}
+                >
+                  {tour?.title}
+                </Typography>
+                <Box
                   sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
                     mt: "8px",
-                    bgcolor: "rgba(37, 73, 128, 0.85)",
-                    color: "#fff",
+                    flexWrap: "wrap",
                   }}
-                />
+                >
+                  {tour?.range && (
+                    <Chip
+                      label={tour.range}
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(37, 73, 128, 0.85)",
+                        color: "#fff",
+                      }}
+                    />
+                  )}
+                  {tour && (
+                    <Box
+                      sx={{ ml: "auto", display: { xs: "block", md: "none" } }}
+                    >
+                      <FavoriteButton tourId={tour.id} variant="labeled" />
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+              {tour && (
+                <Box
+                  sx={{ display: { xs: "none", md: "block" }, flexShrink: 0 }}
+                >
+                  <FavoriteButton tourId={tour.id} variant="labeled" />
+                </Box>
               )}
             </Box>
 
             {/* ─── Description (full width, under title) ─── */}
             {tour?.description && (
-              <Box sx={{ textAlign: "left", pb: "12px" }}>
+              <Box sx={{ textAlign: "left", pb: "50px" }}>
                 <Typography variant="body1" sx={{ lineHeight: "1.6" }}>
                   {tour.description}
                 </Typography>
@@ -533,7 +602,7 @@ export default function DetailReworked() {
 
             {/* ─── Warning for validTour === 2 ─── */}
             {validTour === 2 && (
-              <Alert severity="warning" sx={{ mb: "16px" }}>
+              <Alert severity="warning" sx={{ mb: "50px" }}>
                 {t("details.tour_andere_city_warnung")}
               </Alert>
             )}
@@ -543,8 +612,9 @@ export default function DetailReworked() {
               sx={{
                 display: "flex",
                 flexDirection: { xs: "column", md: "row" },
-                gap: "16px",
-                pb: "16px",
+                rowGap: "50px",
+                columnGap: "16px",
+                pb: "50px",
                 alignItems: { md: "stretch" },
               }}
             >
@@ -577,7 +647,7 @@ export default function DetailReworked() {
                     })}
                   </Typography>
                 ) : (
-                  <TourDetailProperties tour={tour} />
+                  <TourDetailProperties tour={tour} tourDate={activityDate} />
                 )}
               </Box>
 
@@ -597,7 +667,7 @@ export default function DetailReworked() {
                   }}
                 >
                   <img
-                    src={`/icons/provider/logo_${tour.provider}.svg`}
+                    src={assetUrl(`icons/provider/logo_${tour.provider}.svg`)}
                     alt={tour.provider_name}
                     style={{
                       borderRadius: "100%",
@@ -645,8 +715,8 @@ export default function DetailReworked() {
                   display: "flex",
                   flexDirection: { xs: "column", md: "row" },
                   alignItems: { md: "flex-start" },
-                  gap: "16px",
-                  mt: "8px",
+                  rowGap: "50px",
+                  columnGap: "16px",
                   /* Make these panels fill most of the viewport */
                   minHeight: { md: "calc(100vh - 320px)" },
                 }}
@@ -663,38 +733,96 @@ export default function DetailReworked() {
                   }}
                 >
                   <Box
-                    className="tour-detail-itinerary-container"
-                    sx={{ flex: 1, minWidth: 0 }}
+                    component="section"
+                    aria-labelledby="tour-fahrplan-title"
+                    className="tour-fahrplan-panel"
+                    sx={{
+                      bgcolor: "rgba(170, 181, 215, 0.25)",
+                      borderRadius: "12px",
+                      p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
+                      flex: 1,
+                      minWidth: 0,
+                      minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
+                    }}
                   >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        mx: "2px",
+                        mb: 1.25,
+                      }}
+                    >
+                      <DirectionsTransitIcon
+                        aria-hidden
+                        sx={{
+                          fontSize: 20,
+                          color: "var(--bzb-akelei)",
+                          mr: "7px",
+                        }}
+                      />
+                      <Typography
+                        id="tour-fahrplan-title"
+                        component="h2"
+                        sx={{
+                          flex: 1,
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: "var(--bzb-bahnblau)",
+                        }}
+                      >
+                        {t("details.fahrplan_titel")}
+                      </Typography>
+                    </Box>
                     <Itinerary
                       tour={tour}
                       tourId={idOne}
                       onStopHover={setHoveredStop}
+                      onDateChange={handleDateChange}
+                      activityDate={activityDate}
                     />
                   </Box>
+                  {idOne && (
+                    <Box
+                      sx={{
+                        mt: "50px",
+                        minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
+                      }}
+                      className="tour-weather-panel"
+                    >
+                      <TourWeatherPanel
+                        tourId={idOne}
+                        activityDate={activityDate}
+                        maxEle={tour?.max_ele}
+                        selectedDate={weatherDate}
+                        onSelectDate={setWeatherDate}
+                      />
+                    </Box>
+                  )}
                 </Box>
 
                 {/* ─── RIGHT: Map + GPX (on desktop) / 2nd on mobile ─── */}
                 <Box
                   sx={{
                     flex: { md: "1 1 50%" },
-                    minHeight: { xs: "350px", md: "unset" },
-                    height: { md: "calc(100vh - 80px)" },
                     order: { xs: 2, md: 2 },
                     display: "flex",
                     flexDirection: "column",
-                    pt: { md: "20px" },
                     gap: "12px",
                     position: { md: "sticky" },
                     top: { md: "72px" },
                     alignSelf: { md: "flex-start" },
+                    width: { xs: "100%", md: "auto" },
+                    minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                   }}
                 >
                   {track && (
                     <Box
                       sx={{
-                        flex: { md: 1 },
-                        height: { xs: "350px", md: "auto" },
+                        width: "100%",
+                        aspectRatio: { sm: "1 / 1" },
+                        height: { xs: "66vh" },
+                        maxHeight: { sm: "50vh" },
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",
@@ -703,10 +831,10 @@ export default function DetailReworked() {
                     >
                       <InteractiveMap
                         gpxPositions={track || []}
-                        anreiseGpxPositions={toTourTrack || []}
-                        abreiseGpxPositions={fromTourTrack || []}
                         scrollWheelZoom={true}
                         hoveredStop={hoveredStop}
+                        selectedWeatherDate={weatherDate}
+                        onSelectWeatherDate={setWeatherDate}
                       />
                     </Box>
                   )}
@@ -718,13 +846,54 @@ export default function DetailReworked() {
 
             {/* ─── SVG365 Availability bar (all cases with valid_tour >= 0) ─── */}
             {svgExists && svgMarkup && (
-              <Box sx={{ mt: "40px" }}>
-                <Typography variant="h6" sx={{ mb: "4px", fontWeight: 600 }}>
-                  {t("details.svg_ueberschrift")}
-                </Typography>
+              <Box
+                component="section"
+                aria-labelledby="tour-svg365-title"
+                sx={{
+                  display: { xs: "none", sm: "block" },
+                  mt: "50px",
+                  bgcolor: "rgba(170, 181, 215, 0.25)",
+                  borderRadius: "12px",
+                  p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    mx: "2px",
+                    mb: 1.25,
+                  }}
+                >
+                  <CalendarMonthIcon
+                    aria-hidden
+                    sx={{
+                      fontSize: 20,
+                      color: "var(--bzb-akelei)",
+                      mr: "7px",
+                    }}
+                  />
+                  <Typography
+                    id="tour-svg365-title"
+                    component="h2"
+                    sx={{
+                      flex: 1,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: "var(--bzb-bahnblau)",
+                    }}
+                  >
+                    {t("details.svg_ueberschrift")}
+                  </Typography>
+                </Box>
                 <Typography
-                  variant="body1"
-                  sx={{ lineHeight: "1.6", mb: "12px" }}
+                  sx={{
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                    color: "#555",
+                    mb: "10px",
+                    mx: "2px",
+                  }}
                 >
                   {t("details.svg_beschreibung")}
                 </Typography>
@@ -732,7 +901,7 @@ export default function DetailReworked() {
                   dangerouslySetInnerHTML={{ __html: svgMarkup }}
                   sx={{
                     width: "100%",
-                    height: "60px",
+                    aspectRatio: "1885 / 31",
                     "& svg": {
                       width: "100%",
                       height: "100%",
@@ -777,6 +946,8 @@ export default function DetailReworked() {
             )}
           </Box>
           <Footer></Footer>
+          {/* Spacer so fixed MobileQuickNav doesn't cover footer on mobile */}
+          <Box sx={{ height: { xs: "56px", sm: 0 } }} />
         </Box>
       )}
       <Snackbar
@@ -794,6 +965,7 @@ export default function DetailReworked() {
           {t("Details.gpx_download_error")}
         </Alert>
       </Snackbar>
+      <MobileQuickNav sections={DETAIL_SECTIONS} />
     </>
   );
 }

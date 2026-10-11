@@ -12,16 +12,24 @@ import Chip from "@mui/material/Chip";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import { useSelector } from "react-redux";
 import { RootState } from "..";
+import FavoriteButton from "./Favorites/FavoriteButton";
 import { assetUrl, sizedImageUrl } from "../utils/assetUrl";
+import TourWeatherStrip from "./Weather/TourWeatherStrip";
+import { visibleWeatherDays } from "../models/tourWeather";
 
 const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 
 export interface TourCardProps {
   tour: Tour;
   city: string | null;
+  reserveWeatherSpace?: boolean;
 }
 
-export default function TourCard({ tour, city }: TourCardProps) {
+export default function TourCard({
+  tour,
+  city,
+  reserveWeatherSpace = false,
+}: TourCardProps) {
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
@@ -52,21 +60,27 @@ export default function TourCard({ tour, city }: TourCardProps) {
     len_too_long = true;
   }
 
+  const isTopTour = tour?.quality_rating >= 9 && tour?.traverse === 1;
+
+  const weatherDays = visibleWeatherDays(tour.weather);
+  const showsWeatherStrip = weatherDays.length > 0 || reserveWeatherSpace;
+
   return (
-    <Link
-      href={tourLink}
-      style={{
-        textDecoration: "none",
-        width: "100%",
-      }}
-      target="_blank"
-      // Keep our own detail tab as opener so it can detect this search tab is
-      // still open; external (cross-origin) links stay noopener for safety.
-      rel={externalLinks ? "noopener" : "opener"}
+    <Card
+      className="tour-card"
+      sx={{ position: "relative", display: "flex", flexDirection: "column" }}
     >
-      <Card
-        className="tour-card"
-        sx={{ display: "flex", flexDirection: "column" }}
+      <Link
+        href={tourLink}
+        underline="none"
+        style={{
+          textDecoration: "none",
+          display: "contents",
+        }}
+        target="_blank"
+        // Keep our own detail tab as opener so it can detect this search tab is
+        // still open; external (cross-origin) links stay noopener for safety.
+        rel={externalLinks ? "noopener" : "opener"}
       >
         <Box sx={{ position: "relative" }}>
           <CardMedia
@@ -87,36 +101,6 @@ export default function TourCard({ tour, city }: TourCardProps) {
             }}
             label={`${tour?.range}`}
           />
-          {tour?.quality_rating >= 9 && tour?.traverse === 1 && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                bgcolor: "rgba(255, 255, 255, 0.85)",
-                color: "var(--bzb-akelei)",
-                borderRadius: "16px",
-                px: "10px",
-                py: "4px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-              }}
-            >
-              <StarRoundedIcon sx={{ fontSize: 18 }} />
-              <Typography
-                sx={{
-                  fontFamily: '"Juniper Bay"',
-                  fontSize: "20px",
-                  lineHeight: 1,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {t("main.top_tour")}
-              </Typography>
-            </Box>
-          )}
         </Box>
         <CardContent
           sx={{
@@ -124,8 +108,14 @@ export default function TourCard({ tour, city }: TourCardProps) {
             display: "flex",
             flexDirection: "column",
             flexGrow: 1,
+            paddingBottom: showsWeatherStrip
+              ? { xs: "10px", sm: "12px" }
+              : undefined,
             "&:last-child": {
-              paddingBottom: { xs: "16px", sm: "24px" },
+              // The strip below owns the card's bottom padding when it renders.
+              paddingBottom: showsWeatherStrip
+                ? { xs: "10px", sm: "12px" }
+                : { xs: "16px", sm: "24px" },
             },
           }}
         >
@@ -138,7 +128,7 @@ export default function TourCard({ tour, city }: TourCardProps) {
             }}
           >
             <img
-              src={`/icons/provider/logo_${tour.provider}.svg`}
+              src={assetUrl(`icons/provider/logo_${tour.provider}.svg`)}
               alt=""
               style={{
                 borderRadius: "100%",
@@ -181,6 +171,9 @@ export default function TourCard({ tour, city }: TourCardProps) {
               fontWeight: "bold",
               lineHeight: { xs: "20px", sm: "24px" },
               marginY: { xs: "7px", sm: "15px" },
+              // Explicit, so the title's color doesn't depend on whether a
+              // Card or a Link is its closest ancestor in the DOM.
+              color: "text.primary",
             }}
           >
             {tour.title}
@@ -189,8 +182,8 @@ export default function TourCard({ tour, city }: TourCardProps) {
             sx={{
               mt: "auto",
               display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "8px",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: "10px",
             }}
           >
             <Typography
@@ -199,6 +192,7 @@ export default function TourCard({ tour, city }: TourCardProps) {
                 borderRight: "1px solid #DDDDDD",
                 display: "block",
                 fontSize: "13px",
+                textAlign: "center",
               }}
             >
               {len_too_long && anreisedauer_notlong ? (
@@ -220,6 +214,7 @@ export default function TourCard({ tour, city }: TourCardProps) {
                 borderRight: "1px solid #DDDDDD",
                 display: "block",
                 fontSize: "13px",
+                textAlign: "center",
               }}
             >
               {len_too_long && umstiege_notlong ? (
@@ -238,7 +233,11 @@ export default function TourCard({ tour, city }: TourCardProps) {
 
             <Typography
               variant="blackP"
-              style={{ borderRight: "1px solid #DDDDDD", fontSize: "13px" }}
+              style={{
+                borderRight: "1px solid #DDDDDD",
+                fontSize: "13px",
+                textAlign: "center",
+              }}
             >
               {len_too_long && dauer_notlong ? (
                 <>
@@ -259,7 +258,10 @@ export default function TourCard({ tour, city }: TourCardProps) {
               </span>
             </Typography>
 
-            <Typography variant="blackP" style={{ fontSize: "13px" }}>
+            <Typography
+              variant="blackP"
+              style={{ fontSize: "13px", textAlign: "center" }}
+            >
               {len_too_long && anstieg_notlong ? (
                 <>
                   {t("filter.anstieg")}
@@ -275,7 +277,55 @@ export default function TourCard({ tour, city }: TourCardProps) {
             </Typography>
           </Box>
         </CardContent>
-      </Card>
-    </Link>
+        <TourWeatherStrip
+          days={weatherDays}
+          reserveSpace={reserveWeatherSpace}
+        />
+      </Link>
+      {/* Top-right overlay: decorative Top-Tour badge + interactive favorite.
+         pointerEvents let clicks fall through to the card except on the heart. */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          pointerEvents: "none",
+        }}
+      >
+        {isTopTour && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              bgcolor: "rgba(255, 255, 255, 0.85)",
+              color: "var(--bzb-akelei)",
+              borderRadius: "16px",
+              px: "10px",
+              py: "4px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+            }}
+          >
+            <StarRoundedIcon sx={{ fontSize: 18 }} />
+            <Typography
+              sx={{
+                fontFamily: '"Juniper Bay"',
+                fontSize: "20px",
+                lineHeight: 1,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("main.top_tour")}
+            </Typography>
+          </Box>
+        )}
+        <Box sx={{ pointerEvents: "auto" }}>
+          <FavoriteButton tourId={tour.id} variant="icon" />
+        </Box>
+      </Box>
+    </Card>
   );
 }

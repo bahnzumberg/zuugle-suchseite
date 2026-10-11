@@ -5,52 +5,104 @@
 All content on GitHub must be written in **English**. This includes commit messages,
 PR titles and descriptions, issue comments, code comments, and code review feedback.
 
+## Deployment Environments
+
+| Environment | Domain                | Branch  | Notes                         |
+|-------------|-----------------------|---------|-------------------------------|
+| DEV         | `dev.zuugle.at`       | `dev`   | Development / integration     |
+| UAT         | `www2.zuugle.at`      | `uat`   | Staging / user acceptance     |
+| PROD        | `www.zuugle.at`       | `main`  | Production                    |
+
 ## Git Workflow
 
 - **Do NOT commit or push unless the user explicitly asks for it.** The purpose of
   local development is to let the user test changes locally first.
-- Never commit directly to `main`. Use feature branches → `dev`/`uat` → `main`.
+- Promotion flows one way: `feature/*` → `dev` → `uat` → `main`. Never commit or push
+  directly to `uat` or `main`. Branch features from `dev`:
+  ```bash
+  git checkout dev && git pull origin dev && git checkout -b feature/name
+  ```
+- **Squash-merge a feature PR into `dev`, then delete the branch.** Never keep working on,
+  or open a second PR from, a branch that was already squash-merged — a squash leaves no
+  ancestry, so the old commits reappear as conflicts and duplicate "same title (#N)" commits.
+  Start a fresh branch from `dev` instead.
+- **Promote `dev` → `uat` → `main` with a real merge commit**
+  Squashing a promotion PR re-creates the same changes as new commits, so `dev` and `uat`
+  stop sharing history and every later promotion conflicts.
+- GitHub rulesets enforce that `uat` and `main` allow merge commits only. 
+- The idea is not to open a feature PR straight against `uat` or `main`. If an urgent hotfix has to go
+  there, immediately merge that branch back into `dev` (merge commit) in the same session.
+- Keep a long-lived branch current with `git rebase origin/dev`, not by merging `dev` into it
+  repeatedly. `dev` may be rebased or force-pushed; `uat` and `main` never are.
+- Before any merge or PR into `uat`/`main`, check `git log --oneline origin/uat..origin/dev`
+  and `git log --oneline origin/dev..origin/uat`: the second must be empty (or only hotfixes).
 
 ## Pre-Push Checklist
 
-**Before every `git push`, run these checks and fix all issues.**
-These mirror the GitHub Actions in `.github/workflows/code-checks.yml`
-and `_deploy-backend.yml`. Do not push code that fails any of these.
+**Before every `git push`, ALWAYS run ALL checks across BOTH environments (Frontend and Backend) and fix all issues:**
 
-### Frontend (`apps/frontend/`)
+### Frontend (`apps/frontend`):
 ```bash
 cd apps/frontend
-vp fmt .              # auto-format
-vp lint --fix         # auto-fix lint issues
-npm run format:check  # verify formatting (CI runs this)
-npm run lint          # verify lint (CI runs this)
-npm run build         # verify production build succeeds
+npm run format:check   # verify formatting (must pass clean)
+npm run lint           # TypeScript & Oxlint check (must pass clean)
+npm run build          # verify production build succeeds
 ```
 
-### Backend (`apps/backend/`)
+### Backend (`apps/backend`):
 ```bash
 cd apps/backend
-npm run format        # auto-format (Prettier)
-npm run format:check  # verify formatting (CI runs this)
-npm run lint          # ESLint (CI runs this)
-npm run tsc           # TypeScript type-check (CI runs this)
-npm test              # Jest test suite (CI runs this post-deploy)
-npm run build         # verify the build succeeds (CI builds before deploy)
-node scripts/check-cron-scripts.mjs  # guard cron-invoked npm scripts (CI runs this)
+npm run format:check   # verify formatting with Prettier (must pass clean)
+npm run lint           # ESLint check (must pass clean)
+npm run tsc            # TypeScript type-check (must pass clean)
+node scripts/check-cron-scripts.mjs  # guard cron scripts (must pass clean)
+npm run build          # verify backend build succeeds
+npm test               # Jest test suite
 ```
 
-**Do not push code that fails any of these checks.**
+Do not push code that fails any of these.
+
+## Static assets
+
+Every hand-maintained static asset lives in the repo-root `assets/` folder —
+never in `apps/frontend/public` or `apps/backend/public` directly:
+
+- `assets/public/` — served under the `/public/` URL prefix by express, and
+  by the BunnyCDN pull zone on PROD. `img/`, `fonts/`, `icons/`,
+  `headless-leaflet/`, `range-image/`. Reference these with the
+  `assetUrl()` helper (`apps/frontend/src/utils/assetUrl.ts`), never a
+  hardcoded path — see `apps/frontend/README.md`.
+- `assets/` top level — served at the site root by Vite: `i18n/`,
+  `robots.txt`, `sitemap.xml`, `site.webmanifest`, `llms.txt`,
+  `llms-full.txt`, `meta.json`, `.well-known/`, `opengraph.jpg`,
+  favicons (`favicon.ico`, `favicon.svg`, `favicon-96x96.png`, `apple-touch-icon.png`).
+- Two deliberate exceptions stay put instead of moving into `assets/`:
+  `apps/frontend/public/svg365/` (regenerated by a script with a path
+  hardcoded to that location) and `apps/backend/public/{gpx*,sitemap_*.xml}`
+  (gitignored, generated per environment).
 
 ## Package-Specific Rules
 
 Each package has its own `AGENTS.md` with detailed guidelines. Read them when
 working in that package:
 
-- [`apps/frontend/AGENTS.md`](../apps/frontend/AGENTS.md) — Vite+, Oxlint, commit guidelines
-- [`apps/backend/AGENTS.md`](../apps/backend/AGENTS.md) — tech stack, migrations, deployment, commit guidelines
+- [`apps/frontend/AGENTS.md`](../apps/frontend/AGENTS.md) — Vite+, Oxlint, design constraints
+- [`apps/backend/AGENTS.md`](../apps/backend/AGENTS.md) — tech stack, migrations, deployment
 
 ## Commit Guidelines
 
-- One logical change per commit.
-- Keep the subject line under 72 characters.
-- Reference GitHub issues when they exist (e.g. `Fixes #42`).
+- One logical change per commit. If changes belong together, commit them together —
+  but don't group unrelated work.
+- Keep the subject line under 72 characters. It's what shows in `git log --oneline`,
+  GitHub PR views, and notification emails — long subjects get truncated. Put extra
+  detail in the body (separated by a blank line).
+- Write a high-level commit message that describes the intention or reason for
+  the change, not just what files were touched.
+- Reference related GitHub issues when they exist (e.g. `Fixes #42`).
+- If the changed code already carries a docstring or comment explaining it, keep the
+  commit message short. Anyone who needs details reads the changed lines, where the
+  reasoning already is.
+- Add a commit body only for reasoning that exists nowhere in the diff.
+
+Bad: `fix stuff`, `wip`, `changes`
+Good: `Fix mobile layout breaking on small screens (#87)`, `Add tour filter by difficulty level`

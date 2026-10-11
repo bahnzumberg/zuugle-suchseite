@@ -1,0 +1,481 @@
+import { useCallback, useEffect, useRef, useState, FormEvent } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import Alert, { alertClasses } from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import CloseIcon from "@mui/icons-material/Close";
+import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
+import { useTranslation } from "react-i18next";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import {
+  errorStatus,
+  useCreatePairingCodeMutation,
+  useGetFavoritesListQuery,
+  usePairListMutation,
+} from "../../features/apiSlice";
+import {
+  favoritesReset,
+  listKeySet,
+  noticeShown,
+  syncDialogClosed,
+} from "../../features/favoritesSlice";
+import { useFavorites } from "../../hooks/useFavorites";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+
+/**
+ * The two alerts in this dialog keep MUI's red instead of the theme's Corporate
+ * Design warn tone — a deliberate exception, chosen on how it looks in place:
+ * inside a dialog that is already Bahnblau, Akelei and Lindgrün, one more warm
+ * surface reads as clutter, and red carries "this did not work" on its own.
+ * Values are MUI's light-mode defaults for a standard error alert.
+ */
+const ALERT_ERROR_SX = {
+  backgroundColor: "#fdeded",
+  color: "#5f2120",
+  [`& .${alertClasses.icon}`]: { color: "#d32f2f" },
+};
+
+const CODE_LENGTH = 8;
+// The other device is the one that merges; this one only finds out by asking.
+const POLL_INTERVAL_MS = 5000;
+
+const groupCode = (code: string) => `${code.slice(0, 4)}-${code.slice(4)}`;
+
+const normalizeInput = (value: string) =>
+  value
+    .toUpperCase()
+    .replace(/[^0-9A-Z]/g, "")
+    .slice(0, CODE_LENGTH);
+
+const formatRemaining = (ms: number) => {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+};
+
+/**
+ * The way out of a pairing, and the only way to clear favorites on a device:
+ * this device lets go of its key, so the next favorite starts a fresh list.
+ * Nothing is deleted on the server.
+ */
+function ResetFavorites() {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const [confirming, setConfirming] = useState(false);
+
+  const reset = () => {
+    dispatch(favoritesReset());
+    dispatch(noticeShown({ key: "reset" }));
+    // Closing is part of the reset: left open, the dialog would ask for a
+    // pairing code again and recreate the list this just let go of.
+    dispatch(syncDialogClosed());
+  };
+
+  return (
+    <Box sx={{ mt: 4 }}>
+      <Divider sx={{ mb: 2 }} />
+      {confirming ? (
+        <Box sx={{ textAlign: "center" }}>
+          <Typography sx={{ fontSize: "13px", color: "text.secondary", mb: 2 }}>
+            {t("favorites.reset.warning")}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button
+              variant="text"
+              onClick={() => setConfirming(false)}
+              sx={{ borderRadius: "12px", textTransform: "none" }}
+            >
+              {t("favorites.reset.cancel")}
+            </Button>
+            {/* Outlined, not contained: Warnorange Dunkel is a supplement the
+                manual sanctions for warning text and accents, not as a filled
+                surface. As a border and label it still marks this as the
+                destructive choice without adding a warm block to a dialog that
+                is otherwise Bahnblau, Akelei and Lindgrün. */}
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={reset}
+              sx={{
+                borderRadius: "12px",
+                textTransform: "none",
+                fontWeight: 600,
+                // MUI draws an outlined border at 50% alpha, which leaves the
+                // label darker than the frame around it.
+                borderColor: "error.main",
+              }}
+            >
+              {t("favorites.reset.confirm")}
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ textAlign: "center" }}>
+          <Button
+            variant="text"
+            onClick={() => setConfirming(true)}
+            sx={{
+              textTransform: "none",
+              fontSize: "13px",
+              color: "text.secondary",
+            }}
+          >
+            {t("favorites.reset.action")}
+          </Button>
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+function SyncFavoritesDialogContent() {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const incomingCode = useAppSelector(
+    (state) => state.favorites.syncDialog.incomingCode,
+  );
+  const { listKey, ensureListKey } = useFavorites();
+
+  const [createPairingCode] = useCreatePairingCodeMutation();
+  const [pairList, { isLoading: isPairing }] = usePairListMutation();
+
+  const [pairing, setPairing] = useState<{
+    code: string;
+    expiresAt: number;
+  } | null>(null);
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [pairError, setPairError] = useState<string | null>(null);
+  const [input, setInput] = useState(() =>
+    incomingCode ? normalizeInput(incomingCode) : "",
+  );
+  const [now, setNow] = useState(() => Date.now());
+  // The effect below always fetches a code, so the dialog opens on the spinner.
+  const [isCreatingCode, setIsCreatingCode] = useState(true);
+
+  // While the dialog is open this device may be merged into from the outside,
+  // which only shows up as new tours on the next fetch.
+  useGetFavoritesListQuery(listKey ?? skipToken, {
+    pollingInterval: POLL_INTERVAL_MS,
+  });
+
+  const codeRequestedRef = useRef(false);
+  const generateCode = useCallback(async () => {
+    codeRequestedRef.current = true;
+    setIsCreatingCode(true);
+    setCodeError(null);
+    try {
+      const key = await ensureListKey();
+      const result = await createPairingCode(key).unwrap();
+      setPairing({
+        code: result.code,
+        expiresAt: Date.parse(result.expires_at),
+      });
+      setNow(Date.now());
+    } catch {
+      setCodeError(t("favorites.sync.code_failed"));
+    } finally {
+      setIsCreatingCode(false);
+    }
+  }, [ensureListKey, createPairingCode, t]);
+
+  // A device with no list yet gets an empty one created here — pairing into
+  // this device needs a list to point the code at either way.
+  useEffect(() => {
+    if (codeRequestedRef.current) return;
+    void generateCode();
+  }, [generateCode]);
+
+  // Drives the countdown, and stops once there is nothing left to count down.
+  useEffect(() => {
+    if (!pairing) return;
+    const timer = setInterval(() => {
+      const tick = Date.now();
+      setNow(tick);
+      if (tick >= pairing.expiresAt) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [pairing]);
+
+  // The code is showable only while one exists and hasn't run out; everything
+  // else — still fetching, failed, expired — offers a new one instead.
+  const liveCode =
+    !isCreatingCode && pairing && pairing.expiresAt > now ? pairing : null;
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setPairError(null);
+    try {
+      const result = await pairList({ code: input, key: listKey }).unwrap();
+      dispatch(listKeySet(result.key));
+      // Only what this device gained is worth counting out; if it gained
+      // nothing, the message still has to distinguish two lists that were
+      // identical from one that was already a superset of the other.
+      dispatch(
+        noticeShown(
+          result.received > 0
+            ? { key: "merged", count: result.received }
+            : { key: result.sent > 0 ? "merged_sent" : "merged_none" },
+        ),
+      );
+      dispatch(syncDialogClosed());
+    } catch (error) {
+      const status = errorStatus(error);
+      setPairError(
+        t(
+          status === 409
+            ? "favorites.sync.error_domain"
+            : status === 404
+              ? "favorites.sync.error_invalid"
+              : "favorites.sync.error_failed",
+        ),
+      );
+    }
+  };
+
+  return (
+    <>
+      <Typography sx={{ fontSize: "14px", color: "text.secondary", mb: 3 }}>
+        {t("favorites.sync.intro")}
+      </Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: 3,
+          alignItems: "stretch",
+        }}
+      >
+        <Box sx={{ flex: 1, textAlign: "center" }}>
+          <Typography
+            sx={{ fontSize: "13px", fontWeight: 600, mb: 1.5 }}
+            component="h3"
+          >
+            {t("favorites.sync.this_code")}
+          </Typography>
+
+          {isCreatingCode && <CircularProgress size={28} sx={{ my: 4 }} />}
+
+          {liveCode && (
+            <>
+              <Typography
+                sx={{
+                  fontFamily: "monospace",
+                  fontSize: "24px",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  color: "var(--bzb-bahnblau)",
+                }}
+              >
+                {groupCode(liveCode.code)}
+              </Typography>
+              <Typography sx={{ fontSize: "12px", color: "text.secondary" }}>
+                {t("favorites.sync.expires_in", {
+                  time: formatRemaining(liveCode.expiresAt - now),
+                })}
+              </Typography>
+            </>
+          )}
+
+          {/* No code to show: either it ran out, or issuing one failed. Both
+              are recovered the same way. */}
+          {!isCreatingCode && !liveCode && (
+            <>
+              {codeError ? (
+                <Alert
+                  severity="error"
+                  sx={{ my: 2, textAlign: "left", ...ALERT_ERROR_SX }}
+                >
+                  {codeError}
+                </Alert>
+              ) : (
+                <Typography sx={{ fontSize: "13px", my: 2 }}>
+                  {t("favorites.sync.expired")}
+                </Typography>
+              )}
+              <Button
+                variant="outlined"
+                onClick={() => void generateCode()}
+                sx={{ borderRadius: "12px", textTransform: "none" }}
+              >
+                {t("favorites.sync.new_code")}
+              </Button>
+            </>
+          )}
+        </Box>
+
+        <Divider
+          flexItem
+          orientation="vertical"
+          sx={{ display: { xs: "none", sm: "block" } }}
+        />
+        <Divider flexItem sx={{ display: { xs: "block", sm: "none" } }} />
+
+        <Box
+          component="form"
+          onSubmit={submit}
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5,
+            textAlign: "center",
+          }}
+        >
+          <Typography sx={{ fontSize: "13px", fontWeight: 600 }} component="h3">
+            {t("favorites.sync.enter_code")}
+          </Typography>
+          <TextField
+            value={input.length > 4 ? groupCode(input) : input}
+            onChange={(event) => setInput(normalizeInput(event.target.value))}
+            placeholder={t("favorites.sync.enter_code_placeholder")}
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            slotProps={{
+              htmlInput: {
+                "aria-label": t("favorites.sync.enter_code"),
+                style: {
+                  fontFamily: "monospace",
+                  fontSize: "20px",
+                  letterSpacing: "0.12em",
+                  textAlign: "center",
+                },
+              },
+            }}
+          />
+          {/* Akelei is the theme's secondary, so the label picks up its
+              contrastText instead of defaulting to the dark primary one. */}
+          <Button
+            type="submit"
+            variant="contained"
+            color="secondary"
+            disabled={input.length !== CODE_LENGTH || isPairing}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+            }}
+          >
+            {isPairing ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("favorites.sync.submit")
+            )}
+          </Button>
+          {pairError && (
+            <Alert severity="error" sx={ALERT_ERROR_SX}>
+              {pairError}
+            </Alert>
+          )}
+        </Box>
+      </Box>
+
+      {/* Centred under both columns: the QR is a second route to the same
+          pairing, not something that belongs to either side. */}
+      {liveCode && (
+        <Box
+          sx={{
+            mt: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            sx={{
+              display: "inline-flex",
+              p: 1.5,
+              bgcolor: "#fff",
+              borderRadius: "12px",
+              border: "1px solid",
+              borderColor: "grey.300",
+            }}
+          >
+            <QRCodeSVG
+              value={`${window.location.origin}/sync/${liveCode.code}`}
+              size={148}
+              level="M"
+            />
+          </Box>
+          <Typography
+            sx={{
+              fontSize: "12px",
+              color: "text.secondary",
+              mt: 1.5,
+              maxWidth: "320px",
+              textAlign: "center",
+            }}
+          >
+            {t("favorites.sync.qr_code")}
+          </Typography>
+        </Box>
+      )}
+
+      <ResetFavorites />
+    </>
+  );
+}
+
+// Mounted by ThemedApp only while `syncDialog.open` — this module is loaded on
+// the click that opens the dialog, so it must not be rendered before then.
+export default function SyncFavoritesDialog() {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+
+  const close = () => dispatch(syncDialogClosed());
+
+  return (
+    <Dialog
+      open
+      onClose={close}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="sync-favorites-title"
+    >
+      <DialogTitle
+        id="sync-favorites-title"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontWeight: 600,
+          fontSize: "18px",
+          pr: 1,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <CloudSyncRoundedIcon
+            sx={{ fontSize: 22, color: "var(--bzb-bahnblau)" }}
+          />
+          {t("favorites.sync.title")}
+        </Box>
+        <IconButton
+          aria-label={t("details.schliessen")}
+          onClick={close}
+          size="small"
+          sx={{ color: "grey.600" }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers sx={{ pt: 3, pb: 3 }}>
+        <SyncFavoritesDialogContent />
+      </DialogContent>
+    </Dialog>
+  );
+}

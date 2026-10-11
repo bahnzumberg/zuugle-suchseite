@@ -14,6 +14,7 @@ import {
   Marker as LeafletMarker,
   Tooltip,
   useMap,
+  ImageOverlay,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -33,6 +34,7 @@ import {
   boundsUpdated,
   geolocationUpdated,
   searchWithTypeUpdated,
+  weatherUpdated,
 } from "../../features/searchSlice";
 import {
   PoiResult,
@@ -51,6 +53,15 @@ import { suggestionIconMap } from "../Search/SearchSuggestions";
 import { theme } from "../../theme";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import { assetUrl } from "../../utils/assetUrl";
+import { useWeatherOverlay } from "../../hooks/useWeatherOverlay";
+import {
+  WeatherButtonAndDays,
+  WeatherLegend,
+  WeatherPane,
+  WeatherClassWatcher,
+  FullscreenControl,
+} from "./WeatherControls";
+import { useWeatherOverlayPrefetch } from "../../hooks/useWeatherOverlayPrefetch";
 
 // Re-export Marker for backward compatibility
 export type { Marker };
@@ -132,60 +143,6 @@ function MapSizeInvalidator({ trigger }: { trigger: number }) {
   return null;
 }
 
-/**
- * Leaflet Control: Fullscreen toggle button rendered inside the map.
- */
-function FullscreenControl({
-  isFullscreen,
-  onToggle,
-}: {
-  isFullscreen: boolean;
-  onToggle: () => void;
-}) {
-  const map = useMap();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Prevent map interactions from propagating through the button
-    L.DomEvent.disableClickPropagation(container);
-    L.DomEvent.disableScrollPropagation(container);
-  }, [map]);
-
-  return (
-    // leaflet-top leaflet-left positions the div in the top-left corner.
-    <div className="leaflet-top leaflet-left" style={{ pointerEvents: "auto" }}>
-      <div ref={containerRef} className="leaflet-control leaflet-bar">
-        <button
-          onClick={onToggle}
-          title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
-          style={{
-            width: "30px",
-            height: "30px",
-            backgroundColor: "#fff",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-          }}
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="#333">
-            {isFullscreen ? (
-              <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
-            ) : (
-              <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-            )}
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export interface TourMapContainerProps {
   markers: Marker[];
   pois: PoiResult[];
@@ -200,18 +157,12 @@ export default function TourMapContainer({
   pois,
   isLoading,
 }: TourMapContainerProps) {
-  const [triggerTourDetails, { data: tourDetails }] = useLazyGetTourQuery();
+  const [triggerTourDetails] = useLazyGetTourQuery();
   const [triggerGPX] = useLazyGetGPXQuery();
   const domain = getTopLevelDomain();
   const mapCenter = getDefaultBoundsForDomain(domain).center;
   const [activeMarker, setActiveMarker] = useState<Marker | null>(null);
   const [gpxTrack, setGpxTrack] = useState<L.LatLngExpression[]>([]);
-  const [totourGpxTrack, setTotourGpxTrack] = useState<L.LatLngExpression[]>(
-    [],
-  );
-  const [fromtourGpxTrack, setFromtourGpxTrack] = useState<
-    L.LatLngExpression[]
-  >([]);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [clickPosition, setClickPosition] = useState<L.LatLng | null>(null);
   const geolocation = useSelector(
@@ -235,8 +186,6 @@ export default function TourMapContainer({
       number,
       {
         gpx: L.LatLngExpression[];
-        totour: L.LatLngExpression[];
-        fromtour: L.LatLngExpression[];
       }
     >
   >({});
@@ -247,6 +196,13 @@ export default function TourMapContainer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenTrigger, setFullscreenTrigger] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // --- Weather overlay state ---
+  const { weatherMetadata, selectedWeatherDate, setSelectedWeatherDate } =
+    useWeatherOverlay();
+  const isWeatherActive = useSelector(
+    (state: RootState) => state.search.weather,
+  );
 
   const shouldShowTracks = markers.length < 30 && markers.length > 0;
   const markerIds = useMemo(
@@ -264,48 +220,72 @@ export default function TourMapContainer({
     }
   }, [isLoading]);
 
+  const toggleWeather = useCallback(() => {
+    const next = !isWeatherActive;
+    dispatch(weatherUpdated(next));
+    if (next && !selectedWeatherDate && weatherMetadata?.days?.[0]) {
+      setSelectedWeatherDate(weatherMetadata.days[0].date);
+    }
+  }, [
+    dispatch,
+    isWeatherActive,
+    selectedWeatherDate,
+    setSelectedWeatherDate,
+    weatherMetadata,
+  ]);
+
+  const activeWeatherDay = useMemo(() => {
+    if (!weatherMetadata?.days) return null;
+    const { days } = weatherMetadata;
+    // A chosen day the overlay does not have shows nothing rather than another day.
+    return selectedWeatherDate
+      ? (days.find((d) => d.date === selectedWeatherDate) ?? null)
+      : (days[0] ?? null);
+  }, [weatherMetadata, selectedWeatherDate]);
+
+  const activeOverlayUrl = useMemo(() => {
+    if (!activeWeatherDay) return null;
+    return assetUrl(`weather/${activeWeatherDay.file}`);
+  }, [activeWeatherDay]);
+
+  const { onOverlayLoad } = useWeatherOverlayPrefetch(
+    weatherMetadata,
+    isWeatherActive,
+    activeWeatherDay?.file,
+  );
+
   useEffect(() => {
     if (!activeMarker) {
       setGpxTrack([]);
-      setTotourGpxTrack([]);
-      setFromtourGpxTrack([]);
       setSelectedTour(null);
       return;
     }
 
     setClickPosition(null);
+    let cancelled = false;
     const loadTracks = async () => {
       try {
         const tour = await triggerTourDetails({
           id: String(activeMarker.id),
           city: city?.value ?? "no-city",
         }).unwrap();
+        if (cancelled) return;
 
         setSelectedTour(tour);
-        setGpxTrack(
-          tour.gpx_file ? await triggerGPX(tour.gpx_file).unwrap() : [],
-        );
-        setTotourGpxTrack(
-          tour.totour_gpx_file
-            ? await triggerGPX(tour.totour_gpx_file).unwrap()
-            : [],
-        );
-        setFromtourGpxTrack(
-          tour.fromtour_gpx_file
-            ? await triggerGPX(tour.fromtour_gpx_file).unwrap()
-            : [],
-        );
+        const gpx = tour.gpx_file
+          ? await triggerGPX(tour.gpx_file).unwrap()
+          : [];
+        if (!cancelled) setGpxTrack(gpx);
       } catch (err) {
         console.error("Error loading tour details or GPX:", err);
       }
     };
 
     loadTracks();
+    return () => {
+      cancelled = true;
+    };
   }, [activeMarker, city]);
-
-  useEffect(() => {
-    if (tourDetails) setSelectedTour(tourDetails);
-  }, [tourDetails]);
 
   // --- Load GPX tracks for all visible markers when zoomed in ---
   useEffect(() => {
@@ -333,24 +313,16 @@ export default function TourMapContainer({
 
           if (cancelled) return;
 
-          const [gpx, totour, fromtour] = await Promise.all([
-            tour.gpx_file
-              ? triggerGPX(tour.gpx_file).unwrap()
-              : Promise.resolve([] as [number, number][]),
-            tour.totour_gpx_file
-              ? triggerGPX(tour.totour_gpx_file).unwrap()
-              : Promise.resolve([] as [number, number][]),
-            tour.fromtour_gpx_file
-              ? triggerGPX(tour.fromtour_gpx_file).unwrap()
-              : Promise.resolve([] as [number, number][]),
-          ]);
+          const gpx = tour.gpx_file
+            ? await triggerGPX(tour.gpx_file).unwrap()
+            : ([] as [number, number][]);
 
           if (cancelled) return;
 
           loadedTrackIdsRef.current.add(marker.id);
           setAllGpxTracks((prev) => ({
             ...prev,
-            [marker.id]: { gpx, totour, fromtour },
+            [marker.id]: { gpx },
           }));
         } catch (err) {
           console.error(`Error loading tracks for marker ${marker.id}:`, err);
@@ -473,18 +445,24 @@ export default function TourMapContainer({
   return (
     <Box
       ref={containerRef}
-      className="map-fullscreen-container"
-      style={{
-        height: isFullscreen ? "100vh" : "600px",
-        maxHeight: isFullscreen ? "none" : "60vh",
+      className={`map-fullscreen-container ${isWeatherActive ? "weather-active-map" : ""}`}
+      sx={{
+        height: isFullscreen
+          ? "100vh"
+          : { xs: "calc(100vh - 161px - 112px)", sm: "600px" },
+        maxHeight: isFullscreen ? "none" : { xs: "none", sm: "60vh" },
         width: "100%",
+        maxWidth: isFullscreen ? "none" : "1400px",
+        padding: isFullscreen ? "0" : { xs: "0 10px", sm: "0 30px" },
+        boxSizing: "border-box",
         position: "relative",
         overflow: "hidden",
-        margin: "auto",
+        marginX: "auto",
+        marginBottom: { xs: "10px", sm: 0 },
       }}
     >
       <MapContainer
-        className="leaflet-container"
+        className={`leaflet-container ${isWeatherActive ? "weather-active-map" : ""}`}
         zoomSnap={1}
         maxZoom={15} //how many times you can zoom
         center={mapCenter}
@@ -492,12 +470,26 @@ export default function TourMapContainer({
         style={{ height: "100%", width: "100%" }} //Size of the map
         zoomControl={false}
       >
+        <WeatherPane />
+        <WeatherClassWatcher isActive={isWeatherActive} />
         <TileLayer
           url="https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png"
           maxZoom={17}
           maxNativeZoom={17}
           attribution='<a href="https://github.com/sletuffe/OpenTopoMap">&copy; OpenTopoMap-R</a> <a href="https://openmaps.fr/donate">❤️ Donation</a> <a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap</a>'
         />
+        {isWeatherActive && activeOverlayUrl && weatherMetadata?.bounds && (
+          <ImageOverlay
+            key={activeOverlayUrl}
+            url={activeOverlayUrl}
+            bounds={weatherMetadata.bounds}
+            opacity={0.65}
+            pane="weatherPane"
+            eventHandlers={{
+              load: onOverlayLoad,
+            }}
+          />
+        )}
         {!geolocation && pois.length === 0 && (
           <MapBoundsSync
             setIsUserMoving={setIsUserMoving}
@@ -550,36 +542,6 @@ export default function TourMapContainer({
                     eventHandlers={{ click: handleTrackClick }}
                   />
                 )}
-                {tracks.totour.length > 0 && (
-                  <Polyline
-                    className="track-clickable"
-                    pathOptions={{
-                      weight: isActive ? 6 : 4,
-                      color: "#001D47",
-                      opacity: isActive ? 1 : 0.7,
-                      dashArray: "5,10",
-                      dashOffset: "1",
-                      lineCap: "square",
-                    }}
-                    positions={tracks.totour}
-                    eventHandlers={{ click: handleTrackClick }}
-                  />
-                )}
-                {tracks.fromtour.length > 0 && (
-                  <Polyline
-                    className="track-clickable"
-                    pathOptions={{
-                      weight: isActive ? 6 : 4,
-                      color: "#001D47",
-                      opacity: isActive ? 1 : 0.7,
-                      dashArray: "5,10",
-                      dashOffset: "0",
-                      lineCap: "square",
-                    }}
-                    positions={tracks.fromtour}
-                    eventHandlers={{ click: handleTrackClick }}
-                  />
-                )}
               </Fragment>
             );
           })}
@@ -589,37 +551,6 @@ export default function TourMapContainer({
             key="gpx-track"
             pathOptions={{ weight: 6, color: "#001D47" }}
             positions={gpxTrack}
-          />
-        )}
-
-        {fromtourGpxTrack.length > 0 && (
-          <Polyline
-            key="fromtour-track"
-            pathOptions={{
-              weight: 6,
-              color: "#001D47",
-              opacity: 1,
-              // opacity: !!totourGpxTrack ? 0.5 : 1,
-              lineCap: "square",
-              dashArray: "5,10",
-              dashOffset: "0",
-            }}
-            positions={fromtourGpxTrack}
-          />
-        )}
-
-        {totourGpxTrack.length > 0 && (
-          <Polyline
-            key="totour-track"
-            pathOptions={{
-              weight: 6,
-              color: "#001D47",
-              dashArray: "5,10",
-              dashOffset: "1",
-              opacity: 1,
-              lineCap: "square",
-            }}
-            positions={totourGpxTrack}
           />
         )}
 
@@ -678,6 +609,14 @@ export default function TourMapContainer({
           isFullscreen={isFullscreen}
           onToggle={toggleFullscreen}
         />
+        <WeatherButtonAndDays
+          metadata={weatherMetadata}
+          isActive={isWeatherActive}
+          selectedDate={selectedWeatherDate}
+          onToggleActive={toggleWeather}
+          onSelectDate={setSelectedWeatherDate}
+        />
+        <WeatherLegend metadata={weatherMetadata} isActive={isWeatherActive} />
       </MapContainer>
     </Box>
   );

@@ -10,6 +10,7 @@ import {
     writeKPIs,
     truncateAll,
     restoreDump,
+    fixTourCoordinates,
     populateCity2TourFlat,
     refreshSearchSuggestions,
     generateSitemaps,
@@ -51,6 +52,8 @@ async function main() {
     await truncateAll();
     logger.info("Restore from database dump (this will take a while)");
     await restoreDump();
+    logger.info("Fix tour coordinates and stop selector");
+    await fixTourCoordinates();
     logger.info("Write KPIs");
     await writeKPIs();
     logger.info("Populate city2tour_flat");

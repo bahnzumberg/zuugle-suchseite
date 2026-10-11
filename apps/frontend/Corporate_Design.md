@@ -477,6 +477,76 @@ RGB: 204, 216, 161
 CMYK: 25, 5, 45, 0
 ```
 
+**Ergänzungsfarbe für digitale Anwendungen**
+
+_Nicht Teil des offiziellen Print-Manuals von deliza design — eine Ergänzung für
+UI-Feedback in der Webanwendung, wo die restliche Farbpalette keine geeignete
+Fehler-/Warnfarbe bietet._
+
+```
+Warnorange
+HEX: #e65100
+RGB: 230, 81, 0
+```
+
+Wird app-weit für Fehler- und Warnhinweise verwendet, z.B. den nicht-blockierenden
+Hinweis, wenn ein Favorit nicht gespeichert werden konnte, oder Zeitkonflikt-Warnungen
+in der Verbindungssuche. Als CSS-Variable verfügbar: `--bzb-warnorange` (siehe
+`src/App.css`).
+
+```
+Warnorange Dunkel
+HEX: #bf360c
+RGB: 191, 54, 12
+```
+
+Dunklere Variante für Fließtext auf einem hell orange eingefärbten Hintergrund (z.B.
+Fehlermeldungs-Box), wo das reine Warnorange zu wenig Kontrast böte. Als CSS-Variable
+verfügbar: `--bzb-warnorange-dark`.
+
+```
+Warnorange Hell
+HEX: #fff3e0
+RGB: 255, 243, 224
+```
+
+Heller Hintergrundton für Fehler-/Warnhinweis-Boxen, kombiniert mit Warnorange als
+Akzent (z.B. linker Rahmen) und Warnorange Dunkel als Textfarbe — so in der
+Verbindungssuche und im Favoriten-Hinweis verwendet. Als CSS-Variable verfügbar:
+`--bzb-warnorange-light`.
+
+**Rückmeldungen im UI**
+
+_Ebenfalls nicht Teil des Print-Manuals: die Zuordnung der Farbpalette zu den
+Rückmeldungen der Webanwendung._
+
+Die Palette kennt kein Rot und kein Grün, daher gilt in der Anwendung:
+
+- **Fehler und Warnungen** — heller Warnorange-Hintergrund, Warnorange Dunkel als
+  Text (5,1:1), Warnorange auf dem Symbol. Warnorange selbst ist eine reine
+  Akzentfarbe: Weiß darauf erreicht nur 3,8:1 und ist damit nicht barrierefrei.
+  Fehler und Warnung teilen sich die Farbe; unterschieden wird über Symbol und
+  Formulierung.
+- **Erfolgsmeldungen** — Lindgrün als Fläche mit Bahnblau als Text und Symbol
+  (5,9:1). Dieselbe Kombination wie beim aktiven Favoriten-Filter.
+- **Neutrale Hinweise** — heller Wolkenblau-Ton als Fläche, Wolkenblau auf dem
+  Symbol, Bahnblau als Text.
+
+Der linke Akzentbalken bleibt den größeren Hinweis-Boxen vorbehalten (z.B. in der
+Verbindungssuche); auf kleinen Meldungen konkurriert er mit dem Symbol und lässt
+sie unruhig wirken.
+
+Warnorange Dunkel bleibt auch bei Bedienelementen eine Kontur- und Textfarbe:
+Schaltflächen für abbrechende oder löschende Aktionen (z.B. „Favoriten auf diesem
+Gerät zurücksetzen") werden als Outline-Button mit Warnorange Dunkel als Rahmen
+und Beschriftung gesetzt, nicht als gefüllte Fläche. Gefüllte Flächen bleiben den
+offiziellen Palettenfarben vorbehalten.
+
+Umgesetzt im MUI-Theme (`src/theme.tsx`), damit jede Meldung in der Anwendung
+dieselben Farben verwendet. Bewusste Ausnahme: die Fehlermeldungen im Dialog zum
+Verbinden von Geräten behalten MUIs Rot — in einem Dialog, der bereits Bahnblau,
+Akelei und Lindgrün zeigt, wirkt eine weitere warme Fläche unruhig.
+
 Corporate Design Manual • Bahn zum Berg
 Farben
 

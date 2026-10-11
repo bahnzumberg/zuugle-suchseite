@@ -3,6 +3,7 @@ import crypto from "crypto";
 import knex from "../knex";
 import { get_domain_country } from "../utils/utils";
 import logger from "../utils/logger";
+import { listsLimiter, pairingLimiter } from "../middlewares/rateLimit";
 
 const router = express.Router();
 
@@ -22,11 +23,354 @@ const DEFAULT_LIST_NAMES = {
  */
 const generateListKey = () => crypto.randomBytes(32).toString("base64url");
 
+// Crockford base32: no I, L, O or U, so a code read off a screen and typed on
+// another device can't be garbled into a different valid code.
+const PAIRING_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+const PAIRING_CODE_LENGTH = 8;
+const PAIRING_CODE_TTL_MINUTES = 10;
+// /pair flattens pointers at merge time (see the tombstone step below), so a
+// chain is normally at most one hop. This just guards against an unbounded
+// walk if that invariant is ever violated by a bug or manual data edit.
+const MERGE_CHAIN_MAX_DEPTH = 10;
+
+/**
+ * Generates a random pairing code — short enough to type, unlike the list
+ * key, since it's meant to be read off one device and typed into another.
+ * @returns {string}
+ */
+const generatePairingCode = () =>
+    Array.from(
+        { length: PAIRING_CODE_LENGTH },
+        // randomInt is rejection-sampled, so no modulo bias.
+        () => PAIRING_ALPHABET[crypto.randomInt(0, PAIRING_ALPHABET.length)],
+    ).join("");
+
+/**
+ * Normalises user-typed input to the stored code form: upper-cases, drops the
+ * display separator, and applies Crockford's confusable mapping so "l0-i5"
+ * and "L0I5" both reach the same code.
+ * @param {unknown} input
+ * @returns {string|null} null when the input can't be a code
+ */
+const normalizePairingCode = (input) => {
+    if (typeof input !== "string") return null;
+    const normalized = input
+        .toUpperCase()
+        .replace(/[\s-]/g, "")
+        .replace(/[IL]/g, "1")
+        .replace(/O/g, "0");
+    return normalized.length === PAIRING_CODE_LENGTH && /^[0-9A-Z]+$/.test(normalized)
+        ? normalized
+        : null;
+};
+
+/**
+ * The TLD of the domain the request came in on. Read from the Host header
+ * rather than a request body field: it decides which lists may be paired, and
+ * `hostMiddleware` has already checked the header against a whitelist.
+ * @param {express.Request} req
+ * @returns {string}
+ */
+const requestTld = (req) => get_domain_country(req.headers["host"]).toUpperCase();
+
+/**
+ * Walks `merged_into_id` from a list row to the list that ultimately absorbed
+ * it. Devices left pointing at a merged-away list find their way back here.
+ *
+ * @param {object} origin a `user_list` row
+ * @param {import("knex").Knex|import("knex").Knex.Transaction} db
+ * @returns {Promise<{list: object|null, movedTo: string|null}>} `list` is null
+ *   when the chain is broken — that is a genuine 404. `movedTo` is the surviving
+ *   key, set only when the chain actually moved.
+ */
+const followMerges = async (origin, db = knex) => {
+    let list = origin;
+    const seen = new Set([origin.id]);
+
+    while (list.merged_into_id) {
+        if (seen.size > MERGE_CHAIN_MAX_DEPTH || seen.has(list.merged_into_id)) {
+            logger.error(`Merge chain for list ${origin.key} is cyclic or too deep`);
+            return { list: null, movedTo: null };
+        }
+        seen.add(list.merged_into_id);
+
+        const next = await db("user_list").where({ id: list.merged_into_id }).first();
+        // Defensive: a request never deletes a user_list row, it only tombstones
+        // it, and the retention sweep takes a tombstone away together with the
+        // list it points at — so the chain should never dangle. The FK allows it.
+        if (!next) return { list: null, movedTo: null };
+        list = next;
+    }
+
+    return { list, movedTo: list.id === origin.id ? null : list.key };
+};
+
+/**
+ * Loads a `user_list` row and resolves it through any merges. The only correct
+ * way for a route in this file to turn a key (or a raw row id) into the list
+ * it should act on.
+ *
+ * @param {import("knex").Knex|import("knex").Knex.Transaction} db
+ * @param {object} where lookup for the *origin* row, e.g. `{ key }` — resolving
+ *   from an id that has already been walked through followMerges reports no
+ *   move even when the caller's key did, in fact, move.
+ * @param {{lock?: boolean}} [options] `lock` takes a row lock on the origin
+ *   before resolving, which a write must do: an unlocked read taken earlier can
+ *   go stale by the time the write runs, because a concurrent /pair merge could
+ *   tombstone that exact list in between.
+ * @returns {Promise<{list: object|null, movedTo: string|null}>} `list` is null
+ *   when the row is unknown or its chain is broken — both are a genuine 404.
+ */
+const resolveList = async (db, where, { lock = false } = {}) => {
+    const query = db("user_list").where(where);
+    const origin = await (lock ? query.forUpdate() : query).first();
+    if (!origin) return { list: null, movedTo: null };
+    return followMerges(origin, db);
+};
+
+const listNotFound = { success: false, message: "List not found" };
+
+// How stale `last_seen_at` has to be before a read refreshes it. The favourites
+// view refetches on every window focus and polls while the sync dialog is open,
+// so writing on every read would mean a write per poll for no extra precision —
+// the retention sweep works in months.
+const LAST_SEEN_REFRESH_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Marks a list as still in use, so `jobs/pruneUserLists.js` leaves it alone.
+ * Bookkeeping the caller does not wait for: a read must still succeed if this
+ * write fails, and the next read will try again.
+ * @param {object} list a resolved `user_list` row
+ */
+const touchLastSeen = (list) => {
+    if (Date.now() - new Date(list.last_seen_at).getTime() < LAST_SEEN_REFRESH_MS) return;
+    knex("user_list")
+        .where({ id: list.id })
+        .update({ last_seen_at: knex.fn.now() })
+        .catch((error) =>
+            logger.error(`Could not refresh last_seen_at for list ${list.id}:`, error),
+        );
+};
+
+// ─── POST /api/lists/pair ─────────────────────────────────────────────
+// Merge the caller's list into the list a pairing code points at (#882).
+// Body: { code: string, key?: string }
+// Registered first, with its own limiter, so a request here is answered by
+// this handler alone and never also falls through to the blanket listsLimiter
+// registered below it — see the comment on that line.
+
+/**
+ * @swagger
+ * /api/lists/pair:
+ *   post:
+ *     summary: Merge two lists using a pairing code
+ *     description: >
+ *       Merges the calling device's list into the list the code was issued for.
+ *       The code-issuing list survives, so the device that showed the code keeps
+ *       its key; the calling device adopts the returned key. The absorbed list is
+ *       tombstoned rather than deleted, so any other device still pointing at it
+ *       is redirected on its next request.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: Pairing code shown on the other device
+ *               key:
+ *                 type: string
+ *                 description: Calling device's current list key. Omit if it has none.
+ *     responses:
+ *       200:
+ *         description: Lists merged (or nothing to merge).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 key:
+ *                   type: string
+ *                   description: Key of the surviving list — store this from now on
+ *                 received:
+ *                   type: integer
+ *                   description: Tours the calling device did not have before
+ *                 sent:
+ *                   type: integer
+ *                   description: Tours the other device did not have before
+ *                 total:
+ *                   type: integer
+ *       404:
+ *         description: Code unknown, expired or already used.
+ *       409:
+ *         description: The two lists belong to different Zuugle domains.
+ */
+router.post("/pair", pairingLimiter, async (req, res) => {
+    try {
+        const code = normalizePairingCode(req.body.code);
+        const ownKey = typeof req.body.key === "string" && req.body.key ? req.body.key : null;
+        const tld = requestTld(req);
+
+        // Unknown, malformed, expired and already-used codes are answered
+        // identically so the endpoint can't be used to probe which codes exist.
+        const notFound = { success: false, message: "Invalid or expired code" };
+        const domainMismatch = { success: false, message: "Lists belong to different domains" };
+        if (!code) {
+            return res.status(404).json(notFound);
+        }
+
+        const outcome = await knex.transaction(async (trx) => {
+            const codeRow = await trx("user_list_pairing_code")
+                .where({ code })
+                .whereNull("consumed_at")
+                .where("expires_at", ">", trx.fn.now())
+                .forUpdate()
+                .first();
+            if (!codeRow) return { status: 404, body: notFound };
+
+            // Target (from the code) and source (the caller's own key, if any)
+            // are unrelated lookups — resolve them concurrently.
+            const [target, source] = await Promise.all([
+                resolveList(trx, { id: codeRow.user_list_id }).then((r) => r.list),
+                ownKey ? resolveList(trx, { key: ownKey }).then((r) => r.list) : null,
+            ]);
+            if (!target) return { status: 404, body: notFound };
+
+            // Lists only ever pair within one Zuugle domain: a list carries the
+            // TLD its tours are resolved against, so mixing them would silently
+            // hide tours that aren't reachable from the other country.
+            if (target.tld !== tld || (source && source.tld !== tld)) {
+                return { status: 409, body: domainMismatch };
+            }
+
+            // Past this point the pairing attempt is valid, so spend the code
+            // even if there turns out to be nothing to merge.
+            await trx("user_list_pairing_code")
+                .where({ code })
+                .update({ consumed_at: trx.fn.now() });
+
+            const totalOf = async (listId) => {
+                const [{ count }] = await trx("user_list_tour")
+                    .where({ user_list_id: listId })
+                    .count();
+                return Number(count);
+            };
+            // The device that submits a code is the one that reports the
+            // outcome to its user, so both counts are stated from its side:
+            // what this device gains, and what it hands the other one. They
+            // differ whenever the two lists were not subsets of each other.
+            // `total` is only re-counted when the caller doesn't already know it.
+            const settled = async (survivor, received, sent, total) => ({
+                status: 200,
+                body: {
+                    success: true,
+                    key: survivor.key,
+                    received,
+                    sent,
+                    total: total ?? (await totalOf(survivor.id)),
+                },
+            });
+
+            // This device has no list yet, so the target's tours are all new to
+            // it and it has nothing of its own to contribute — received and
+            // total are the same number.
+            if (!source) {
+                const total = await totalOf(target.id);
+                return settled(target, total, 0, total);
+            }
+            // Already the code's target — it joined this list some other way.
+            if (source.id === target.id) {
+                return settled(target, 0, 0);
+            }
+
+            // Lock both rows lowest id first so two devices pairing into each
+            // other at the same moment can't deadlock. The locked rows are also
+            // the freshest read of both lists, so resolve straight from them —
+            // and since source and target don't depend on each other, resolve
+            // both concurrently instead of one after the other.
+            const ids = [source.id, target.id].sort((a, b) => a - b);
+            const lockedRows = await trx("user_list").whereIn("id", ids).orderBy("id").forUpdate();
+            const rowById = new Map(lockedRows.map((row) => [row.id, row]));
+
+            const [sourceNow, targetNow] = await Promise.all([
+                followMerges(rowById.get(source.id), trx),
+                followMerges(rowById.get(target.id), trx),
+            ]);
+            if (!sourceNow.list || !targetNow.list) return { status: 404, body: notFound };
+            // A concurrent pairing in the opposite direction may have already
+            // merged these two lists while we were waiting for the lock. The
+            // request that did the merging reports the real counts; this one
+            // has nothing left to compare against and reports none.
+            if (sourceNow.list.id === targetNow.list.id) {
+                return settled(targetNow.list, 0, 0);
+            }
+
+            const from = sourceNow.list;
+            const into = targetNow.list;
+            const [sourceBefore, targetBefore] = await Promise.all([
+                totalOf(from.id),
+                totalOf(into.id),
+            ]);
+
+            // Union the tours. A tour in both lists keeps the earlier added_at,
+            // because the list is presented sorted by it.
+            await trx.raw(
+                `INSERT INTO user_list_tour (user_list_id, tour_id, added_at)
+                 SELECT ?, tour_id, added_at FROM user_list_tour WHERE user_list_id = ?
+                 ON CONFLICT (user_list_id, tour_id)
+                 DO UPDATE SET added_at = LEAST(user_list_tour.added_at, EXCLUDED.added_at)`,
+                [into.id, from.id],
+            );
+
+            const after = await totalOf(into.id);
+
+            // Tombstone the absorbed list: drop its tours and point it at the
+            // survivor. Any list that had already merged into `from` is
+            // repointed straight at `into` too, so every chain stays at most
+            // one hop deep — by induction, since this same flattening ran on
+            // every prior merge, nothing could already point at `from` through
+            // more than one hop. A code already outstanding for `from` is
+            // deliberately left alive: followMerges sends whoever scans it to
+            // the survivor, which is where they wanted to go anyway. (Retiring
+            // it here would also deadlock against another device pairing in
+            // the opposite direction, which holds a lock on exactly that row.)
+            await trx("user_list_tour").where({ user_list_id: from.id }).del();
+            await trx("user_list")
+                .where({ merged_into_id: from.id })
+                .update({ merged_into_id: into.id, updated_at: trx.fn.now() });
+            await trx("user_list")
+                .where({ id: from.id })
+                .update({ merged_into_id: into.id, updated_at: trx.fn.now() });
+            await trx("user_list").where({ id: into.id }).update({ updated_at: trx.fn.now() });
+
+            return settled(into, after - sourceBefore, after - targetBefore, after);
+        });
+
+        res.status(outcome.status).json(outcome.body);
+    } catch (error) {
+        logger.error("Error pairing lists:", error);
+        res.status(500).json({ success: false, message: "Failed to pair lists" });
+    }
+});
+
+// Every route below shares this background limit. /pair has its own, tighter
+// limiter and must stay registered above this line — Express keeps walking
+// app.use() layers after an earlier one matches the path, so reordering these
+// would double-count a request to /pair against both counters.
+router.use(listsLimiter);
+
 // ─── POST /api/lists ──────────────────────────────────────────────
 // Create a new list.
-// Body: { name?: string, language?: string, domain: string }
-// The domain is converted to a 2-letter TLD (e.g. "www.zuugle.de" → "DE")
-// and stored for direct joins with city2tour_flat.reachable_from_country.
+// Body: { name?: string, language?: string }
+// The request's Host header is converted to a 2-letter TLD (e.g.
+// "www.zuugle.de" → "DE") and stored for direct joins with
+// city2tour_flat.reachable_from_country.
 // Returns: { success, key, name }
 
 /**
@@ -34,7 +378,7 @@ const generateListKey = () => crypto.randomBytes(32).toString("base64url");
  * /api/lists:
  *   post:
  *     summary: Create a new tour list
- *     description: Creates a named tour list with a cryptographically random URL-safe key (~256 bits). The domain is converted to a 2-letter TLD for DB joins.
+ *     description: Creates a named tour list with a cryptographically random URL-safe key (~256 bits). The request's Host header is converted to a 2-letter TLD for DB joins.
  *     requestBody:
  *       required: true
  *       content:
@@ -49,9 +393,6 @@ const generateListKey = () => crypto.randomBytes(32).toString("base64url");
  *                 type: string
  *                 default: de
  *                 description: Language code (de, en, fr, it, sl)
- *               domain:
- *                 type: string
- *                 description: Domain for TLD extraction (e.g. www.zuugle.at)
  *     responses:
  *       201:
  *         description: List created.
@@ -74,8 +415,9 @@ router.post("/", async (req, res) => {
     try {
         const language = req.body.language || "de";
         const name = req.body.name || DEFAULT_LIST_NAMES[language] || DEFAULT_LIST_NAMES.de;
-        const domain = req.body.domain;
-        const tld = get_domain_country(domain).toUpperCase();
+        // From the Host header, never the request body: the TLD decides which
+        // lists may be paired with each other, so it must not be client-settable.
+        const tld = requestTld(req);
         const key = generateListKey();
 
         await knex("user_list").insert({
@@ -89,6 +431,105 @@ router.post("/", async (req, res) => {
     } catch (error) {
         logger.error("Error creating user list:", error);
         res.status(500).json({ success: false, message: "Failed to create list" });
+    }
+});
+
+// ─── POST /api/lists/:key/pairing-code ────────────────────────────────
+// Issue a short, typeable code for this list so another device can merge
+// into it. Deliberately not the list key — see generatePairingCode.
+
+/**
+ * @swagger
+ * /api/lists/{key}/pairing-code:
+ *   post:
+ *     summary: Issue a pairing code for a list
+ *     description: >
+ *       Returns a short single-use code, valid for a few minutes, that another
+ *       device passes to POST /api/lists/pair. Issuing a code retires any code
+ *       still outstanding for the same list, so only one is ever live.
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       201:
+ *         description: Code issued.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 code:
+ *                   type: string
+ *                 expires_at:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: List not found.
+ */
+router.post("/:key/pairing-code", async (req, res) => {
+    try {
+        const { list, movedTo } = await resolveList(knex, { key: req.params.key });
+        if (!list) {
+            return res.status(404).json(listNotFound);
+        }
+
+        touchLastSeen(list);
+
+        const expiresAt = new Date(Date.now() + PAIRING_CODE_TTL_MINUTES * 60 * 1000);
+
+        // Retry on the vanishingly unlikely collision with a code that is still
+        // on file (32^8 possibilities against a handful of live codes).
+        let code = null;
+        for (let attempt = 0; attempt < 5 && !code; attempt++) {
+            const candidate = generatePairingCode();
+            try {
+                await knex.transaction(async (trx) => {
+                    // Lock the list so two concurrent requests for it can't both
+                    // see zero codes to retire and both insert one — without
+                    // this, a double-tap on "generate code" can leave two live
+                    // codes for the same list instead of one.
+                    await trx("user_list").where({ id: list.id }).forUpdate().first();
+
+                    // Retire every code this list has had — only one should
+                    // ever be valid at a time. Deleting rather than expiring:
+                    // /pair answers "gone" and "expired" identically, nothing
+                    // else reads these rows, and the table would otherwise grow
+                    // by one row per dialog open forever.
+                    await trx("user_list_pairing_code").where({ user_list_id: list.id }).del();
+
+                    await trx("user_list_pairing_code").insert({
+                        code: candidate,
+                        user_list_id: list.id,
+                        tld: list.tld,
+                        expires_at: expiresAt,
+                    });
+                });
+                code = candidate;
+            } catch (error) {
+                // 23505 = unique_violation. Anything else is a real failure.
+                if (error.code !== "23505") throw error;
+            }
+        }
+
+        if (!code) {
+            logger.error("Could not generate a unique pairing code after 5 attempts");
+            return res.status(500).json({ success: false, message: "Failed to issue code" });
+        }
+
+        res.status(201).json({
+            success: true,
+            code,
+            expires_at: expiresAt.toISOString(),
+            moved_to: movedTo,
+        });
+    } catch (error) {
+        logger.error("Error issuing pairing code:", error);
+        res.status(500).json({ success: false, message: "Failed to issue code" });
     }
 });
 
@@ -147,15 +588,13 @@ router.post("/", async (req, res) => {
  */
 router.get("/:key", async (req, res) => {
     try {
-        const { key } = req.params;
-
-        // Fetch list metadata
-        const list = await knex("user_list").where({ key }).first();
+        const { list, movedTo } = await resolveList(knex, { key: req.params.key });
         if (!list) {
-            return res.status(404).json({ success: false, message: "List not found" });
+            return res.status(404).json(listNotFound);
         }
 
-        // Fetch tour IDs from the junction table
+        touchLastSeen(list);
+
         const tourEntries = await knex("user_list_tour")
             .where({ user_list_id: list.id })
             .orderBy("added_at", "desc");
@@ -163,6 +602,7 @@ router.get("/:key", async (req, res) => {
         if (tourEntries.length === 0) {
             return res.status(200).json({
                 success: true,
+                moved_to: movedTo,
                 list: {
                     key: list.key,
                     name: list.name,
@@ -192,9 +632,14 @@ router.get("/:key", async (req, res) => {
                 t.country,
                 t.range,
                 t.type,
-                t.min_connection_duration,
-                t.min_connection_no_of_transfers,
-                ROUND(t.avg_total_tour_duration*100/25)*25/100 AS avg_total_tour_duration,
+                -- city2tour_flat carries one row per originating city, so the
+                -- connection-dependent columns have to be aggregated: grouping
+                -- by them instead returns the same tour once per city, which
+                -- also made the total count cities rather than tours. Same idiom
+                -- as the search query in tours.js.
+                MIN(t.min_connection_duration) AS min_connection_duration,
+                MIN(t.min_connection_no_of_transfers) AS min_connection_no_of_transfers,
+                ROUND(MIN(t.avg_total_tour_duration)*100/25)*25/100 AS avg_total_tour_duration,
                 t.ascent,
                 t.number_of_days,
                 t.quality_rating,
@@ -204,8 +649,7 @@ router.get("/:key", async (req, res) => {
               AND t.id IN (${tourIds.map(() => "?").join(", ")})
             GROUP BY t.id, t.provider, t.provider_name, t.url, t.title,
                      t.image_url, t.country, t.range, t.type,
-                     t.min_connection_duration, t.min_connection_no_of_transfers,
-                     t.avg_total_tour_duration, t.ascent, t.number_of_days,
+                     t.ascent, t.number_of_days,
                      t.quality_rating, t.traverse`,
             [list.tld, ...tourIds],
         );
@@ -227,6 +671,7 @@ router.get("/:key", async (req, res) => {
 
         res.status(200).json({
             success: true,
+            moved_to: movedTo,
             list: {
                 key: list.key,
                 name: list.name,
@@ -283,20 +728,12 @@ router.get("/:key", async (req, res) => {
  */
 router.post("/:key/tours", async (req, res) => {
     try {
-        const { key } = req.params;
         const tourId = parseInt(req.body.tour_id, 10);
 
         if (!tourId || isNaN(tourId)) {
             return res.status(400).json({ success: false, message: "Invalid tour_id" });
         }
 
-        // Find the list
-        const list = await knex("user_list").where({ key }).first();
-        if (!list) {
-            return res.status(404).json({ success: false, message: "List not found" });
-        }
-
-        // Verify tour exists in tour OR tour_inactive
         const tourExists = await knex.raw(
             `SELECT id FROM tour WHERE id = ?
              UNION ALL
@@ -309,18 +746,30 @@ router.post("/:key/tours", async (req, res) => {
             return res.status(404).json({ success: false, message: "Tour not found" });
         }
 
-        // Insert (idempotent: ON CONFLICT DO NOTHING)
-        await knex.raw(
-            `INSERT INTO user_list_tour (user_list_id, tour_id)
-             VALUES (?, ?)
-             ON CONFLICT (user_list_id, tour_id) DO NOTHING`,
-            [list.id, tourId],
-        );
+        // Resolve locked, right before writing — see resolveList's `lock`.
+        const outcome = await knex.transaction(async (trx) => {
+            const { list, movedTo } = await resolveList(
+                trx,
+                { key: req.params.key },
+                { lock: true },
+            );
+            if (!list) {
+                return { status: 404, body: listNotFound };
+            }
 
-        // Touch updated_at on the list
-        await knex("user_list").where({ id: list.id }).update({ updated_at: knex.fn.now() });
+            await trx.raw(
+                `INSERT INTO user_list_tour (user_list_id, tour_id)
+                 VALUES (?, ?)
+                 ON CONFLICT (user_list_id, tour_id) DO NOTHING`,
+                [list.id, tourId],
+            );
 
-        res.status(200).json({ success: true });
+            await trx("user_list").where({ id: list.id }).update({ updated_at: trx.fn.now() });
+
+            return { status: 200, body: { success: true, moved_to: movedTo } };
+        });
+
+        res.status(outcome.status).json(outcome.body);
     } catch (error) {
         logger.error("Error adding tour to list:", error);
         res.status(500).json({ success: false, message: "Failed to add tour" });
@@ -357,31 +806,41 @@ router.post("/:key/tours", async (req, res) => {
  */
 router.delete("/:key/tours/:tourId", async (req, res) => {
     try {
-        const { key } = req.params;
         const tourId = parseInt(req.params.tourId, 10);
 
         if (!tourId || isNaN(tourId)) {
             return res.status(400).json({ success: false, message: "Invalid tour_id" });
         }
 
-        // Find the list
-        const list = await knex("user_list").where({ key }).first();
-        if (!list) {
-            return res.status(404).json({ success: false, message: "List not found" });
-        }
+        // Resolve locked, right before writing — see the matching note on the
+        // add route and resolveList's `lock`.
+        const outcome = await knex.transaction(async (trx) => {
+            const { list, movedTo } = await resolveList(
+                trx,
+                { key: req.params.key },
+                { lock: true },
+            );
+            if (!list) {
+                return { status: 404, body: listNotFound };
+            }
 
-        const deleted = await knex("user_list_tour")
-            .where({ user_list_id: list.id, tour_id: tourId })
-            .del();
+            const deleted = await trx("user_list_tour")
+                .where({ user_list_id: list.id, tour_id: tourId })
+                .del();
 
-        if (deleted === 0) {
-            return res.status(404).json({ success: false, message: "Tour not in list" });
-        }
+            if (deleted === 0) {
+                return {
+                    status: 404,
+                    body: { success: false, moved_to: movedTo, message: "Tour not in list" },
+                };
+            }
 
-        // Touch updated_at on the list
-        await knex("user_list").where({ id: list.id }).update({ updated_at: knex.fn.now() });
+            await trx("user_list").where({ id: list.id }).update({ updated_at: trx.fn.now() });
 
-        res.status(200).json({ success: true });
+            return { status: 200, body: { success: true, moved_to: movedTo } };
+        });
+
+        res.status(outcome.status).json(outcome.body);
     } catch (error) {
         logger.error("Error removing tour from list:", error);
         res.status(500).json({ success: false, message: "Failed to remove tour" });

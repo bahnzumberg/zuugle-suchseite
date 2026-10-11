@@ -11,6 +11,9 @@
   --bzb-veilchenlila: #bcb8dc;
   --bzb-wolkenblau: #aab5d7;
   --bzb-lindgruen: #ccd8a1;
+  --bzb-warnorange: #e65100;
+  --bzb-warnorange-dark: #bf360c;
+  --bzb-warnorange-light: #fff3e0;
 }
 
 /* Source Sans 3 – Standardschriftart (DSGVO-konform, lokal gespeichert) */
@@ -911,17 +914,70 @@ ul.about-bullets {
   margin: 0;
 }
 
-.leaflet-control {
-  z-index: 0 !important;
+.map-fullscreen-container {
+  isolation: isolate;
+  z-index: 0;
 }
 
-.leaflet-pane {
-  z-index: 0 !important;
+/* On mobile the map uses the same 10px side padding as .cards-container;
+   above 600px (two-column tile grid) the inline 30px padding keeps it
+   aligned with the cards below. */
+@media (max-width: 599px) {
+  .map-fullscreen-container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
+
+/* Explicit Leaflet pane layering: tilePane (200) < weatherPane (250) < overlayPane (400) < markerPane (600) */
+.leaflet-pane.leaflet-tile-pane {
+  z-index: 200 !important;
+}
+
+.leaflet-pane.leaflet-weatherPane-pane {
+  z-index: 250 !important;
+  pointer-events: none;
+}
+
+.leaflet-pane.leaflet-overlay-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-pane.leaflet-shadow-pane {
+  z-index: 500 !important;
+}
+
+.leaflet-pane.leaflet-marker-pane {
+  z-index: 600 !important;
+}
+
+.leaflet-pane.leaflet-tooltip-pane {
+  z-index: 650 !important;
+}
+
+.leaflet-pane.leaflet-popup-pane {
+  z-index: 700 !important;
+}
+
+.leaflet-control {
+  z-index: 800 !important;
 }
 
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 0 !important;
+  z-index: 800 !important;
+}
+
+.weather-control-wrapper {
+  z-index: 1000 !important;
+  pointer-events: auto;
+}
+
+/* Weather overlay active: basemap tiles in grayscale */
+.weather-active-map .leaflet-tile-pane,
+.weather-active-map .leaflet-tile-pane img {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
 }
 
 .custom-marker-cluster {
@@ -964,19 +1020,6 @@ ul.about-bullets {
   align-items: flex-start;
 }
 
-.countrySwitch {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  padding: 15px;
-  width: 173.02px;
-  background: rgba(37, 73, 128, 0.2);
-  border-radius: 20px;
-  cursor: pointer;
-}
-
 .rowing {
   display: flex;
   flex-direction: row;
@@ -1005,14 +1048,6 @@ ul.about-bullets {
   }
 }
 
-.languageIcon {
-  width: 49px;
-  height: 49px;
-  background: rgba(37, 73, 128, 0.2);
-  border-radius: 35px;
-  cursor: pointer;
-}
-
 .centerMe {
   display: flex;
   align-items: center;
@@ -1033,19 +1068,6 @@ ul.about-bullets {
   flex-direction: column;
 }
 
-.languageMenu {
-  padding-top: 10px;
-  padding-left: 30px;
-  padding-right: 5px;
-  padding-bottom: 10px;
-  background: #ffffff;
-  border-radius: 20px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-direction: row;
-}
-
 .closeIcon {
   background: #ebebeb;
   width: 28px;
@@ -1056,30 +1078,6 @@ ul.about-bullets {
   display: flex;
   cursor: pointer;
   margin-left: 7px;
-}
-
-.languageItem {
-  font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 34px;
-  color: #8b8b8b;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.languageItem:hover {
-  color: var(--bzb-akelei);
-}
-
-.languageOptions {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  display: flex;
-  width: 100%;
-  margin-right: 20px;
 }
 
 .colLeft {
@@ -1200,4 +1198,73 @@ colLeft .domainItem {
 .tour-detail-properties-el .MuiTypography-root {
   margin: 0;
   padding: 0;
+}
+
+/* --------------------------------------------------------------
+# - Embed Widget Layout (WordPress integration)
+-------------------------------------------------------------- */
+#zuugle-embed {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+#zuugle-embed .cards-container {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+#zuugle-embed .map-fullscreen-container {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+@media (max-width: 599px) {
+  #zuugle-embed .map-fullscreen-container {
+    height: calc(100vh - 296px) !important;
+    height: calc(100dvh - 296px) !important;
+    min-height: 250px !important;
+  }
+}
+
+/* Allow embed on WordPress to use the full theme width */
+body:has(#zuugle-embed) .site-main,
+.page-template-template-fullwidth-no-title:has(#zuugle-embed) .site-main,
+.page-template-template-no-title:has(#zuugle-embed) .site-main,
+.page-id-101104 .site-main {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body:has(#zuugle-embed) .entry-content,
+.page-id-101104 .entry-content {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body:has(#zuugle-embed) .site-content,
+.page-id-101104 .site-content {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+body:has(#zuugle-embed) article,
+.page-id-101104 article {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }

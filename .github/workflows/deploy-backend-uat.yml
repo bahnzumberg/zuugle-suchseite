@@ -5,6 +5,7 @@ on:
             - "uat"
         paths:
             - "apps/backend/**"
+            - "assets/**"
             - ".github/workflows/deploy-backend-uat.yml"
             - ".github/workflows/_deploy-backend.yml"
 jobs:

@@ -3,6 +3,17 @@ set -e
 
 cd "$(dirname "$0")"
 
+# When invoked from cron, PATH may not include the nvm-managed Node.js.
+# Source nvm if available; fall back to adding the known install path used by
+# the GitHub Actions deploy workflow.
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+    . "$HOME/.nvm/nvm.sh"
+elif [ -d "$HOME/.nvm/versions/node" ]; then
+    # Pick the highest installed version automatically.
+    NODE_DIR=$(ls -d "$HOME/.nvm/versions/node/"v* 2>/dev/null | sort -V | tail -1)
+    [ -n "$NODE_DIR" ] && export PATH="$NODE_DIR/bin:$PATH"
+fi
+
 # Parse arguments
 REBUILD_STRUCTURE=false
 
@@ -40,7 +51,9 @@ fi
 # (compose container vs native pg_restore) is auto-detected, so no host DB client
 # is required.
 echo "Importing data (NODE_ENV=$NODE_ENV)..."
-npm run import-data
+# Merge stderr into stdout so the Python caller captures all output, including
+# Node.js stack traces on module-load failures that otherwise only go to stderr.
+npm run import-data 2>&1
 
 # Clean up the downloaded dump.
 rm -f zuugle_postgresql.dump

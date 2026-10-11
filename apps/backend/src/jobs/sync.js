@@ -6,50 +6,89 @@ import {
     PLACEHOLDER_IMAGE_PATH,
     PUBLIC_DIR,
     isOwnAssetPath,
-    last_two_characters,
+    tourGpxPath,
 } from "../utils/assetPaths";
 import { create } from "xmlbuilder2";
 import fs from "fs-extra";
 import path from "path";
 import { spawn } from "cross-spawn";
 import logger from "../utils/logger";
+import { isCutoffReached } from "../utils/timeCutoff";
 
 const activeFileWrites = []; // Array zur Verfolgung laufender Dateischreibvorgänge
+const inFlightGpxWrites = new Set(); // Verhindert parallele Doppel-Generierung für dieselbe Datei
 const MAX_CONCURRENT_WRITES = 10; // Maximale Anzahl gleichzeitiger Schreibvorgänge
 
-async function update_tours_from_tracks() {
-    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-    // This is the new query, which updates city2tour table. Every city gets its own lat/lon train stop, to be more accurate on the map.
+export async function fixTourCoordinates() {
+    // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon in city2tour.
+    // Prefers transit arrival stop from tracks, falls back to hike start from gpx.
     await knex.raw(`UPDATE city2tour AS c2t
                     SET connection_arrival_stop_lon=b.stop_lon,
-                    connection_arrival_stop_lat=b.stop_lat
+                        connection_arrival_stop_lat=b.stop_lat
                     FROM (
                         SELECT
-                        tour_id,
-                        city_slug,
-                        stop_lon,
-                        stop_lat
+                            tour_id,
+                            city_slug,
+                            stop_lon,
+                            stop_lat
                         FROM (
                             SELECT 
-                            t.id AS tour_id,
-                            f.hashed_url,
-                            f.city_slug,
-                            tracks.track_point_lon AS stop_lon,
-                            tracks.track_point_lat AS stop_lat,
-                            MIN(calendar_date),
-                            rank() OVER (PARTITION BY t.id, f.city_slug ORDER BY MIN(calendar_date) ASC)
+                                t.id AS tour_id,
+                                f.hashed_url,
+                                f.city_slug,
+                                COALESCE(tracks.track_point_lon, gpx.lon) AS stop_lon,
+                                COALESCE(tracks.track_point_lat, gpx.lat) AS stop_lat,
+                                MIN(calendar_date),
+                                rank() OVER (PARTITION BY t.id, f.city_slug ORDER BY MIN(calendar_date) ASC) AS rank
                             FROM tour as t
                             INNER JOIN fahrplan AS f
-                            ON t.hashed_url=f.hashed_url
-                            INNER JOIN tracks AS tracks
-                            ON f.totour_track_key=tracks.track_key
-                            WHERE tracks.track_point_sequence=1
+                                ON t.hashed_url=f.hashed_url
+                            INNER JOIN gpx
+                                ON gpx.hashed_url=f.hashed_url AND gpx.waypoint=1
+                            LEFT OUTER JOIN tracks AS tracks
+                                ON f.totour_track_key=tracks.track_key
+                               AND tracks.track_point_sequence=1
                             GROUP BY 1, 2, 3, 4, 5
                         ) AS a 
                         WHERE rank=1
                     ) AS b
                     WHERE b.tour_id=c2t.tour_id
-                    AND b.city_slug=c2t.city_slug`);
+                      AND b.city_slug=c2t.city_slug`);
+
+    // Select the primary stop per tour and country
+    await knex.raw(`UPDATE city2tour as ct
+                    SET stop_selector='y'
+                    FROM (
+                        SELECT
+                        d.tour_id,
+                        d.city_slug
+                        FROM (
+                            SELECT
+                            c.tour_id,
+                            c.city_slug,
+                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
+                            FROM city2tour AS c
+                            INNER JOIN (
+                                SELECT 
+                                COUNT(*),
+                                tour_id,
+                                connection_arrival_stop_lon,
+                                connection_arrival_stop_lat,
+                                reachable_from_country,
+                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
+                                FROM city2tour
+                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
+                            ) AS a 
+                            ON c.tour_id=a.tour_id
+                            AND c.reachable_from_country=a.reachable_from_country
+                            AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
+                            AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
+                            AND a.lon_lat_order=1
+                        ) AS d
+                        WHERE d.city_order=1
+                    ) AS e
+                    WHERE ct.tour_id=e.tour_id
+                    AND ct.city_slug=e.city_slug;`);
 }
 
 export async function fixTours() {
@@ -111,7 +150,7 @@ export async function fixTours() {
                     f.tour_provider AS provider,
                     f.hashed_url,
                     f.city_slug,
-                    EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60 AS min_connection_dur
+                    COALESCE(EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60,0) AS min_connection_dur
                     FROM fahrplan AS f
                     WHERE f.city_any_connection='yes'
                     GROUP BY f.tour_provider, f.hashed_url, f.city_slug
@@ -153,9 +192,12 @@ export async function fixTours() {
                     SELECT 
                     f.hashed_url,
                     f.city_slug,
-                    ROUND(AVG(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600 +
-                    EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600 +
-                    t.duration)*100)/100 AS avg_total_tour_duration
+                    ROUND(
+                    AVG(
+                    COALESCE(EXTRACT(EPOCH FROM f.totour_track_duration::INTERVAL)/3600,0) +
+                    COALESCE(EXTRACT(EPOCH FROM f.fromtour_track_duration::INTERVAL)/3600,0) +
+                    COALESCE(t.duration,0)
+                    )*100)/100 AS avg_total_tour_duration
                     FROM fahrplan AS f
                     INNER JOIN tour AS t
                     ON f.hashed_url=t.hashed_url
@@ -164,104 +206,8 @@ export async function fixTours() {
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
 
-    if (process.env.NODE_ENV == "production") {
-        // Fill the two columns connection_arrival_stop_lat and connection_arrival_stop_lon with data
-
-        await update_tours_from_tracks();
-    } else {
-        // On local development there are no tracks. How do we update the two columns in table tours?
-        // If not set, the map can not be filled with data.
-        // We set the stop wrongly with the first track point of the hike. Better than having no data here.
-
-        await knex.raw(`UPDATE city2tour AS c2t
-                        SET connection_arrival_stop_lon=b.lon,
-                        connection_arrival_stop_lat=b.lat
-                        FROM (
-                            SELECT
-                            g.hashed_url,
-                            g.lat-0.5 as lat,
-                            g.lon-0.5 as lon
-                            FROM gpx AS g
-                            WHERE g.typ='first'
-                        ) AS b
-                        WHERE b.hashed_url=c2t.hashed_url`);
-
-        // Generating at least one point for the tracks
-        await knex.raw(`TRUNCATE tracks`);
-
-        try {
-            await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
-                        SELECT
-                        f.totour_track_key AS track_key,
-                        ROW_NUMBER() OVER(PARTITION BY f.totour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
-                        ct.connection_arrival_stop_lon-0.5 AS track_point_lon,
-                        ct.connection_arrival_stop_lat-0.5 AS track_point_lat,
-                        0 AS track_point_elevation
-                        FROM fahrplan AS f
-                        INNER JOIN city2tour AS ct
-                        ON ct.hashed_url=f.hashed_url
-                        AND f.city_slug=ct.city_slug
-                        WHERE ct.connection_arrival_stop_lon IS NOT NULL
-                        AND ct.connection_arrival_stop_lat IS NOT NULL
-                        GROUP BY f.totour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
-        } catch (e) {
-            logger.info(e);
-        }
-
-        try {
-            await knex.raw(`INSERT INTO tracks (track_key, track_point_sequence, track_point_lon, track_point_lat, track_point_elevation)
-                        SELECT
-                        f.fromtour_track_key AS track_key,
-                        ROW_NUMBER() OVER(PARTITION BY f.fromtour_track_key ORDER BY ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat) AS track_point_sequence,
-                        ct.connection_arrival_stop_lon+1 AS track_point_lon,
-                        ct.connection_arrival_stop_lat+1 AS track_point_lat,
-                        0 AS track_point_elevation
-                        FROM fahrplan AS f
-                        INNER JOIN city2tour AS ct
-                        ON ct.hashed_url=f.hashed_url
-                        AND f.city_slug=ct.city_slug
-                        WHERE f.fromtour_track_key NOT IN (SELECT track_key FROM tracks)
-                        AND ct.connection_arrival_stop_lon IS NOT NULL
-                        AND ct.connection_arrival_stop_lat IS NOT NULL
-                        GROUP BY f.fromtour_track_key, ct.connection_arrival_stop_lon, ct.connection_arrival_stop_lat`);
-        } catch (e) {
-            logger.info(e);
-        }
-    }
-
-    await knex.raw(`UPDATE city2tour as ct
-                    SET stop_selector='y'
-                    FROM (
-                        SELECT
-                        d.tour_id,
-                        d.city_slug
-                        FROM (
-                            SELECT
-                            c.tour_id,
-                            c.city_slug,
-                            ROW_NUMBER() OVER (PARTITION BY c.tour_id, c.reachable_from_country ORDER BY c.city_slug) AS city_order
-                            FROM city2tour AS c
-                            INNER JOIN (
-                                SELECT 
-                                COUNT(*),
-                                tour_id,
-                                connection_arrival_stop_lon,
-                                connection_arrival_stop_lat,
-                                reachable_from_country,
-                                row_number() OVER (partition BY tour_id, reachable_from_country ORDER BY COUNT(*) DESC) AS lon_lat_order
-                                FROM city2tour
-                                GROUP BY tour_id, connection_arrival_stop_lon, connection_arrival_stop_lat, reachable_from_country
-                            ) AS a 
-                            ON c.tour_id=a.tour_id
-                            AND c.reachable_from_country=a.reachable_from_country
-                            AND c.connection_arrival_stop_lon=a.connection_arrival_stop_lon
-                            AND c.connection_arrival_stop_lat=a.connection_arrival_stop_lat
-                            AND a.lon_lat_order=1
-                        ) AS d
-                        WHERE d.city_order=1
-                    ) AS e
-                    WHERE ct.tour_id=e.tour_id
-                    AND ct.city_slug=e.city_slug;`);
+    // Fill connection coordinates and compute stop selector
+    await fixTourCoordinates();
 
     await knex.raw(`ANALYZE city2tour;`);
 
@@ -314,68 +260,15 @@ export async function fixTours() {
     }
 }
 
-export async function copyRangeImage() {
-    let dir_go_up = "../../";
-    let ranges = [];
-    if (process.env.NODE_ENV == "production") {
-        dir_go_up = "../";
-    }
-
-    try {
-        // Check if all existing ranges have a valid image
-        const range_result = await knex.raw(
-            `SELECT range_slug FROM tour WHERE range_slug IS NOT NULL GROUP BY range_slug;`,
-        );
-        ranges = range_result.rows;
-    } catch (error) {
-        logger.error("Error querying the database:", error);
-    }
-
-    try {
-        for (const range of ranges) {
-            const fs_source = path.join(__dirname, dir_go_up, "public/range-image/default.webp");
-            const fs_target = path.join(
-                __dirname,
-                dir_go_up,
-                "public/range-image/" + range.range_slug + ".webp",
-            );
-
-            if (!fs.existsSync(fs_target)) {
-                await fs.promises.copyFile(fs_source, fs_target);
-                logger.info("No image for range found. Copying from default: ", fs_target);
-            }
-        }
-    } catch (error) {
-        logger.error("Error copying images:", error);
-    }
-}
-
 const prepareDirectories = () => {
     // We need a basic set of directories, which are created now, if they do not exist yet
-    let filePath = "";
-    let dirPaths = [
-        "public/gpx/",
-        "public/gpx-image/",
-        "public/gpx-image-with-track/",
-        "public/gpx-track/",
-        "public/gpx-track/totour/",
-        "public/gpx-track/fromtour/",
-    ];
+    const dirPaths = ["gpx/", "gpx-image/"];
 
-    logger.info(" Start deleting old files");
-    for (const i in dirPaths) {
-        // On server (production): __dirname = /root/suchseite/api/jobs/
-        //   -> We need to go up one level to /root/suchseite/api/ where public/ is
-        // On local (development): __dirname = .../src/jobs/
-        //   -> We need to go up two levels to project root where public/ is
-        if (process.env.NODE_ENV == "production") {
-            filePath = path.join(__dirname, "../", dirPaths[i]);
-        } else {
-            filePath = path.join(__dirname, "../../", dirPaths[i]);
-        }
-
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath, { recursive: true });
+    logger.info(" Preparing directories");
+    for (const dirRel of dirPaths) {
+        const targetDir = path.join(PUBLIC_DIR, dirRel);
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
         }
     }
 };
@@ -400,13 +293,21 @@ export async function truncateAll() {
         "city2tour_flat",
         "pois",
         "poi2tour",
+        "overlay_weather_daily",
+        "tour_weather_daily",
+        "tour_weather_1h",
+        "sync_state",
     ];
     for (const tbl of tables) {
         try {
             await knex.raw(`TRUNCATE ${tbl};`);
         } catch (err) {
-            // Ignore errors for missing tables (e.g., canonical_alternate may not exist yet)
-            logger.warn(`TRUNCATE ${tbl} failed (ignored):`, err.message);
+            // Only ignore error if the table does not exist yet (PostgreSQL error 42P01)
+            if (err.code === "42P01") {
+                logger.warn(`TRUNCATE ${tbl} skipped (table does not exist)`);
+            } else {
+                throw err;
+            }
         }
     }
 }
@@ -523,110 +424,25 @@ export async function writeKPIs() {
     await knex.raw(`INSERT INTO kpi SELECT 'total_provider', COUNT(DISTINCT provider) FROM tour;`);
 }
 
-async function _syncConnectionGPX(key, partFilePath, fileName, title) {
-    // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
-    while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    try {
-        var filePath = "";
-        if (process.env.NODE_ENV == "production") {
-            filePath = path.join(__dirname, "../", partFilePath);
-        } else {
-            filePath = path.join(__dirname, "../../", partFilePath);
-        }
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath);
-        }
-        filePath = path.join(filePath, fileName);
-        if (key) {
-            var trackPoints = null;
-            if (!fs.existsSync(filePath)) {
-                // Schritt 1: Serielle Datenbankabfrage.
-                trackPoints = await knex("tracks")
-                    .select()
-                    .where({ track_key: key })
-                    .orderBy("track_point_sequence", "asc");
-                if (!!trackPoints && trackPoints.length > 0) {
-                    const writePromise = createFileFromGpx(
-                        trackPoints,
-                        filePath,
-                        title,
-                        "track_point_lat",
-                        "track_point_lon",
-                        "track_point_elevation",
-                    );
-                    // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
-                    activeFileWrites.push(writePromise);
-                    writePromise.finally(() => {
-                        const index = activeFileWrites.indexOf(writePromise);
-                        if (index > -1) {
-                            activeFileWrites.splice(index, 1);
-                        }
-                    });
-                }
-            }
-        }
-    } catch (e) {
-        logger.error("Error in _syncConnectionGPX:", e);
-    }
-}
-
-export async function syncConnectionGPX() {
-    // var mod = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var toTourFahrplan = await knex("fahrplan")
-        .select(["totour_track_key"])
-        .whereNotNull("totour_track_key")
-        .groupBy("totour_track_key");
-    if (toTourFahrplan) {
-        // Serielle Verarbeitung der "toTour"-Fahrpläne
-        for (const entry of toTourFahrplan) {
-            await _syncConnectionGPX(
-                entry.totour_track_key,
-                "public/gpx-track/totour/" + last_two_characters(entry.totour_track_key) + "/",
-                entry.totour_track_key + ".gpx",
-                "Station zur Tour",
-            );
-        }
-    }
-
-    var fromTourFahrplan = await knex("fahrplan")
-        .select(["fromtour_track_key"])
-        .whereNotNull("fromtour_track_key")
-        .groupBy("fromtour_track_key");
-    if (fromTourFahrplan) {
-        // Serielle Verarbeitung der "fromTour"-Fahrpläne
-        for (const entry of fromTourFahrplan) {
-            await _syncConnectionGPX(
-                entry.fromtour_track_key,
-                "public/gpx-track/fromtour/" + last_two_characters(entry.fromtour_track_key) + "/",
-                entry.fromtour_track_key + ".gpx",
-                "Tour zur Station",
-            );
-        }
-    }
-
-    // Warte, bis alle Jobs in der Warteschlange abgeschlossen sind, bevor die Funktion beendet wird.
-    while (activeFileWrites.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    return true;
-}
-
-export async function syncGPX() {
+export async function syncGPX(options = {}) {
+    const force = Boolean(options && options.force);
     prepareDirectories();
     var allTours = null;
-    logger.info(" Creating gpx files for all tours");
+    logger.info(` Creating gpx files for all tours${force ? " (force mode)" : ""}`);
     allTours = await knex("tour").select(["title", "id", "hashed_url"]);
     var allTourlength = allTours.length;
     if (!!allTours && allTours.length > 0) {
         for (var i = 0; i < allTourlength; i++) {
+            if (isCutoffReached()) {
+                logger.info(
+                    `Stopping syncGPX early due to time cutoff (23:00). Processed ${i}/${allTourlength} tours.`,
+                );
+                break;
+            }
             try {
                 var entry = allTours[i];
                 // Führt die DB-Abfrage seriell aus und startet den File-Schreib-Job in der Queue
-                await _syncGPX(entry.id, entry.hashed_url, entry.title);
+                await _syncGPX(entry.id, entry.hashed_url, entry.title, force);
             } catch (error) {
                 logger.info(" Error in syncGPX: ", error);
             }
@@ -639,25 +455,25 @@ export async function syncGPX() {
     return true;
 }
 
-async function _syncGPX(id, h_url, title) {
+async function _syncGPX(id, h_url, title, force = false) {
     // Warte dynamisch, bis ein freier Slot für einen Dateischreibvorgang verfügbar ist
     while (activeFileWrites.length >= MAX_CONCURRENT_WRITES) {
         await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
     try {
-        var filePath = "";
-        if (process.env.NODE_ENV == "production") {
-            filePath = path.join(__dirname, "../", "public/gpx/", last_two_characters(id), "/");
-        } else {
-            filePath = path.join(__dirname, "../../", "public/gpx/", last_two_characters(id), "/");
+        const filePathName = path.join(PUBLIC_DIR, tourGpxPath(id));
+        if (inFlightGpxWrites.has(filePathName)) {
+            return;
         }
-        var filePathName = path.join(filePath, id + ".gpx");
-        if (!fs.existsSync(filePathName)) {
+
+        if (force || !fs.existsSync(filePathName)) {
+            inFlightGpxWrites.add(filePathName);
             const writePromise = regenerateGpxFile(id, h_url, title);
             // Füge die Promise dem Array der aktiven Schreibvorgänge hinzu
             activeFileWrites.push(writePromise);
             writePromise.finally(() => {
+                inFlightGpxWrites.delete(filePathName);
                 const index = activeFileWrites.indexOf(writePromise);
                 if (index > -1) {
                     activeFileWrites.splice(index, 1);
@@ -671,6 +487,10 @@ async function _syncGPX(id, h_url, title) {
 }
 
 export async function syncGPXImage() {
+    if (isCutoffReached()) {
+        logger.info("Skipping syncGPXImage due to time cutoff (23:00).");
+        return true;
+    }
     let allIDs = await knex.raw(
         "SELECT CASE WHEN id < 10 THEN CONCAT('0', id) ELSE CAST(id AS VARCHAR) END as id FROM tour WHERE image_url IS NULL OR image_url='null';",
     );
@@ -688,6 +508,13 @@ export async function syncGPXImage() {
             await createImagesFromMap(toCreate.map((e) => e.id));
         }
 
+        if (isCutoffReached()) {
+            logger.info(
+                "Skipping placeholder image fallback because image creation was stopped due to time cutoff (23:00). Remaining tours will be processed in the next run.",
+            );
+            return true;
+        }
+
         // This step ensures that all tours have an image_url set. If not, a placeholder image is set.
         // Stored host-free so every environment resolves it against its own asset base.
         // city2tour_flat is automatically updated via database trigger trg_update_tour_image
@@ -698,49 +525,34 @@ export async function syncGPXImage() {
     return true;
 }
 
-async function createFileFromGpx(
-    data,
-    filePath,
-    title,
-    fieldLat = "lat",
-    fieldLng = "lon",
-    fieldEle = "ele",
-) {
-    if (data) {
-        // logger.info(`createFileFromGpx ${filePath}`)
-
-        const root = create({ version: "1.0" })
-            .ele("gpx", {
-                version: "1.1",
-                xmlns: "http://www.topografix.com/GPX/1/1",
-                "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            })
-            .ele("trk")
-            .ele("name")
-            .txt(title)
-            .up()
-            .ele("trkseg");
-
-        data.forEach((wp) => {
-            root.ele("trkpt", { lat: wp[fieldLat], lon: wp[fieldLng] })
-                .ele("ele")
-                .txt(wp[fieldEle]);
-        });
-
-        const xml = root.end({ prettyPrint: true });
-        if (xml) {
-            await fs.writeFileSync(filePath, xml);
-            const filedisc = fs.openSync(filePath);
-            fs.close(filedisc);
-        }
-    }
-}
-
 export async function syncTours() {
+    const [{ cnt: loadCount }] = await knex("tour_load").count("* as cnt");
+    const [{ cnt: liveCount }] = await knex("tour").count("* as cnt");
+
+    const numLoad = Number(loadCount);
+    const numLive = Number(liveCount);
+
+    if (numLoad === 0) {
+        logger.error(
+            "SYNC TOURS ABORT: tour_load is empty — refusing to truncate tour. Continuing with tours from previous day.",
+        );
+        return false;
+    }
+    if (numLive > 0 && numLoad < numLive * 0.8) {
+        logger.error(
+            `SYNC TOURS ABORT: tour_load has ${numLoad} rows vs ${numLive} live (>20% drop) — refusing swap. Continuing with tours from previous day.`,
+        );
+        return false;
+    }
+
+    logger.info(`Validating tour_load OK: ${numLoad} incoming rows vs ${numLive} live rows.`);
+
     // ── Step 1: Apply image_url fixes on staging table ───────────
     await knex.raw(`UPDATE tour_load SET image_url=NULL WHERE image_url='null';`);
+    // tour_load is filled externally and not reset here, so a missed load leaves
+    // yesterday's rows (already suffixed) in place — skip those to stay idempotent.
     await knex.raw(
-        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg';`,
+        `UPDATE tour_load SET image_url=CONCAT(image_url, '\\?width=784&height=523') WHERE image_url IS NOT NULL AND provider='bahnzumberg' AND image_url NOT LIKE '%width=784&height=523';`,
     ); // This is the needed size for the tour detail page
 
     // ── Step 2: Fast swap — site downtime starts here ────────────
@@ -748,6 +560,7 @@ export async function syncTours() {
     await knex.raw(`TRUNCATE tour;`);
     await knex.raw(`INSERT INTO tour SELECT * FROM tour_load;`);
     // ── Site downtime ends here ──────────────────────────────────
+    return true;
 }
 
 export async function syncCities() {
@@ -817,7 +630,7 @@ export async function populateCity2TourFlat() {
             t.ascent, 
             t.descent, 
             t.difficulty, 
-            t.duration, 
+            COALESCE(t.duration, 0) as duration, 
             t.distance, 
             t.number_of_days, 
             t.traverse, 

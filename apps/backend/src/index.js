@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-import path from "path";
-import { API_PORT, PUBLIC_DIR } from "./utils/assetPaths";
+import { API_PORT, PUBLIC_DIRS } from "./utils/assetPaths";
 import tours from "./routes/tours";
 import cities from "./routes/cities";
 import { cityRouter, cities2tourRouter } from "./routes/cities";
@@ -12,6 +11,8 @@ import searchAutocomplete from "./routes/searchAutocomplete";
 import diana from "./routes/diana";
 import licenses from "./routes/licenses";
 import lists from "./routes/lists";
+import seo from "./routes/seo";
+import matomoBotTracker from "./middlewares/matomoBotTracker";
 import { swaggerDocs } from "./utils/swagger";
 import logger from "./utils/logger";
 
@@ -25,12 +26,20 @@ let corsOptions = getZuugleCors();
 
 let app = express();
 app.disable("x-powered-by"); // #917 — hide Express version
+// One hop: nginx proxies to localhost and sets X-Forwarded-For (see
+// deploy/nginx/*/snippets). Without this every request looks like it comes
+// from 127.0.0.1 and the rate limiters in routes/lists.js would count the
+// whole world as one client.
+app.set("trust proxy", 1);
 
 process.setMaxListeners(0);
 // app.use(bodyParser.json({limit: '1024mb'}));
 // app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json({ limit: "1024mb" }));
 app.use(express.urlencoded({ limit: "1024mb", extended: false }));
+
+// AI bot tracking — must run before CORS rejects non-whitelisted origins
+app.use(matomoBotTracker);
 
 // preflight options requests for json files fail otherwise
 app.use((req, res, next) => {
@@ -39,16 +48,13 @@ app.use((req, res, next) => {
     }
     next();
 });
-//static file access – provider logos rarely change, serve with long cache
-app.use(
-    "/public/icons/provider",
-    cors(corsOptions),
-    express.static(path.join(PUBLIC_DIR, "icons/provider"), {
-        maxAge: "365d",
-        immutable: true,
-    }),
-);
-app.use("/public", cors(corsOptions), express.static(PUBLIC_DIR));
+// Running from source, the hand-maintained assets (img/, fonts/, icons/,
+// headless-leaflet/, favicons) live in the shared assets/public/ folder,
+// separate from PUBLIC_DIR; in production build:copy has already merged them
+// into the same folder, so PUBLIC_DIRS holds just the one. See assetPaths.ts.
+for (const dir of PUBLIC_DIRS) {
+    app.use("/public", cors(corsOptions), express.static(dir));
+}
 
 app.use("/api/tours", cors(corsOptions), hostMiddleware, authenticate, tours);
 app.use("/api/cities", cors(corsOptions), hostMiddleware, authenticate, cities);
@@ -59,7 +65,10 @@ app.use("/api/searchPhrases", cors(corsOptions), hostMiddleware, authenticate, s
 app.use("/api/searchphrase", cors(corsOptions), hostMiddleware, authenticate, searchAutocomplete);
 app.use("/api/diana", cors(corsOptions), hostMiddleware, authenticate, diana);
 app.use("/api/licenses", cors(corsOptions), licenses);
+// Rate limiting for these routes is applied inside routes/lists.js itself,
+// next to the route definitions it governs.
 app.use("/api/lists", cors(corsOptions), hostMiddleware, lists);
+app.use("/api/seo", cors(corsOptions), hostMiddleware, seo);
 swaggerDocs(app);
 
 app.listen(API_PORT, () => logger.info("Running on localhost:" + API_PORT));

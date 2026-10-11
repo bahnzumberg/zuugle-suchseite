@@ -1,0 +1,10 @@
+name: "Zuugle CodeQL Configuration"
+
+paths-ignore:
+  # Bundled build artefacts — generated code, not source.
+  # These files are committed so the embed widget can be served directly,
+  # but scanning them would only surface false-positives from third-party
+  # libraries (react-router, etc.) that are already vetted upstream.
+  - "apps/frontend/build-embed/**"
+  - "apps/frontend/dist/**"
+  - "apps/backend/public/**"

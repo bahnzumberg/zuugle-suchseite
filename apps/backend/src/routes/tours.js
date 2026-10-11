@@ -5,7 +5,6 @@ import cacheService from "../services/cache.js";
 import crypto from "crypto";
 import { hashedUrlsFromPoi } from "../utils/gpx/gpxUtils";
 import {
-    connectionGpxPath,
     PLACEHOLDER_IMAGE_PATH,
     PUBLIC_DIR,
     rangeImagePath,
@@ -16,6 +15,7 @@ import { replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
 import { minutesFromMoment } from "../utils/utils";
 import { convertDifficulty } from "../utils/utils";
 import logger from "../utils/logger";
+import { weatherLimiter } from "../middlewares/rateLimit";
 
 import fs from "fs";
 import path from "path";
@@ -66,6 +66,58 @@ const bindValues = (sql, bindings) => {
     // Normalize whitespace: replace multiple spaces/newlines with a single space
     return result.replace(/\s+/g, " ").trim();
 };
+
+/** Today + the next 3 days are shown on every result card. */
+const WEATHER_FORECAST_DAYS = 4;
+
+/**
+ * Today in Europe/Vienna, as SQL. Not CURRENT_DATE: no session timezone is set
+ * (knexfile.js), so CURRENT_DATE is UTC and would still read "yesterday" for
+ * the first hour or two after local midnight.
+ */
+const VIENNA_TODAY_SQL = "(now() AT TIME ZONE 'Europe/Vienna')::date";
+
+/** The forecast window as a FROM item: `d.day` runs from today, WEATHER_FORECAST_DAYS long. */
+const FORECAST_DAYS_SQL = `generate_series(
+                              ${VIENNA_TODAY_SQL},
+                              ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1},
+                              INTERVAL '1 day'
+                          ) AS d(day)`;
+
+/**
+ * SQL fragment attaching a `weather` JSON array to each row of `tourAlias`:
+ * one entry per day, starting today, WEATHER_FORECAST_DAYS long. A day the
+ * weather import has no row for keeps its slot with a null icon and score, so
+ * every card shows the same date in the same column.
+ *
+ * Three details that look incidental but are load-bearing:
+ *   - VIENNA_TODAY_SQL, not CURRENT_DATE (see there).
+ *   - ::text on the date, or node-postgres hands back a Date that res.json()
+ *     emits as "2026-09-26T22:00:00.000Z".
+ *   - ::float on the score, or decimal(4,1) arrives as the string "82.4".
+ *
+ * @param {string} tourAlias - Alias of the tour table in the outer query.
+ * @returns {string} A LEFT JOIN LATERAL clause exposing `weather.forecast`.
+ */
+const weatherForecastJoin = (tourAlias) => `
+                        LEFT JOIN LATERAL (
+                            SELECT JSON_AGG(
+                                       JSON_BUILD_OBJECT(
+                                           'date',  d.day::date::text,
+                                           'icon',  w.tour_weather_icon,
+                                           'score', w.tour_weather_score::float
+                                       ) ORDER BY d.day
+                                   ) AS forecast
+                            FROM ${FORECAST_DAYS_SQL}
+                            LEFT JOIN tour_weather_daily AS w
+                                   ON w.provider     = ${tourAlias}.provider
+                                  AND w.hashed_url   = ${tourAlias}.hashed_url
+                                  AND w.weather_date = d.day::date
+                            -- No GROUP BY, so this aggregates to exactly one
+                            -- row; HAVING drops even that one when the tour has
+                            -- no forecast at all.
+                            HAVING COUNT(w.tour_weather_icon) > 0
+                        ) AS weather ON TRUE`;
 
 /**
  * Logs search phrases to the database asynchronously (fire & forget).
@@ -160,6 +212,36 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
  *                   type: array
  *                   items:
  *                     type: object
+ *                     description: Tour row from city2tour_flat, plus the weather strip.
+ *                     properties:
+ *                       weather:
+ *                         type: array
+ *                         nullable: true
+ *                         minItems: 4
+ *                         maxItems: 4
+ *                         description: >
+ *                           Forecast for today and the next 3 days in Europe/Vienna, always
+ *                           exactly 4 ascending entries, or null when the tour has no forecast
+ *                           at all. Days the weather import has no data for keep their slot
+ *                           with a null icon and score. `icon` is the 1..18 id from the
+ *                           meteocons reference; the client maps it to both the icon file and the grade word.
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             date:
+ *                               type: string
+ *                               format: date
+ *                               example: "2026-09-27"
+ *                             icon:
+ *                               type: integer
+ *                               nullable: true
+ *                               minimum: 1
+ *                               maximum: 18
+ *                             score:
+ *                               type: number
+ *                               nullable: true
+ *                               minimum: 0
+ *                               maximum: 100
  *                 total:
  *                   type: integer
  *                 page:
@@ -357,6 +439,67 @@ router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
 
 /**
  * @swagger
+ * /api/tours/{id}/weather:
+ *   get:
+ *     summary: Get the hourly weather forecast for a tour
+ *     description: >
+ *       Returns today (Europe/Vienna) and the next 3 days. Each day carries the
+ *       daily icon/score and local sunrise/sunset from tour_weather_daily, plus
+ *       the hourly values from tour_weather_1h converted to local hours (0-23).
+ *       `days` is empty when the tour has no forecast at all.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Tour ID
+ *     responses:
+ *       200:
+ *         description: Forecast days.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 days:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       date: { type: string, example: "2026-10-04" }
+ *                       icon: { type: integer, nullable: true, description: "1..18" }
+ *                       score: { type: number, nullable: true, description: "0..100" }
+ *                       sunrise: { type: string, nullable: true, example: "07:44" }
+ *                       sunset: { type: string, nullable: true, example: "18:56" }
+ *                       hours:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             hour: { type: integer, description: "Local hour 0..23" }
+ *                             icon: { type: integer, nullable: true, description: "1..18, for this hour to the next" }
+ *                             temp_high_c: { type: number, nullable: true }
+ *                             temp_low_c: { type: number, nullable: true }
+ *                             sunshine_h: { type: number, nullable: true, description: "Hours of sunshine from this hour to the next (0..1)" }
+ *                             precipitation_mm: { type: number, nullable: true, description: "Sum from this hour to the next" }
+ *                             wind_speed_kmh: { type: number, nullable: true }
+ *                             wind_direction_deg: { type: number, nullable: true }
+ *                             thunderstorm_pct: { type: number, nullable: true, description: "From this hour to the next" }
+ *                             freezing_level_m: { type: number, nullable: true }
+ *       400:
+ *         description: Invalid tour ID.
+ *       404:
+ *         description: Tour not found.
+ *       429:
+ *         description: Too many requests. Rate limit exceeded.
+ */
+router.get("/:id/weather", weatherLimiter, (req, res) => tourWeatherWrapper(req, res));
+
+/**
+ * @swagger
  * /api/tours/{id}/{city}:
  *   get:
  *     summary: Get full tour details
@@ -497,6 +640,130 @@ const totalWrapper = async (req, res) => {
     };
     cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
+};
+
+/** The forecast refreshes during the morning, so it must not ride the 24h default TTL. */
+const TOUR_WEATHER_CACHE_TTL = 30 * 60;
+
+/**
+ * Returns the 4-day forecast of one tour, with its hourly values, for the
+ * weather panel on the detail page.
+ *
+ * `tour_weather_1h` stores `weather_date` + `weather_timeslot` in UTC (the
+ * local day starts at the previous UTC date's slots 22/23), so the hours are
+ * converted to Europe/Vienna before they are grouped into days. Sunrise and
+ * sunset in `tour_weather_daily` are already local.
+ *
+ * Everything that describes a span of time (sunshine, precipitation, the
+ * thunderstorm probability derived from it, and the icon derived from those)
+ * is stamped at the end of its hour, as in the source models: the 09:00 row
+ * holds 08:00-09:00. But the way the table is read by users, hour 8 means
+ * 08:00-09:00; temperature, wind and freezing level are instantaneous and
+ * stay. An hour without a successor (the forecast's end, a gap) gets NULL
+ * for the moved values. On the autumn DST change the repeated local hour
+ * keeps its first instance.
+ *
+ * Kept apart from `getWrapper` on purpose: the detail response is cached for
+ * 24h, the forecast only for TOUR_WEATHER_CACHE_TTL, and a failing weather
+ * query must not cost the detail page.
+ *
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ */
+const tourWeatherWrapper = async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id <= 0 || id > 2147483647) {
+        return res.status(400).json({ success: false, message: "Invalid tour ID" });
+    }
+
+    const cacheKey = generateKey("tours:weather", { id });
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+        return res.status(200).json(cached);
+    }
+
+    try {
+        const tour = await knex("tour").select("provider", "hashed_url").where({ id }).first();
+        if (!tour) {
+            return res.status(404).json({ success: false, message: "Tour not found" });
+        }
+        const bindings = [tour.provider, tour.hashed_url];
+
+        const [dayResult, hourResult] = await Promise.all([
+            knex.raw(
+                `SELECT d.day::date::text                  AS date,
+                        w.tour_weather_icon                AS icon,
+                        w.tour_weather_score::float        AS score,
+                        to_char(w.tour_sunrise, 'HH24:MI') AS sunrise,
+                        to_char(w.tour_sunset, 'HH24:MI')  AS sunset
+                 FROM ${FORECAST_DAYS_SQL}
+                 LEFT JOIN tour_weather_daily AS w
+                        ON w.provider     = ?
+                       AND w.hashed_url   = ?
+                       AND w.weather_date = d.day::date
+                 ORDER BY d.day`,
+                bindings,
+            ),
+            knex.raw(
+                `SELECT DISTINCT ON (h.local_ts)
+                        h.local_ts::date::text                     AS date,
+                        EXTRACT(HOUR FROM h.local_ts)::int         AS hour,
+                        CASE WHEN h.has_next THEN h.next_icon END  AS icon,
+                        h.tour_temperature_2m_high::float          AS temp_high_c,
+                        h.tour_temperature_2m_low::float           AS temp_low_c,
+                        CASE WHEN h.has_next THEN h.next_sunshine::float END
+                                                                   AS sunshine_h,
+                        CASE WHEN h.has_next THEN h.next_precipitation::float END
+                                                                   AS precipitation_mm,
+                        h.tour_wind_speed_10m::float               AS wind_speed_kmh,
+                        h.tour_wind_direction_10m::float           AS wind_direction_deg,
+                        CASE WHEN h.has_next THEN h.next_thunderstorm::float END
+                                                                   AS thunderstorm_pct,
+                        h.tour_freezing_level::float               AS freezing_level_m
+                 FROM (
+                     SELECT u.*,
+                            u.utc_ts AT TIME ZONE 'Europe/Vienna' AS local_ts,
+                            LEAD(u.utc_ts) OVER w = u.utc_ts + INTERVAL '1 hour' AS has_next,
+                            LEAD(u.tour_weather_icon) OVER w AS next_icon,
+                            LEAD(u.tour_sunshine_duration) OVER w AS next_sunshine,
+                            LEAD(u.tour_precipitation) OVER w AS next_precipitation,
+                            LEAD(u.tour_thunderstorm_probability) OVER w AS next_thunderstorm
+                     FROM (
+                         SELECT *,
+                                (weather_date + make_interval(hours => weather_timeslot))
+                                    AT TIME ZONE 'UTC' AS utc_ts
+                         FROM tour_weather_1h
+                         WHERE provider = ? AND hashed_url = ?
+                     ) AS u
+                     WINDOW w AS (ORDER BY u.utc_ts)
+                 ) AS h
+                 WHERE h.local_ts::date BETWEEN ${VIENNA_TODAY_SQL}
+                                            AND ${VIENNA_TODAY_SQL} + ${WEATHER_FORECAST_DAYS - 1}
+                 ORDER BY h.local_ts, h.utc_ts`,
+                bindings,
+            ),
+        ]);
+        const dayRows = dayResult.rows;
+        const hourRows = hourResult.rows;
+
+        const hoursByDate = new Map();
+        for (const { date, ...hour } of hourRows) {
+            if (!hoursByDate.has(date)) hoursByDate.set(date, []);
+            hoursByDate.get(date).push(hour);
+        }
+
+        const hasForecast = dayRows.some((day) => day.icon !== null) || hourRows.length > 0;
+        const days = hasForecast
+            ? dayRows.map((day) => ({ ...day, hours: hoursByDate.get(day.date) ?? [] }))
+            : [];
+
+        const responseData = { success: true, days };
+        cacheService.set(cacheKey, responseData, TOUR_WEATHER_CACHE_TTL);
+        return res.status(200).json(responseData);
+    } catch (error) {
+        logger.error("Error fetching tour weather:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
 };
 
 /**
@@ -740,6 +1007,7 @@ const getMatchingTourIds = async (req) => {
     let new_filter_where_providers = ``;
     let new_filter_where_poi = ``;
     let new_filter_where_countries = ``;
+    let new_filter_where_favoriteTourIds = ``;
     let inner_join_pois = ``;
     let poi_bindings = [];
     let pois = [];
@@ -865,6 +1133,16 @@ const getMatchingTourIds = async (req) => {
 
             if (new_filter_where_countries === "AND t.country IN () ") {
                 new_filter_where_countries = ``;
+            }
+        }
+
+        if (Array.isArray(filterJSON["favoriteTourIds"])) {
+            const favoriteTourIds = filterJSON["favoriteTourIds"].filter((id) =>
+                Number.isInteger(id),
+            );
+
+            if (favoriteTourIds.length > 0) {
+                new_filter_where_favoriteTourIds = `AND t.id IN (${favoriteTourIds.join(",")}) `;
             }
         }
     }
@@ -1024,6 +1302,7 @@ const getMatchingTourIds = async (req) => {
                                     ${new_filter_where_difficulties}
                                     ${new_filter_where_providers}
                                     ${new_filter_where_countries}
+                                    ${new_filter_where_favoriteTourIds}
                                     ${new_filter_where_poi}`;
 
     // Create a version with actual values for cache key generation
@@ -1076,7 +1355,7 @@ const getMatchingTourIds = async (req) => {
                             TRUNC(t.min_connection_duration / 30, 0) ASC, 
                             t.traverse DESC, 
                             t.quality_rating DESC,
-                            FLOOR(t.duration) ASC,
+                            FLOOR(COALESCE(t.duration, 0)) ASC,
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
         const tour_ids = await knex.raw(tour_ids_sql);
         tourIds = tour_ids.rows.map((row) => row.id);
@@ -1146,7 +1425,17 @@ const listWrapper = async (req, res) => {
         return res.status(200).json(responseData);
     }
 
-    const new_search_sql = `SELECT
+    // Built once: the `IN` list and the `ARRAY_POSITION` list have to stay
+    // identical, or the ordering stops being total.
+    const idList = pagedTourIds.join(", ");
+
+    /**
+     * The tour list, optionally enriched with the weather strip. `withWeather:
+     * false` selects a literal NULL for `weather` — the same shape the join
+     * produces for a tour the import has no forecast for, which the frontend
+     * already renders as a card without a strip.
+     */
+    const buildSearchSql = (withWeather) => `SELECT
                         t.id,
                         t.provider,
                         t.provider_name,
@@ -1162,25 +1451,41 @@ const listWrapper = async (req, res) => {
                         t.ascent,
                         t.number_of_days,
                         quality_rating,
-                        traverse
-                        FROM city2tour_flat AS t 
+                        traverse,
+                        ${withWeather ? "weather.forecast" : "NULL::json"} AS weather
+                        FROM city2tour_flat AS t
+                        ${withWeather ? weatherForecastJoin("t") : ""}
                         WHERE t.reachable_from_country='${tld}'
                         ${where_city_bound}
-                        AND t.id IN (${pagedTourIds.join(", ")});`;
+                        AND t.id IN (${idList})
+                        ORDER BY ARRAY_POSITION(ARRAY[${idList}]::int[], t.id);`;
 
-    // logger.info("new_search_sql: ", new_search_sql);
+    const runSearch = async (withWeather) =>
+        (await knex.raw(buildSearchSql(withWeather)))?.rows ?? [];
 
-    let result_sql = null;
-    let result = [];
+    let result;
     try {
-        result_sql = await knex.raw(new_search_sql); // fire the DB call here
-        if (result_sql && result_sql.rows) {
-            result = result_sql.rows;
-        } else {
-            // logger.info("knex.raw(new_search_sql): result or result.rows is null or undefined.");
+        result = await runSearch(true);
+    } catch (weatherError) {
+        // The forecast is an enrichment, not part of the search: it must never
+        // cost us the results. tour_weather_daily is created by migrations
+        // 0005/0008 and refilled by the external weather import, so it can be
+        // missing or mid-rebuild while the tours themselves are perfectly fine
+        // — retry once without the join and serve weatherless cards.
+        logger.error("Error firing new_search_sql, retrying without weather:", weatherError);
+        try {
+            result = await runSearch(false);
+        } catch (error) {
+            // Not a weather problem, then. Fail loudly: a 200 {tours: []} here
+            // is indistinguishable from a search that legitimately matched
+            // nothing, so it would render an empty grid under a "652 Bergtouren"
+            // headline and never show up in error monitoring.
+            logger.error("Error firing new_search_sql without weather:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error: " + error,
+            });
         }
-    } catch (error) {
-        logger.info("Error firing new_search_sql:", error);
     }
 
     // ****************************************************************
@@ -1769,9 +2074,7 @@ const connectionsExtendedWrapper = async (req, res) => {
                           f.totour_track_duration,
                           f.fromtour_track_duration,
                           f.connection_description_json,
-                          f.return_description_json,
-                          f.totour_track_key,
-                          f.fromtour_track_key
+                          f.return_description_json
                           FROM tour as t
                           INNER JOIN fahrplan as f
                           ON f.hashed_url=t.hashed_url
@@ -1818,7 +2121,6 @@ const connectionsExtendedWrapper = async (req, res) => {
             e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
             if (!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
-                e.gpx_file = connectionGpxPath("totour", e.totour_track_key);
                 duplicatesRemoved.push(e);
             }
         });
@@ -1868,7 +2170,6 @@ const getReturnConnectionsByConnection = (connections, today) => {
         e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
 
         if (!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))) {
-            e.gpx_file = connectionGpxPath("fromtour", e.fromtour_track_key);
             _duplicatesRemoved.push(e);
         }
     });
@@ -1940,9 +2241,9 @@ const tourGpxWrapper = async (req, res) => {
 };
 
 /**
- * Fetches the start and end stop coordinates of a tour from the tracks tables.
- * Start = first point of the "totour" track (where the journey to the trail begins).
- * End   = last point of the "fromtour" track (where passengers alight after the trail).
+ * Fetches the start and end stop coordinates of a tour from the gpx table.
+ * Start = gpx row with typ='first' (hike start point).
+ * End   = gpx row with typ='last'  (hike end point).
  * When a city slug is provided the query is scoped to that city's connection;
  * otherwise any available fahrplan row is used (LIMIT 1 ensures a single result).
  * Results are cached in Valkey for 24 hours.
@@ -1965,26 +2266,35 @@ const getTourStopsCoordinates = async (tourId, city) => {
         const result = await knex.raw(
             `SELECT
                 tour.id AS tour_id,
-                tt.track_point_lon AS start_stop_lon,
-                tt.track_point_lat AS start_stop_lat,
-                ft.track_point_lon AS end_stop_lon,
-                ft.track_point_lat AS end_stop_lat
+                COALESCE(tt.track_point_lon, g1.lon) AS start_stop_lon,
+                COALESCE(tt.track_point_lat, g1.lat) AS start_stop_lat,
+                COALESCE(ft.track_point_lon, g2.lon) AS end_stop_lon,
+                COALESCE(ft.track_point_lat, g2.lat) AS end_stop_lat
             FROM tour
             INNER JOIN fahrplan AS f
                 ON tour.hashed_url = f.hashed_url
-            INNER JOIN tracks AS tt
+
+            INNER JOIN gpx AS g1
+                ON g1.hashed_url = tour.hashed_url
+               AND g1.typ = 'first'
+            LEFT OUTER JOIN tracks AS tt
                 ON tt.track_key = f.totour_track_key
                AND tt.track_point_sequence = 1
-            CROSS JOIN LATERAL (
+
+            INNER JOIN gpx AS g2
+                ON g2.hashed_url = tour.hashed_url
+               AND g2.typ = 'last'
+            LEFT OUTER JOIN LATERAL (
                 SELECT track_point_lon, track_point_lat
                 FROM tracks
                 WHERE track_key = f.fromtour_track_key
                 ORDER BY track_point_sequence DESC
                 LIMIT 1
-            ) AS ft
+            ) AS ft ON true
+
             WHERE tour.id = ?
             ${cityClause}
-            GROUP BY tour.id, tt.track_point_lon, tt.track_point_lat, ft.track_point_lon, ft.track_point_lat
+            GROUP BY tour.id, tt.track_point_lon, tt.track_point_lat, ft.track_point_lon, ft.track_point_lat, g1.lon, g1.lat, g2.lon, g2.lat
             LIMIT 1`,
             bindings,
         );
@@ -2024,29 +2334,6 @@ const prepareTourEntry = async (entry, city, addDetails = true) => {
     entry.gpx_file = tourGpxPath(entry.id);
 
     if (addDetails) {
-        if (city) {
-            const toTour = await knex("fahrplan")
-                .select("totour_track_key")
-                .where({ hashed_url: entry.hashed_url, city_slug: city })
-                .whereNotNull("totour_track_key")
-                .first();
-            const fromTour = await knex("fahrplan")
-                .select("fromtour_track_key")
-                .where({ hashed_url: entry.hashed_url, city_slug: city })
-                .whereNotNull("fromtour_track_key")
-                .first();
-
-            if (!!toTour && !!toTour.totour_track_key) {
-                entry.totour_gpx_file = connectionGpxPath("totour", toTour.totour_track_key);
-            }
-            if (!!fromTour && !!fromTour.fromtour_track_key) {
-                entry.fromtour_gpx_file = connectionGpxPath(
-                    "fromtour",
-                    fromTour.fromtour_track_key,
-                );
-            }
-        }
-
         /** add provider_name to result */
         let provider_result = await knex("provider")
             .select("provider_name")

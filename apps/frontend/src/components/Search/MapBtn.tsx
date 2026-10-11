@@ -8,14 +8,16 @@ import { HideMapIcon } from "../../icons/HideMapIcon";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import { t } from "i18next";
 import Button from "@mui/material/Button";
+import { useEmbed } from "../../utils/embedContext";
 
 const MapBtn = () => {
+  const { isEmbed } = useEmbed();
   const showMap = useSelector((state: RootState) => state.search.map);
   const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const isSearchPage = location.pathname === "/search";
+  const isSearchPage = isEmbed || location.pathname === "/search";
 
   const iconSize = { fontSize: 22 };
   const icon = showMap ? (
@@ -54,6 +56,7 @@ const MapBtn = () => {
       color="primary"
       startIcon={isMobile ? undefined : icon} // show icon as main content on mobile
       sx={{
+        display: { xs: "none", sm: "inline-flex" },
         padding: "8px 20px",
         position: "fixed",
         left: "50%",

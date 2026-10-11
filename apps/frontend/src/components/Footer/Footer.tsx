@@ -41,7 +41,9 @@ export default function Footer() {
               >
                 <img
                   src={assetUrl("/img/BMLUK_Logo_Foerderung.svg")}
-                  height="100px"
+                  width="211"
+                  height="100"
+                  style={{ height: "100px", width: "auto" }}
                   alt="Funded by www.bmluk.gv.at"
                   loading="lazy"
                 />
@@ -68,8 +70,9 @@ export default function Footer() {
               >
                 <img
                   src={assetUrl("/img/Alpenkonvention_logo_gruen.webp")}
-                  height="75px"
-                  width="317px"
+                  width="317"
+                  height="75"
+                  style={{ height: "75px", width: "auto" }}
                   alt="Logo Alpenkonvention"
                   loading="lazy"
                 />
@@ -78,185 +81,187 @@ export default function Footer() {
           </Grid>
         </Box>
         <Box sx={{ width: "100%", borderTop: "1px solid #dfdfdf" }}>
-          <Grid
-            container
+          <Box
             sx={{
-              padding: "20px 40px",
+              padding: { xs: "20px 16px", md: "20px 40px" },
               display: "flex",
+              alignItems: { xs: "flex-end", md: "center" },
               justifyContent: "space-between",
+              gap: { xs: "8px", md: "16px" },
             }}
           >
-            <Grid
-              size={{
-                xs: 12,
-                md: 10,
+            {/* Logo: links unten on mobile */}
+            <Box
+              sx={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <a
+                href="https://verein.bahn-zum-berg.at/"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={assetUrl("/img/bahnzumberg_logo_blue.svg")}
+                  width="45"
+                  height="32"
+                  style={{ width: "45px", height: "auto" }}
+                  alt="Bahn zum Berg"
+                  loading="lazy"
+                />
+              </a>
+            </Box>
+
+            {/* Links: zentriert übereinander, in der Mitte von unten startend on mobile */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: "center",
+                justifyContent: { xs: "flex-end", md: "space-evenly" },
+                flex: 1,
+                gap: { xs: "6px", md: "0px" },
+                textAlign: "center",
               }}
             >
               <Box
+                component="span"
+                onClick={() => setLegalDialog("imprint")}
                 sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  gap: { xs: "12px 0px", md: "0px" },
-                  width: "100%",
+                  order: { xs: 1, md: 3 },
+                  cursor: "pointer",
                 }}
               >
-                <a
-                  href="https://verein.bahn-zum-berg.at/"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <img
-                    src={assetUrl("/img/bahnzumberg_logo_blue.svg")}
-                    width={"45px"}
-                    height={"auto"}
-                    alt="Bahn zum Berg"
-                    loading="lazy"
-                  />
-                </a>
-                <Box
+                <Typography
                   sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: "space-evenly",
-                    flex: 1,
-                    gap: { xs: "8px 16px", md: "0px" },
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                    fontSize: { xs: "0.85rem", md: "1rem" },
                   }}
+                  className="cursor-link"
                 >
-                  <a
-                    href="https://verein.bahn-zum-berg.at"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <Typography
-                      sx={{
-                        textDecoration: "underline",
-                        whiteSpace: "nowrap",
-                      }}
-                      className={"cursor-link"}
-                    >
-                      © {`${currentYear}`} Bahn zum Berg
-                    </Typography>
-                  </a>
-                  <span
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setLegalDialog("privacy")}
-                  >
-                    <Typography
-                      sx={{
-                        textDecoration: "underline",
-                        whiteSpace: "nowrap",
-                      }}
-                      className={"cursor-link"}
-                    >
-                      {t("start.datenschutz")}
-                    </Typography>
-                  </span>
-                  <span
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setLegalDialog("imprint")}
-                  >
-                    <Typography
-                      sx={{
-                        textDecoration: "underline",
-                        whiteSpace: "nowrap",
-                      }}
-                      className={"cursor-link"}
-                    >
-                      {t("start.impressum")}
-                    </Typography>
-                  </span>
-                </Box>
+                  {t("start.impressum")}
+                </Typography>
               </Box>
-            </Grid>
-            <Grid
-              size={{
-                xs: 12,
-                md: 2,
-              }}
-            >
+
               <Box
+                component="span"
+                onClick={() => setLegalDialog("privacy")}
                 sx={{
-                  textAlign: "right",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
+                  order: { xs: 2, md: 2 },
+                  cursor: "pointer",
                 }}
-                className={"social-icons"}
               >
-                <IconButton
-                  component="a"
-                  href="https://www.facebook.com/bahnzumberg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit us on Facebook"
-                  size="small"
-                  title="Facebook"
+                <Typography
+                  sx={{
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                    fontSize: { xs: "0.85rem", md: "1rem" },
+                  }}
+                  className="cursor-link"
                 >
-                  <img
-                    src={assetUrl("/img/logo-facebook.png")}
-                    width={"20px"}
-                    height={"20px"}
-                    alt="Facebook"
-                    loading="lazy"
-                  />
-                </IconButton>
-
-                <IconButton
-                  component="a"
-                  href="https://www.instagram.com/bahnzumberg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit us on Instagram"
-                  size="small"
-                  title="Instagram"
-                  sx={{ marginLeft: "5px" }}
-                >
-                  <img
-                    src={assetUrl("/img/logo-instagram.png")}
-                    width={"20px"}
-                    height={"20px"}
-                    alt="Instagram"
-                    loading="lazy"
-                  />
-                </IconButton>
-
-                <IconButton
-                  component="a"
-                  href="https://github.com/bahnzumberg/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit us on GitHub"
-                  size="small"
-                  title="GitHub"
-                  sx={{ marginLeft: "5px" }}
-                >
-                  <img
-                    src={assetUrl("/img/logo-github.png")}
-                    width={"20px"}
-                    height={"20px"}
-                    alt="GitHub"
-                    loading="lazy"
-                  />
-                </IconButton>
+                  {t("start.datenschutz")}
+                </Typography>
               </Box>
-            </Grid>
-          </Grid>
+
+              <Box
+                component="a"
+                href="https://verein.bahn-zum-berg.at"
+                target="_blank"
+                rel="noreferrer"
+                sx={{
+                  order: { xs: 3, md: 1 },
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <Typography
+                  sx={{
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                    fontSize: { xs: "0.85rem", md: "1rem" },
+                  }}
+                  className="cursor-link"
+                >
+                  © {`${currentYear}`} Bahn zum Berg
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Social icons: rechts unten on mobile */}
+            <Box
+              sx={{
+                flexShrink: 0,
+                textAlign: "right",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+              className="social-icons"
+            >
+              <IconButton
+                component="a"
+                href="https://www.facebook.com/bahnzumberg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit us on Facebook"
+                size="small"
+                title="Facebook"
+              >
+                <img
+                  src={assetUrl("/img/logo-facebook.png")}
+                  width="20px"
+                  height="20px"
+                  alt="Facebook"
+                  loading="lazy"
+                />
+              </IconButton>
+
+              <IconButton
+                component="a"
+                href="https://www.instagram.com/bahnzumberg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit us on Instagram"
+                size="small"
+                title="Instagram"
+                sx={{ marginLeft: "5px" }}
+              >
+                <img
+                  src={assetUrl("/img/logo-instagram.png")}
+                  width="20px"
+                  height="20px"
+                  alt="Instagram"
+                  loading="lazy"
+                />
+              </IconButton>
+
+              <IconButton
+                component="a"
+                href="https://github.com/bahnzumberg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit us on GitHub"
+                size="small"
+                title="GitHub"
+                sx={{ marginLeft: "5px" }}
+              >
+                <img
+                  src={assetUrl("/img/logo-github.png")}
+                  width="20px"
+                  height="20px"
+                  alt="GitHub"
+                  loading="lazy"
+                />
+              </IconButton>
+            </Box>
+          </Box>
         </Box>
       </Box>
       <LegalDialog open={legalDialog} onClose={() => setLegalDialog(null)} />

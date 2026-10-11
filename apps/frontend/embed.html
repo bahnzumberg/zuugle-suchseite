@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zuugle Embed – Dev Preview</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        background: #f5f5f5;
+      }
+      .wp-mock-header {
+        background: #23282d;
+        color: #fff;
+        padding: 16px 24px;
+        font-size: 18px;
+      }
+      .wp-mock-footer {
+        background: #23282d;
+        color: #aaa;
+        padding: 16px 24px;
+        font-size: 13px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Simulates the WordPress page around the embed -->
+    <div class="wp-mock-header">
+      🚞 bahn-zum-berg.at — Mock WordPress Header
+    </div>
+
+    <div
+      id="zuugle-embed"
+      data-lang="de"
+      data-city="amstetten"
+      data-map="true"
+    ></div>
+
+    <div class="wp-mock-footer">
+      © 2026 Bahn zum Berg — Mock WordPress Footer
+    </div>
+
+    <script type="module" src="/src/embed.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,502 @@
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import { WeatherMetadata } from "../../models/weatherOverlay";
+import { theme } from "../../theme";
+import { formatWeatherDayLabel } from "../../models/tourWeather";
+import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
+
+export function formatWeatherGeneratedAt(
+  isoString: string,
+  t: TFunction,
+  locale = "de-AT",
+): string {
+  try {
+    const d = new Date(isoString);
+    const dateStr = d.toLocaleDateString(locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "Europe/Vienna",
+    });
+    const timeStr = d.toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Europe/Vienna",
+    });
+    const formattedDateTime = `${dateStr}, ${timeStr}`;
+
+    return t("weather.as_of", {
+      date: formattedDateTime,
+      defaultValue: `Stand: ${formattedDateTime} Uhr`,
+    });
+  } catch {
+    return isoString;
+  }
+}
+
+interface WeatherButtonAndDaysProps {
+  metadata: WeatherMetadata | null;
+  isActive: boolean;
+  selectedDate: string | null;
+  onToggleActive: () => void;
+  onSelectDate: (date: string) => void;
+}
+
+export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
+  metadata,
+  isActive,
+  selectedDate,
+  onToggleActive,
+  onSelectDate,
+}) => {
+  const { t, i18n } = useTranslation();
+
+  const initContainer = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+    L.DomEvent.disableScrollPropagation(node);
+    // Without this the map underneath unexpectedly reacts to mousedown/touchstart/dblclick
+    L.DomEvent.disableClickPropagation(node);
+  }, []);
+
+  if (!metadata || !metadata.days || metadata.days.length === 0) {
+    return null;
+  }
+
+  return (
+    <div
+      ref={initContainer}
+      className="leaflet-top leaflet-left weather-control-wrapper leaflet-control"
+      style={{
+        pointerEvents: "auto",
+        marginTop: "12px",
+        marginLeft: "12px",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* Wanderwetter Button */}
+        <button
+          type="button"
+          onClick={() => onToggleActive()}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "7px",
+            padding: "7px 16px",
+            borderRadius: "9999px",
+            border: `1px solid ${isActive ? "#712579" : "rgba(0, 0, 0, 0.12)"}`,
+            backgroundColor: isActive ? "#712579" : "rgba(255, 255, 255, 0.95)",
+            color: isActive ? "#ffffff" : "#254980",
+            cursor: "pointer",
+            // Explicit: inheriting would pick up Leaflet's Helvetica from the map container.
+            fontFamily: theme.typography.fontFamily,
+            fontWeight: 700,
+            fontSize: 14,
+            whiteSpace: "nowrap",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+            transition:
+              "background-color 0.18s ease-in-out, border-color 0.18s ease-in-out, color 0.18s ease-in-out",
+          }}
+        >
+          <WbSunnyRoundedIcon
+            sx={{
+              fontSize: 20,
+              color: isActive ? "#ffffff" : "#712579",
+            }}
+          />
+          <span>{t("weather.button", "Wanderwetter")}</span>
+        </button>
+
+        {/* Day selection directly underneath */}
+        {isActive && (
+          <div
+            style={{
+              display: "flex",
+              gap: "6px",
+              flexWrap: "wrap",
+              marginTop: "8px",
+              maxWidth: "min(600px, calc(100vw - 70px))",
+            }}
+          >
+            {metadata.days.slice(0, 4).map((day) => {
+              const isSelected = selectedDate === day.date;
+              const label = formatWeatherDayLabel(day.date, t, i18n.language);
+              return (
+                <button
+                  type="button"
+                  key={day.date}
+                  onClick={() => onSelectDate(day.date)}
+                  style={{
+                    borderRadius: "16px",
+                    padding: "4px 12px",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                    border: `1px solid ${isSelected ? "#712579" : "rgba(0, 0, 0, 0.15)"}`,
+                    backgroundColor: isSelected
+                      ? "#712579"
+                      : "rgba(255, 255, 255, 0.95)",
+                    color: isSelected ? "#ffffff" : "#333333",
+                    cursor: "pointer",
+                    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
+                    transition:
+                      "background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface WeatherLegendProps {
+  metadata: WeatherMetadata | null;
+  isActive: boolean;
+}
+
+export const WeatherLegend: React.FC<WeatherLegendProps> = ({
+  metadata,
+  isActive,
+}) => {
+  const { t, i18n } = useTranslation();
+  const map = useMap();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const initContainer = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+    L.DomEvent.disableScrollPropagation(node);
+    L.DomEvent.disableClickPropagation(node);
+  }, []);
+
+  const initOverlay = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+    L.DomEvent.disableScrollPropagation(node);
+    L.DomEvent.disableClickPropagation(node);
+  }, []);
+
+  // Close popup when weather overlay is deactivated
+  useEffect(() => {
+    if (!isActive) setIsOpen(false);
+  }, [isActive]);
+
+  // Disable all map interactions and listen to Escape while the legend modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      map.dragging.enable();
+      map.touchZoom.enable();
+      map.doubleClickZoom.enable();
+      map.scrollWheelZoom.enable();
+      map.boxZoom.enable();
+      map.keyboard.enable();
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, map]);
+
+  if (!isActive || !metadata) {
+    return null;
+  }
+
+  const formattedGeneratedAt = formatWeatherGeneratedAt(
+    metadata.generated_at,
+    t,
+    i18n.language,
+  );
+
+  return (
+    <>
+      {/* (i) button in the top-right corner, styled like a leaflet-bar control */}
+      <div
+        ref={initContainer}
+        className="leaflet-top leaflet-right weather-control-wrapper leaflet-control"
+        style={{
+          pointerEvents: "auto",
+          marginTop: "12px",
+          marginRight: "12px",
+          zIndex: 1000,
+        }}
+      >
+        <div className="leaflet-bar">
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            title={t("weather.legend_title", "Wetter-Legende")}
+            style={{
+              width: "30px",
+              height: "30px",
+              backgroundColor: "#fff",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              fontSize: "16px",
+              fontWeight: 700,
+              fontStyle: "italic",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              color: "#333",
+              lineHeight: 1,
+            }}
+            aria-label={t("weather.legend_title", "Wetter-Legende")}
+          >
+            i
+          </button>
+        </div>
+      </div>
+
+      {/* Centered modal popup over the map */}
+      {isOpen && (
+        <div
+          ref={initOverlay}
+          className="weather-legend-overlay"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            cursor: "default",
+            pointerEvents: "auto",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(false);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
+              padding: "20px 24px",
+              minWidth: "240px",
+              maxWidth: "320px",
+              width: "85vw",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            {/* Title */}
+            <div
+              style={{
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                color: "#333",
+                marginBottom: "12px",
+                textAlign: "center",
+              }}
+            >
+              {t("weather.legend_title", "Wetter-Legende")}
+            </div>
+
+            {/* Gradient Bar */}
+            <div
+              style={{
+                height: "10px",
+                borderRadius: "5px",
+                background: WEATHER_GRADIENT_CSS,
+              }}
+            />
+
+            {/* Labels below gradient */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "6px",
+                fontSize: "0.78rem",
+                color: "#666",
+                fontWeight: 500,
+              }}
+            >
+              <span>{t("weather.grade.dangerous", "Gefährlich")}</span>
+              <span>{t("weather.grade.excellent", "Ausgezeichnet")}</span>
+            </div>
+
+            {/* Divider */}
+            <div
+              style={{
+                height: "1px",
+                backgroundColor: "#ebebeb",
+                margin: "10px 0",
+              }}
+            />
+
+            {/* As of timestamp */}
+            <div
+              style={{
+                fontSize: "0.76rem",
+                color: "#666",
+                lineHeight: 1.3,
+                textAlign: "center",
+              }}
+            >
+              {formattedGeneratedAt}
+            </div>
+
+            {/* OK button */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "16px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  padding: "6px 32px",
+                  borderRadius: "6px",
+                  border: "none",
+                  backgroundColor: "#254980",
+                  color: "#fff",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "background-color 0.15s ease",
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+/**
+ * Creates a dedicated Leaflet pane for the weather overlay.
+ * z-index 250 puts it above tilePane (200) and below overlayPane (400) / markerPane (600).
+ */
+export function WeatherPane() {
+  const map = useMap();
+  useEffect(() => {
+    let pane = map.getPane("weatherPane");
+    if (!pane) {
+      pane = map.createPane("weatherPane");
+      pane.style.zIndex = "250";
+      pane.style.pointerEvents = "none";
+    }
+    // Physically insert weatherPane right after tilePane in the DOM
+    const tilePane = map.getPane("tilePane");
+    if (tilePane && tilePane.parentNode && pane && pane.parentNode) {
+      tilePane.parentNode.insertBefore(pane, tilePane.nextSibling);
+    }
+  }, [map]);
+  return null;
+}
+
+/**
+ * Synchronizes the weather-active-map class to the Leaflet map container element.
+ * React-Leaflet's MapContainer does not reactively update its DOM className after mount.
+ */
+export function WeatherClassWatcher({ isActive }: { isActive: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    if (!container) return;
+    if (isActive) {
+      container.classList.add("weather-active-map");
+    } else {
+      container.classList.remove("weather-active-map");
+    }
+  }, [map, isActive]);
+  return null;
+}
+
+/**
+ * Leaflet Control: Fullscreen toggle button rendered inside the map (bottom-left corner).
+ */
+export function FullscreenControl({
+  isFullscreen,
+  onToggle,
+}: {
+  isFullscreen: boolean;
+  onToggle: () => void;
+}) {
+  const map = useMap();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Prevent map interactions from propagating through the button
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+  }, [map]);
+
+  return (
+    <div
+      className="leaflet-bottom leaflet-left"
+      style={{ pointerEvents: "auto" }}
+    >
+      <div ref={containerRef} className="leaflet-control leaflet-bar">
+        <button
+          type="button"
+          onClick={onToggle}
+          title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
+          style={{
+            width: "30px",
+            height: "30px",
+            backgroundColor: "#fff",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0,
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#333">
+            {isFullscreen ? (
+              <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
+            ) : (
+              <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+            )}
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}

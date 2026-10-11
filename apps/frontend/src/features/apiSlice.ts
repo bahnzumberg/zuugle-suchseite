@@ -8,10 +8,11 @@ import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
-import { Connection, ConnectionResult } from "../models/Connections";
 import { API_BASE_URL } from "../utils/apiBase";
-import { apiImageUrl, publicAssetUrl } from "../utils/assetUrl";
+import { apiImageUrl, assetUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
+import { forecastDays, type TourWeatherDetailDay } from "../models/tourWeather";
+import type { WeatherMetadata } from "../models/weatherOverlay";
 
 export interface CitiesResponse {
   success: boolean;
@@ -59,6 +60,11 @@ export interface TourParams {
 export interface TourResponse {
   success: boolean;
   tour: Tour;
+}
+
+interface TourWeatherResponse {
+  success: boolean;
+  days: TourWeatherDetailDay[];
 }
 
 export interface ToursResponse {
@@ -145,16 +151,6 @@ export interface FilterWithProviders {
   providers: Provider[];
 }
 
-export interface ConnectionParams {
-  id: string;
-  city: string;
-}
-
-export interface ConnectionResponse {
-  success: boolean;
-  result: ConnectionResult[];
-}
-
 export interface LicensePublisher {
   name: string;
   url?: string;
@@ -175,7 +171,76 @@ export interface LicensesResponse {
   licenses: LicenseEntry[];
 }
 
-const domain = window.location.hostname;
+export interface CreateListResponse {
+  success: boolean;
+  key: string;
+  name: string;
+}
+
+export interface FavoriteListTour {
+  id: number;
+}
+
+export interface FavoritesListResponse {
+  success: boolean;
+  list: {
+    key: string;
+    name: string;
+    language: string;
+    tld: string;
+  };
+  tours: FavoriteListTour[];
+  total: number;
+  // Set when the requested key was merged into another list — adopt this key.
+  moved_to: string | null;
+}
+
+export interface FavoriteMutationResponse {
+  success: boolean;
+  moved_to: string | null;
+}
+
+export interface PairingCodeResponse {
+  success: boolean;
+  code: string;
+  expires_at: string;
+  moved_to: string | null;
+}
+
+export interface PairListResponse {
+  success: boolean;
+  // Key of the surviving list — the caller's device stores this from now on.
+  key: string;
+  // Both counts are from this device's side: what it gained, and what the
+  // other device gained from it.
+  received: number;
+  sent: number;
+  total: number;
+}
+
+/**
+ * HTTP status of a rejected RTK Query call, or null when the failure carries
+ * none — a network or parsing error, where `status` is one of RTK's string
+ * markers instead.
+ */
+export const errorStatus = (error: unknown): number | null => {
+  const status = (error as FetchBaseQueryError | undefined)?.status;
+  return typeof status === "number" ? status : null;
+};
+
+/**
+ * Domain sent to the API in every request (`?domain=…`).
+ *
+ * The main app uses the page's own hostname (`www.zuugle.at`, `www.zuugle.de`,
+ * …). The embed widget runs on a third-party host (e.g. `www.bahn-zum-berg.at`)
+ * but must still tell the API which Zuugle domain it represents — the build
+ * sets `__ZUUGLE_DOMAIN__` to the correct value (e.g. `dev.zuugle.at`).
+ */
+declare const __ZUUGLE_DOMAIN__: string | undefined;
+const domain =
+  typeof __ZUUGLE_DOMAIN__ !== "undefined"
+    ? __ZUUGLE_DOMAIN__
+    : window.location.hostname;
 
 /**
  * The API returns GPX links as absolute URLs built from the `domain` above, so
@@ -186,8 +251,6 @@ const domain = window.location.hostname;
 const withLocalAssetUrls = (tour: Tour): Tour => ({
   ...tour,
   gpx_file: publicAssetUrl(tour.gpx_file),
-  totour_gpx_file: publicAssetUrl(tour.totour_gpx_file),
-  fromtour_gpx_file: publicAssetUrl(tour.fromtour_gpx_file),
   image_url: apiImageUrl(tour.image_url),
 });
 
@@ -196,15 +259,11 @@ const withLocalRangeImageUrl = (range: RangeObject): RangeObject => ({
   image_url: apiImageUrl(range.image_url),
 });
 
-const withLocalConnectionGpxUrl = (connection: Connection): Connection => ({
-  ...connection,
-  gpx_file: publicAssetUrl(connection.gpx_file),
-});
-
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
   }),
+  tagTypes: ["FavoritesList"],
   endpoints: (build) => ({
     getCities: build.query<CityObject[], void>({
       query: () => {
@@ -229,6 +288,11 @@ export const api = createApi({
       transformResponse: (response: TourResponse) => {
         return withLocalAssetUrls(response.tour);
       },
+    }),
+    getTourWeather: build.query<TourWeatherDetailDay[], string>({
+      query: (id) => `tours/${id}/weather`,
+      transformResponse: (response: TourWeatherResponse) =>
+        forecastDays(response.days),
     }),
     getTours: build.query<ToursResponse, ToursParams>({
       query: (params) => {
@@ -302,24 +366,36 @@ export const api = createApi({
       },
     }),
 
+    /**
+     * The map overlay's metadata; its `generated_at` is also the "Stand" of the
+     * detail page's weather panel. Unfiltered; the maps read it through
+     * `useWeatherOverlay`.
+     */
+    getWeatherMetadata: build.query<WeatherMetadata, void>({
+      queryFn: async () => {
+        try {
+          const res = await fetchAsset(
+            assetUrl("weather/weather_metadata.json"),
+          );
+          if (!res.ok) {
+            return { error: { status: res.status, data: null } };
+          }
+          return { data: (await res.json()) as WeatherMetadata };
+        } catch (error) {
+          console.warn("Could not load weather metadata:", error);
+          return {
+            error: { status: "FETCH_ERROR", error } as FetchBaseQueryError,
+          };
+        }
+      },
+    }),
+
     getProviderGpxOk: build.query<boolean, string>({
       query: (provider) => `tours/provider/${provider}`,
       transformResponse: (response: {
         success: boolean;
         allow_gpx_download: string;
       }) => response.allow_gpx_download === "y",
-    }),
-    getConnectionsExtended: build.query<ConnectionResult[], ConnectionParams>({
-      query: (params) => {
-        return `tours/${params.id}/connections-extended?city=${params.city}&domain=${domain}`;
-      },
-      transformResponse: (response: ConnectionResponse) => {
-        return response.result.map((day) => ({
-          ...day,
-          connections: day.connections.map(withLocalConnectionGpxUrl),
-          returns: day.returns.map(withLocalConnectionGpxUrl),
-        }));
-      },
     }),
     getCities2Tour: build.query<Cities2TourCity[], string>({
       query: (id) => {
@@ -340,6 +416,65 @@ export const api = createApi({
     getLicenses: build.query<LicenseEntry[], void>({
       query: () => "licenses",
       transformResponse: (response: LicensesResponse) => response.licenses,
+    }),
+    createFavoritesList: build.mutation<CreateListResponse, string>({
+      // No domain: the list's TLD comes from the request's Host header, so that
+      // which lists may be paired is not client-settable.
+      query: (language) => ({
+        url: "lists",
+        method: "POST",
+        body: { language },
+      }),
+    }),
+    getFavoritesList: build.query<FavoritesListResponse, string>({
+      query: (key) => `lists/${key}`,
+      providesTags: (_result, _error, key) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    addFavoriteTour: build.mutation<
+      FavoriteMutationResponse,
+      { key: string; tourId: number }
+    >({
+      query: ({ key, tourId }) => ({
+        url: `lists/${key}/tours`,
+        method: "POST",
+        body: { tour_id: tourId },
+      }),
+      invalidatesTags: (_result, _error, { key }) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    removeFavoriteTour: build.mutation<
+      FavoriteMutationResponse,
+      { key: string; tourId: number }
+    >({
+      query: ({ key, tourId }) => ({
+        url: `lists/${key}/tours/${tourId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, { key }) => [
+        { type: "FavoritesList", id: key },
+      ],
+    }),
+    createPairingCode: build.mutation<PairingCodeResponse, string>({
+      query: (key) => ({
+        url: `lists/${key}/pairing-code`,
+        method: "POST",
+      }),
+    }),
+    // Pairing replaces the device's key, so every cached list is stale
+    // afterwards — both the absorbed one and the survivor.
+    pairList: build.mutation<
+      PairListResponse,
+      { code: string; key: string | null }
+    >({
+      query: ({ code, key }) => ({
+        url: "lists/pair",
+        method: "POST",
+        body: { code, key },
+      }),
+      invalidatesTags: ["FavoritesList"],
     }),
   }),
 });
@@ -374,13 +509,19 @@ export const {
   useLazyGetFilterQuery,
   useGetTourQuery,
   useLazyGetTourQuery,
+  useGetTourWeatherQuery,
+  useGetWeatherMetadataQuery,
   useGetGPXQuery,
   useLazyGetGPXQuery,
   useGetProviderGpxOkQuery,
   useLazyGetProviderGpxOkQuery,
-  useGetConnectionsExtendedQuery,
-  useLazyGetConnectionsExtendedQuery,
-
   useGetCities2TourQuery,
   useGetLicensesQuery,
+
+  useCreateFavoritesListMutation,
+  useGetFavoritesListQuery,
+  useAddFavoriteTourMutation,
+  useRemoveFavoriteTourMutation,
+  useCreatePairingCodeMutation,
+  usePairListMutation,
 } = api;

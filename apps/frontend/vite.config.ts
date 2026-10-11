@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
@@ -28,6 +30,8 @@ const remoteAssetTarget =
 const BACKEND_PUBLIC_DIR = fileURLToPath(
   new URL("../backend/public", import.meta.url),
 );
+
+const OUT_DIR = "build";
 
 /**
  * Base URL of the backend `public/` folder, resolved **once** for the whole
@@ -91,33 +95,39 @@ function assetBaseUrl(): Plugin {
         return code.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE);
       },
     },
-    transformIndexHtml(html) {
-      return {
-        html: html.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE),
-        tags: ASSET_BASE_HINTS,
-      };
+    transformIndexHtml: {
+      order: "pre",
+      handler(html) {
+        return {
+          html: html.replaceAll(ASSET_BASE_TOKEN, ASSET_BASE),
+          tags: ASSET_BASE_HINTS,
+        };
+      },
     },
   };
 }
 
 /**
- * Serves the backend's `public/` folder under `/public`, the way nginx aliases
- * it on every deployed environment. Reading it from disk rather than proxying
- * a local backend keeps `vp dev` usable with no API and no database, and lets
- * an asset be edited and reloaded in place.
+ * Serves what's left in the backend's local `public/` folder under `/public`
+ * for dev — `gpx/`, `gpx-image/`, `sitemap_*.xml` (all
+ * gitignored, generated per environment) and `range-image/` (tracked, but
+ * still written there by `jobs/sync.js` at a path this folder move didn't
+ * touch — see task 4/6 of the shared-`public/`-folder issue). Everything
+ * else `/public/...` used to serve from here now comes straight from
+ * `assets/public/` via `publicDir` below; this plugin only has to cover what
+ * isn't there, the same way nginx aliases it on every deployed environment.
  *
  * Registered before Vite's proxy, so a local file always wins and only what is
- * missing on disk is fetched from the remote — the generated trees
- * (`gpx-image/`, `gpx-track/`, `gpx/`, `range-image/` slugs newer than the last
- * pull) are gitignored and exist only on a deployed environment.
+ * missing on disk is fetched from the remote — slugs newer than the last pull
+ * exist only on a deployed environment.
  */
-function backendPublicAssets(): Plugin {
+function backendGeneratedAssets(): Plugin {
   return {
-    name: "zuugle:backend-public-assets",
+    name: "zuugle:backend-generated-assets",
     apply: "serve",
     configureServer(server) {
-      // `dev` re-reads the folder per request, so a newly added asset is picked
-      // up without a restart; sirv calls next() when it finds no file.
+      // sirv re-reads the folder per request, so a newly added asset is
+      // picked up without a restart, and falls through when file is not found.
       server.middlewares.use(
         "/public",
         sirv(BACKEND_PUBLIC_DIR, { dev: true, etag: true }),
@@ -126,7 +136,41 @@ function backendPublicAssets(): Plugin {
   };
 }
 
+/**
+ * Strips repository documentation files (such as assets/README-ASSETS.md)
+ * that Vite's publicDir copies into OUT_DIR, so internal docs are never
+ * deployed to the server or served over HTTP.
+ */
+function cleanDocsFromBuild(): Plugin {
+  return {
+    name: "zuugle:clean-docs-from-build",
+    apply: "build",
+    closeBundle() {
+      if (!fs.existsSync(OUT_DIR)) return;
+      const files = fs.readdirSync(OUT_DIR, { recursive: true }) as string[];
+      for (const file of files) {
+        if (file.endsWith(".md")) {
+          const fullPath = path.join(OUT_DIR, file);
+          if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+            fs.unlinkSync(fullPath);
+          }
+        }
+      }
+    },
+  };
+}
+
 export default defineConfig({
+  publicDir: "../../assets",
+  resolve: {
+    alias: {
+      react: fileURLToPath(new URL("node_modules/react", import.meta.url)),
+      "react-dom": fileURLToPath(
+        new URL("node_modules/react-dom", import.meta.url),
+      ),
+    },
+    dedupe: ["react", "react-dom"],
+  },
   plugins: [
     react(),
     babel({
@@ -134,7 +178,8 @@ export default defineConfig({
     }),
     svgr(),
     assetBaseUrl(),
-    backendPublicAssets(),
+    backendGeneratedAssets(),
+    cleanDocsFromBuild(),
   ],
   server: {
     port: 3000,
@@ -154,7 +199,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "build",
+    outDir: OUT_DIR,
     assetsDir: "app_static",
     rollupOptions: {
       input: {
@@ -191,6 +236,7 @@ export default defineConfig({
       "DianaWidget-main/**",
     ],
     rules: {
+      "react-hooks/exhaustive-deps": "off",
       "react/display-name": "error",
       "react/jsx-key": "error",
       "react/jsx-no-comment-textnodes": "error",

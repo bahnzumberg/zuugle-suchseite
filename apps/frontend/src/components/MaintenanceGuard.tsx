@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -17,6 +18,7 @@ export interface MaintenanceGuardProps {
  * Wraps page content and shows a maintenance screen when the API
  * returns no tours (totals undefined or total_tours === 0).
  * Used on both `/` and `/search` to avoid duplicating the check.
+ * Auto-reloads the page every 30 seconds while in maintenance mode.
  */
 export default function MaintenanceGuard({
   totals,
@@ -28,6 +30,14 @@ export default function MaintenanceGuard({
 
   const isMaintenanceMode =
     !isTotalsLoading && (totals === undefined || totals.total_tours === 0);
+
+  // Auto-reload every 30 s while in maintenance mode so the page
+  // recovers on its own once the API is back.
+  useEffect(() => {
+    if (!isMaintenanceMode) return;
+    const timer = setTimeout(() => window.location.reload(), 30_000);
+    return () => clearTimeout(timer);
+  }, [isMaintenanceMode]);
 
   if (isTotalsLoading && totals === undefined) {
     // Initial load – show a spinner on the hero background

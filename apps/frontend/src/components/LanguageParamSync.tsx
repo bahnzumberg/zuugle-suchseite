@@ -1,15 +1,21 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
-import { useSelector } from "react-redux";
-import { RootState } from "..";
 import { useAppDispatch } from "../hooks";
 import { languageUpdated } from "../features/searchSlice";
 import { langChange } from "../utils/language_Utils";
 import i18n from "../translations/i18n";
 
+/**
+ * Reads the ?lang= query parameter on mount and bootstraps Redux + i18n.
+ *
+ * The reverse direction (Redux → URL) is handled exclusively by
+ * SearchParamSync, which rebuilds the entire query string from Redux state.
+ * Writing lang here via setParams would conflict: the functional-update
+ * pattern (prev => ...) re-introduces stale values for params owned by
+ * SearchParamSync (e.g. city), causing an infinite oscillation loop.
+ */
 export default function LanguageParamSync() {
-  const language = useSelector((state: RootState) => state.search.language);
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const dispatch = useAppDispatch();
 
   // URL → Redux + i18n on mount (handles navigating to a page with ?lang= in the URL)
@@ -19,20 +25,8 @@ export default function LanguageParamSync() {
       dispatch(languageUpdated(lang));
       if (lang !== i18n.resolvedLanguage) langChange(lang);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Redux → URL whenever language changes
-  useEffect(() => {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (language) next.set("lang", language);
-        else next.delete("lang");
-        return next;
-      },
-      { replace: true },
-    );
-  }, [language]);
 
   return null;
 }

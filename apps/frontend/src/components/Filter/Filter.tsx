@@ -1,5 +1,13 @@
 import Box from "@mui/material/Box";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useEmbed } from "../../utils/embedContext";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { theme } from "../../theme";
@@ -9,7 +17,7 @@ import { RootState } from "../..";
 import { useAppDispatch } from "../../hooks";
 import { filterUpdated } from "../../features/filterSlice";
 import {
-  cityUpdated,
+  citySlugUpdated,
   CityObject,
   geolocationUpdated,
 } from "../../features/searchSlice";
@@ -49,6 +57,7 @@ export interface FilterProps {
 }
 
 export default function Filter({ showFilter, setShowFilter }: FilterProps) {
+  const { isEmbed, fixedProviders } = useEmbed();
   const dispatch = useAppDispatch();
   const city = useSelector((state: RootState) => state.search.city);
   const citySlug = useSelector((state: RootState) => state.search.citySlug);
@@ -78,29 +87,33 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
   const { filter: fetchedFilter, providers: fetchedProviders } =
     filterData ?? {};
 
-  const defaultFilterValues = getDefaultFilterValues();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultFilterValues = useMemo(() => getDefaultFilterValues(), []);
 
   // and a temporary filter object which will become the new stored filter on submit.
   const [tempFilter, setTempFilter] =
     useState<FilterObject>(defaultFilterValues);
 
-  function fetchFilterScalar(filter: FilterObject) {
-    const scalarFilter = {
-      ...filter,
-      ranges: undefined,
-      types: undefined,
-      languages: undefined,
-      difficulties: undefined,
-      providers: undefined,
-      countries: undefined,
-    };
-    triggerFetchFilter({
-      city: citySlug || "",
-      search: search?.term || "",
-      search_type: search?.type !== "term" ? search?.type : "",
-      filter: scalarFilter,
-    });
-  }
+  const fetchFilterScalar = useCallback(
+    (filter: FilterObject) => {
+      const scalarFilter = {
+        ...filter,
+        ranges: undefined,
+        types: undefined,
+        languages: undefined,
+        difficulties: undefined,
+        providers: undefined,
+        countries: undefined,
+      };
+      triggerFetchFilter({
+        city: citySlug || "",
+        search: search?.term || "",
+        search_type: search?.type !== "term" ? search?.type : "",
+        filter: scalarFilter,
+      });
+    },
+    [citySlug, search, triggerFetchFilter],
+  );
 
   useEffect(() => {
     if (showFilter) {
@@ -108,7 +121,10 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     } else {
       hasInitialized.current = false;
     }
-  }, [showFilter]);
+    // storedFilter intentionally omitted: we only want to re-fetch when the
+    // dialog opens/closes, not on every filter chip removal while it is closed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilter, fetchFilterScalar]);
 
   // tempFilter has to be updated with fetched and stored filter values
   useEffect(() => {
@@ -172,7 +188,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
       fetchFilterScalar(tempFilter);
     }, 500);
     return () => clearTimeout(timer);
-  }, [tempFilter]);
+  }, [tempFilter, showFilter, fetchFilterScalar]);
 
   useEffect(() => {
     setTempGeolocation(geolocation ?? {});
@@ -201,7 +217,7 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
     } else {
       dispatch(geolocationUpdated(null));
     }
-    dispatch(cityUpdated(tempCity));
+    dispatch(citySlugUpdated(tempCity?.value ?? null));
     setShowFilter(false);
   }
 
@@ -449,19 +465,21 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
                   updateTempArray("countries", value, checked)
                 }
               />
-              <CheckboxFilterSection
-                title={t("filter.provider")}
-                options={(fetchedFilter?.providers ?? []).map((v) => ({
-                  value: v,
-                  label:
-                    fetchedProviders?.find((p) => p.provider === v)
-                      ?.provider_name ?? "",
-                }))}
-                isChecked={(value) => displayAsSelected("providers", value)}
-                onChange={({ value, checked }) =>
-                  updateTempArray("providers", value, checked)
-                }
-              />
+              {!isEmbed && (
+                <CheckboxFilterSection
+                  title={t("filter.provider")}
+                  options={(fetchedFilter?.providers ?? []).map((v) => ({
+                    value: v,
+                    label:
+                      fetchedProviders?.find((p) => p.provider === v)
+                        ?.provider_name ?? "",
+                  }))}
+                  isChecked={(value) => displayAsSelected("providers", value)}
+                  onChange={({ value, checked }) =>
+                    updateTempArray("providers", value, checked)
+                  }
+                />
+              )}
               <GeolocationSearchFilter
                 tempGeolocation={tempGeolocation}
                 updateGeolocation={updateGeolocation}
@@ -485,6 +503,11 @@ export default function Filter({ showFilter, setShowFilter }: FilterProps) {
             geolocation,
             defaultFilterValues,
             tempFilter,
+            fixedProviders: isEmbed
+              ? fixedProviders.length
+                ? fixedProviders
+                : ["bahnzumberg"]
+              : fixedProviders,
           }) || ""}{" "}
           {t("filter.filter_anwenden")}
         </Button>
