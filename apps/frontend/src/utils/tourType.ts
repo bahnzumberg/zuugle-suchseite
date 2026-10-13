@@ -2,12 +2,16 @@ import { useTranslation } from "react-i18next";
 import HikingIcon from "@mui/icons-material/Hiking";
 import DownhillSkiingIcon from "@mui/icons-material/DownhillSkiing";
 import SnowshoeingIcon from "@mui/icons-material/Snowshoeing";
-import NordicWalkingIcon from "@mui/icons-material/NordicWalking";
 import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import SleddingIcon from "@mui/icons-material/Sledding";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import { tourTypes } from "./language_Utils";
+import {
+  CarabinerIcon,
+  CrossCountrySkiingIcon,
+  LadderIcon,
+} from "../icons/tourTypeIcons";
 
 type SvgIconComponent = typeof HikingIcon;
 
@@ -16,10 +20,10 @@ const TOUR_TYPE_ICONS: Record<string, SvgIconComponent> = {
   weitwandern: HikingIcon,
   skitour: DownhillSkiingIcon,
   schneeschuh: SnowshoeingIcon,
-  langlaufen: NordicWalkingIcon,
+  langlaufen: CrossCountrySkiingIcon,
   bike_hike: DirectionsBikeIcon,
-  klettern: LandscapeIcon,
-  klettersteig: LandscapeIcon,
+  klettern: CarabinerIcon,
+  klettersteig: LadderIcon,
   hochtour: LandscapeIcon,
   rodeln: SleddingIcon,
   trailrunning: DirectionsRunIcon,
