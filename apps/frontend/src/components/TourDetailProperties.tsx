@@ -1,11 +1,10 @@
 import { convertNumToTime, formatNumber } from "../utils/globals";
 import { useTranslation } from "react-i18next";
-import { tourTypes } from "../utils/language_Utils";
+import { useTourType } from "../utils/tourType";
 import { Tour } from "../models/Tour";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import RouteIcon from "@mui/icons-material/Route";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import NorthIcon from "@mui/icons-material/North";
@@ -25,18 +24,7 @@ const TourDetailProperties = ({
 }: TourDetailPropertiesProps) => {
   const { t, i18n } = useTranslation();
 
-  const translateTourType = (type: string) => {
-    let translatedType = null;
-    tourTypes.map((typ) => {
-      type = type.toLowerCase();
-      typ = typ.toLowerCase();
-      if (type === "bike & hike") type = type.replace(/\s*&\s*/g, "_");
-      if (typ === type) {
-        translatedType = t(`filter.${typ}`);
-      }
-    });
-    return translatedType;
-  };
+  const tourType = useTourType(tour?.type);
 
   const translateDiff = (diff: string) => {
     if (diff === "Leicht" || diff === "leicht") return t("start.leicht");
@@ -60,9 +48,9 @@ const TourDetailProperties = ({
           {
             key: "type",
             label: t("filter.sportart"),
-            value: translateTourType(tour.type) ?? tour.type,
+            value: tourType.label,
             icon: (
-              <DirectionsRunIcon
+              <tourType.Icon
                 sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }}
               />
             ),
