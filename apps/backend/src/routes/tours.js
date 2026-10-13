@@ -223,7 +223,7 @@ const logSearchPhrase = async (search, resultCount, citySlug, language, domain) 
  *                           Forecast for today and the next 3 days in Europe/Vienna, always
  *                           exactly 4 ascending entries, or null when the tour has no forecast
  *                           at all. Days the weather import has no data for keep their slot
- *                           with a null icon and score. `icon` is the 1..18 id from the
+ *                           with a null icon and score. `icon` is the 1..22 id from the
  *                           meteocons reference; the client maps it to both the icon file and the grade word.
  *                         items:
  *                           type: object
@@ -470,7 +470,7 @@ router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
  *                     type: object
  *                     properties:
  *                       date: { type: string, example: "2026-10-04" }
- *                       icon: { type: integer, nullable: true, description: "1..18" }
+ *                       icon: { type: integer, nullable: true, description: "1..22" }
  *                       score: { type: number, nullable: true, description: "0..100" }
  *                       sunrise: { type: string, nullable: true, example: "07:44" }
  *                       sunset: { type: string, nullable: true, example: "18:56" }
@@ -480,7 +480,7 @@ router.get("/:id/gpx", (req, res) => tourGpxWrapper(req, res));
  *                           type: object
  *                           properties:
  *                             hour: { type: integer, description: "Local hour 0..23" }
- *                             icon: { type: integer, nullable: true, description: "1..18, for this hour to the next" }
+ *                             icon: { type: integer, nullable: true, description: "1..22, for this hour to the next" }
  *                             temp_high_c: { type: number, nullable: true }
  *                             temp_low_c: { type: number, nullable: true }
  *                             sunshine_h: { type: number, nullable: true, description: "Hours of sunshine from this hour to the next (0..1)" }

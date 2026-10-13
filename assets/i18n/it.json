@@ -420,15 +420,19 @@
     "as_of": "Aggiornato al: {{date}}",
     "grade": {
       "excellent": "Eccellente",
+      "great": "Ottimo",
       "very_good": "Molto buono",
       "good": "Buono",
+      "fair": "Accettabile",
       "moderate": "Moderato",
       "poor": "Scarso",
       "dangerous": "Pericoloso"
     },
     "condition": {
       "clear": "Sereno",
+      "mostly_clear": "Quasi sereno",
       "cloudy": "Nuvoloso",
+      "cloudy_drizzle": "Nuvoloso, pioviggine",
       "overcast": "Coperto",
       "cloudy_rain": "Nuvoloso, pioggia",
       "cloudy_snow": "Nuvoloso, neve",
