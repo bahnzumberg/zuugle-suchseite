@@ -49,6 +49,13 @@ var map = L.map("map", { zoomControl: false, attributionControl: false });
 window.__MAP_READY__ = false;
 window.__MAP_ERROR__ = false;
 
+window.addEventListener("error", function () {
+    window.__MAP_ERROR__ = true;
+});
+window.addEventListener("unhandledrejection", function () {
+    window.__MAP_ERROR__ = true;
+});
+
 var tileLayer = L.tileLayer("https://opentopo.bahnzumberg.at/{z}/{x}/{y}.png", {
     maxZoom: 17,
     attribution: "",
@@ -101,10 +108,17 @@ if (gpxTrackUrls.length > 0) {
         },
     })
         .on("loaded", function (e) {
-            map.fitBounds(e.target.getBounds().pad(0.15), { animate: false });
-            hideEndMarkerIfRoundTrip(e.layers);
-            attachTileListeners();
-            tileLayer.addTo(map);
+            try {
+                map.fitBounds(e.target.getBounds().pad(0.15), { animate: false });
+                hideEndMarkerIfRoundTrip(e.layers);
+                attachTileListeners();
+                tileLayer.addTo(map);
+            } catch (err) {
+                map.setView([51.505, -0.09], 14);
+                attachTileListeners();
+                tileLayer.addTo(map);
+                window.__MAP_ERROR__ = true;
+            }
         })
         .on("error", function () {
             map.setView([51.505, -0.09], 14);
