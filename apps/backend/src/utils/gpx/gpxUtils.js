@@ -456,6 +456,7 @@ export const regenerateGpxFile = async (id, hashedUrl, title) => {
 // images older than 30 days is selected.
 const cleanAndRecreateOldImages = async () => {
     let idsToRecreate = [];
+    let processedHashedUrls = [];
 
     // 1. Check whether gpx_changed_regenerate exists and has entries.
     // This table is part of the ETL job and exists only on production.
@@ -512,6 +513,7 @@ const cleanAndRecreateOldImages = async () => {
             await regenerateGpxFile(id, row.hashed_url, row.title);
 
             idsToRecreate.push(id);
+            processedHashedUrls.push(row.hashed_url);
         }
     } else {
         // 2b. Fallback: random 10 % selection from images older than 30 days
@@ -568,6 +570,20 @@ const cleanAndRecreateOldImages = async () => {
         await createImagesFromMap(idsToRecreate, true); // Pass 'true' to prevent further recursion
     } else {
         logger.info(`No old images found to recreate.`);
+    }
+
+    // Clean up processed entries from gpx_changed_regenerate so they are
+    // not regenerated again on the next run.  Only entries whose GPX file
+    // and image were actually rebuilt are removed.
+    if (processedHashedUrls.length > 0) {
+        try {
+            const deleted = await knex("gpx_changed_regenerate")
+                .whereIn("hashed_url", processedHashedUrls)
+                .del();
+            logger.info(`Cleaned up ${deleted} processed entries from gpx_changed_regenerate.`);
+        } catch (err) {
+            logger.error("Error cleaning up gpx_changed_regenerate:", err);
+        }
     }
 };
 
