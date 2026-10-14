@@ -421,15 +421,19 @@
     "as_of": "As of: {{date}}",
     "grade": {
       "excellent": "Excellent",
+      "great": "Great",
       "very_good": "Very good",
       "good": "Good",
+      "fair": "Fair",
       "moderate": "Moderate",
       "poor": "Poor",
       "dangerous": "Dangerous"
     },
     "condition": {
       "clear": "Clear",
+      "mostly_clear": "Mostly clear",
       "cloudy": "Cloudy",
+      "cloudy_drizzle": "Cloudy, drizzle",
       "overcast": "Overcast",
       "cloudy_rain": "Cloudy, rain",
       "cloudy_snow": "Cloudy, snow",

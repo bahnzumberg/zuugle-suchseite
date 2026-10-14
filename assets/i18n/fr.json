@@ -421,15 +421,19 @@
     "as_of": "État : {{date}}",
     "grade": {
       "excellent": "Excellent",
+      "great": "Superbe",
       "very_good": "Très bon",
       "good": "Bon",
+      "fair": "Assez bon",
       "moderate": "Modéré",
       "poor": "Médiocre",
       "dangerous": "Dangereux"
     },
     "condition": {
       "clear": "Dégagé",
+      "mostly_clear": "Presque dégagé",
       "cloudy": "Nuageux",
+      "cloudy_drizzle": "Nuageux, bruine",
       "overcast": "Couvert",
       "cloudy_rain": "Nuageux, pluie",
       "cloudy_snow": "Nuageux, neige",

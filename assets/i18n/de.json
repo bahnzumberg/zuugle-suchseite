@@ -422,15 +422,19 @@
     "as_of": "Stand: {{date}} Uhr",
     "grade": {
       "excellent": "Aus\u00adge\u00adzeich\u00adnet",
+      "great": "Hervor\u00adragend",
       "very_good": "Sehr gut",
       "good": "Gut",
+      "fair": "An\u00adnehm\u00adbar",
       "moderate": "Mäßig",
       "poor": "Schlecht",
       "dangerous": "Gefährlich"
     },
     "condition": {
       "clear": "Klar",
+      "mostly_clear": "Fast klar",
       "cloudy": "Bewölkt",
+      "cloudy_drizzle": "Bewölkt, Nieselregen",
       "overcast": "Bedeckt",
       "cloudy_rain": "Bewölkt, Regen",
       "cloudy_snow": "Bewölkt, Schnee",

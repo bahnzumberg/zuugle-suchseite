@@ -89,7 +89,7 @@ function assertValidTourWeather(tour) {
     assertValidWeatherDays(tour.weather);
 }
 
-/** Shared by the card strip and the detail endpoint: ascending dates, icon 1..18, score 0..100. */
+/** Shared by the card strip and the detail endpoint: ascending dates, icon 1..22, score 0..100. */
 function assertValidWeatherDays(days) {
     let previousDate = null;
     for (const day of days) {
@@ -100,7 +100,7 @@ function assertValidWeatherDays(days) {
         if (day.icon !== null) {
             expect(Number.isInteger(day.icon)).toBe(true);
             expect(day.icon).toBeGreaterThanOrEqual(1);
-            expect(day.icon).toBeLessThanOrEqual(18);
+            expect(day.icon).toBeLessThanOrEqual(22);
         }
         if (day.score !== null) {
             expect(typeof day.score).toBe("number");
@@ -150,7 +150,7 @@ function assertValidTourWeatherDetail(days) {
 
             if (hour.icon !== null) {
                 expect(hour.icon).toBeGreaterThanOrEqual(1);
-                expect(hour.icon).toBeLessThanOrEqual(18);
+                expect(hour.icon).toBeLessThanOrEqual(22);
             }
             for (const field of TOUR_WEATHER_HOUR_FIELDS) {
                 expect(hour[field] === null || typeof hour[field] === "number").toBe(true);

@@ -423,15 +423,19 @@
     "as_of": "Stanje: {{date}}",
     "grade": {
       "excellent": "Odlično",
+      "great": "Imenitno",
       "very_good": "Zelo dobro",
       "good": "Dobro",
+      "fair": "Sprejemljivo",
       "moderate": "Zmerno",
       "poor": "Slabo",
       "dangerous": "Nevarno"
     },
     "condition": {
       "clear": "Jasno",
+      "mostly_clear": "Skoraj jasno",
       "cloudy": "Delno oblačno",
+      "cloudy_drizzle": "Delno oblačno, rahlo deževje",
       "overcast": "Oblačno",
       "cloudy_rain": "Delno oblačno, dež",
       "cloudy_snow": "Delno oblačno, sneg",
