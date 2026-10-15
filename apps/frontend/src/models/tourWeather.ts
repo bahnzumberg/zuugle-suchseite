@@ -4,7 +4,7 @@ import { assetUrl } from "../utils/assetUrl";
 /** One day of the forecast strip, as returned by `/tours`. */
 export interface TourWeatherDay {
   date: string; // "YYYY-MM-DD"
-  icon: number | null; // 1..18, null where the weather import has no data
+  icon: number | null; // 1..22, null where the weather import has no data
   score: number | null; // 0..100
 }
 
@@ -31,15 +31,19 @@ export interface TourWeatherDetailDay extends TourWeatherDay {
 
 export type WeatherGradeKey =
   | "excellent"
+  | "great"
   | "very_good"
   | "good"
+  | "fair"
   | "moderate"
   | "poor"
   | "dangerous";
 
 export type WeatherConditionKey =
   | "clear"
+  | "mostly_clear"
   | "cloudy"
+  | "cloudy_drizzle"
   | "overcast"
   | "cloudy_rain"
   | "cloudy_snow"
@@ -57,7 +61,10 @@ export interface WeatherIcon {
 /**
  * The icon ids the weather import writes to `tour_weather_daily.tour_weather_icon`.
  *
- * Each id encodes the meteocons file *and* the grade tier.
+ * Each id encodes the meteocons file *and* the grade tier. Ids 19–22 were
+ * appended later for the in-between grades "great" (90–94) and "fair" (50–59),
+ * so the ids are not in grade order. "fair" is summer-only: in winter the
+ * import writes the "moderate" snow icons 8/10 for those scores as well.
  */
 export const WEATHER_ICONS: Record<number, WeatherIcon> = {
   1: { file: "clear-day", grade: "excellent", condition: "clear" },
@@ -110,6 +117,18 @@ export const WEATHER_ICONS: Record<number, WeatherIcon> = {
     condition: "thunderstorm",
   },
   18: { file: "extreme-night", grade: "dangerous", condition: "extreme" },
+  19: { file: "mostly-clear-day", grade: "great", condition: "mostly_clear" },
+  20: { file: "mostly-clear-night", grade: "great", condition: "mostly_clear" },
+  21: {
+    file: "partly-cloudy-day-drizzle",
+    grade: "fair",
+    condition: "cloudy_drizzle",
+  },
+  22: {
+    file: "partly-cloudy-night-drizzle",
+    grade: "fair",
+    condition: "cloudy_drizzle",
+  },
 };
 
 /** How many days the strip shows at most — today plus three. */

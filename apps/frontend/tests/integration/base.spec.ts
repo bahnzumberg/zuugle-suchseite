@@ -4,14 +4,10 @@ test.describe("Search Functionality", () => {
   test("Homepage with city selection and search bar", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Zuugle/);
-    // TODO: should there be a city selection on the startpage in the new design?
-    // await expect(page.getByRole("combobox").nth(1)).toBeVisible();
-    // await page.getByRole("button", { name: "Open" }).click({ delay: 200 });
-    // await page.getByText("Innsbruck").click();await page.goto('http://localhost:3000/');
     await page.getByRole("combobox", { name: "Berggipfel, Region," }).click();
     await page
       .getByRole("combobox", { name: "Berggipfel, Region," })
-      .fill("brand");
+      .fill("brandj");
     await page.getByText("Brandjochkreuz").click();
     await expect(page).toHaveURL(
       "search?lang=de&search=Brandjochkreuz&search_type=peak",

@@ -1,13 +1,13 @@
 # Weather icons
 
-The 18 weather-condition icons used by the "Wanderwetter" strip on the tour cards.
+The 22 weather-condition icons used by the "Wanderwetter" strip on the tour cards.
 
 - **Source:** [Meteocons](https://github.com/basmilius/meteocons) by Bas Milius
 - **Package:** `@meteocons/svg-static@0.1.0`, style `fill`
 - **Licence:** MIT — see `LICENSE` in this folder
 
-Only the 18 files the weather import can reference are vendored, not the full set. The mapping from
-the `tour_weather_icon` id (1..18) that the `/tours` endpoint returns to the filename lives in
+Only the 22 files the weather import can reference are vendored, not the full set. The mapping from
+the `tour_weather_icon` id (1..22) that the `/tours` endpoint returns to the filename lives in
 `apps/frontend/src/models/tourWeather.ts`.
 
 To refresh them:

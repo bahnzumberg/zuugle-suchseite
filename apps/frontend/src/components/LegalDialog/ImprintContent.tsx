@@ -166,6 +166,72 @@ export default function ImprintContent() {
       </Grid>
 
       <Typography variant={"h5"} sx={{ marginTop: "40px" }}>
+        {t("impressum.lizenzbedingungen_wetter")}
+      </Typography>
+
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.weather_ecmwf"
+          components={[
+            <a
+              key="ecmwf"
+              href="https://www.ecmwf.int"
+              target="_blank"
+              rel="noreferrer"
+            />,
+            <a
+              key="ecmwf-license"
+              href="https://creativecommons.org/licenses/by/4.0/"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
+      </Typography>
+
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.weather_dwd"
+          components={[
+            <a
+              key="dwd"
+              href="https://www.dwd.de"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
+      </Typography>
+
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.weather_geosphere"
+          components={[
+            <a
+              key="geosphere"
+              href="https://data.hub.geosphere.at"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
+      </Typography>
+
+      <Typography sx={{ marginTop: "10px" }}>
+        <Trans
+          i18nKey="impressum.icons_meteocons"
+          components={[
+            <a
+              key="meteocons"
+              href="https://github.com/basmilius/meteocons"
+              target="_blank"
+              rel="noreferrer"
+            />,
+          ]}
+        />
+      </Typography>
+
+      <Typography variant={"h5"} sx={{ marginTop: "40px" }}>
         {t("impressum.lizenzbedingungen")}
       </Typography>
 
@@ -209,20 +275,6 @@ export default function ImprintContent() {
               rel="noreferrer"
             />,
             <strong key="bold2" />,
-          ]}
-        />
-      </Typography>
-
-      <Typography sx={{ marginTop: "10px" }}>
-        <Trans
-          i18nKey="impressum.icons_meteocons"
-          components={[
-            <a
-              key="meteocons"
-              href="https://github.com/basmilius/meteocons"
-              target="_blank"
-              rel="noreferrer"
-            />,
           ]}
         />
       </Typography>

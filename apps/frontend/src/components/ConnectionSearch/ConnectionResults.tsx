@@ -22,7 +22,6 @@ import SubwayIcon from "@mui/icons-material/Subway";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import LocalTaxiIcon from "@mui/icons-material/LocalTaxi";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import HikingIcon from "@mui/icons-material/Hiking";
 import HomeIcon from "@mui/icons-material/Home";
 import PlaceIcon from "@mui/icons-material/Place";
 import ParkIcon from "@mui/icons-material/Park";
@@ -32,6 +31,7 @@ import CommuteIcon from "@mui/icons-material/Commute";
 import ShareIcon from "@mui/icons-material/Share";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { icons } from "../../icons/icons";
+import { useTourType } from "../../utils/tourType";
 import { useTranslation } from "react-i18next";
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
 import { Tour } from "../../models/Tour";
@@ -1003,6 +1003,7 @@ export default function ConnectionResults({
 }: ConnectionResultsProps) {
   const { t, i18n } = useTranslation();
   const { connections, activity } = data;
+  const tourType = useTourType(tour?.type);
 
   // Pick initial selection: match share hints if available, else use recommended
   const resolveInitialTo = (): number => {
@@ -1195,15 +1196,16 @@ export default function ConnectionResults({
   // ── Calendar/ICS handler
   const handleCalendar = () => {
     if (actionsDisabled || !selectedTo || !selectedFrom) return;
-    const tourTitle = tour?.title || t("details.wanderung");
+    const tourTitle = tour?.title || tourType.label;
     const icsContent = generateIcs(selectedTo, selectedFrom, tourTitle);
 
-    // Build filename: "Wanderung-DD-MM-YYYY.ics" from the Hinfahrt date
+    // Build filename: "<Sportart>-DD-MM-YYYY.ics" from the Hinfahrt date
     const d = new Date(selectedTo.connection_start_timestamp);
     const dd = String(d.getUTCDate()).padStart(2, "0");
     const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
     const yyyy = d.getUTCFullYear();
-    downloadIcs(icsContent, `Wanderung-${dd}-${mm}-${yyyy}.ics`);
+    const prefix = tourType.label.replace(/[^\p{L}\p{N}]+/gu, "-");
+    downloadIcs(icsContent, `${prefix}-${dd}-${mm}-${yyyy}.ics`);
   };
 
   return (
@@ -1348,7 +1350,7 @@ export default function ConnectionResults({
           borderLeft: "4px solid var(--bzb-akelei)",
         }}
       >
-        {/* Header: Hiking icon + Wanderung label */}
+        {/* Header: tour type icon + label */}
         <Typography
           sx={{
             fontSize: "15px",
@@ -1360,8 +1362,8 @@ export default function ConnectionResults({
             mb: "2px",
           }}
         >
-          <HikingIcon sx={{ fontSize: "18px", flexShrink: 0 }} />
-          {t("details.wanderung")}
+          <tourType.Icon sx={{ fontSize: "18px", flexShrink: 0 }} />
+          {tourType.label}
         </Typography>
 
         {/* Tourdauer */}

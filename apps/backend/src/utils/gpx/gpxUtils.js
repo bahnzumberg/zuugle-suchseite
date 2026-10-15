@@ -269,10 +269,10 @@ const handleImagePlaceholder = async (tourId) => {
 
 // Helper function for image generation
 // Returns: 'success' | 'error_image' | 'failed'
-const processAndCreateImage = async (tourId, pageOrBrowser, url) => {
+const processAndCreateImage = async (tourId, pageOrBrowser, url, isRetry = false) => {
     const filePathSmallWebp = path.join(PUBLIC_DIR, gpxImagePath(tourId));
     const dirPath = path.dirname(filePathSmallWebp);
-    const MAX_GENERATION_TIME = 300000;
+    const MAX_GENERATION_TIME = 75000;
 
     try {
         if (!fs.existsSync(dirPath)) {
@@ -309,7 +309,11 @@ const processAndCreateImage = async (tourId, pageOrBrowser, url) => {
 
             const isError = await isErrorImage(webpBuffer);
             if (isError) {
-                logger.info(`Detected error image for tour ${tourId} - will retry later.`);
+                if (isRetry) {
+                    logger.info(`Detected error image for tour ${tourId} in retry.`);
+                } else {
+                    logger.info(`Detected error image for tour ${tourId} - will retry later.`);
+                }
                 return "error_image"; // Don't set placeholder yet - allow retry
             } else {
                 await fs.promises.writeFile(filePathSmallWebp, webpBuffer);
@@ -456,6 +460,7 @@ export const regenerateGpxFile = async (id, hashedUrl, title) => {
 // images older than 30 days is selected.
 const cleanAndRecreateOldImages = async () => {
     let idsToRecreate = [];
+    let processedHashedUrls = [];
 
     // 1. Check whether gpx_changed_regenerate exists and has entries.
     // This table is part of the ETL job and exists only on production.
@@ -512,6 +517,7 @@ const cleanAndRecreateOldImages = async () => {
             await regenerateGpxFile(id, row.hashed_url, row.title);
 
             idsToRecreate.push(id);
+            processedHashedUrls.push(row.hashed_url);
         }
     } else {
         // 2b. Fallback: random 10 % selection from images older than 30 days
@@ -568,6 +574,20 @@ const cleanAndRecreateOldImages = async () => {
         await createImagesFromMap(idsToRecreate, true); // Pass 'true' to prevent further recursion
     } else {
         logger.info(`No old images found to recreate.`);
+    }
+
+    // Clean up processed entries from gpx_changed_regenerate so they are
+    // not regenerated again on the next run.  Only entries whose GPX file
+    // and image were actually rebuilt are removed.
+    if (processedHashedUrls.length > 0) {
+        try {
+            const deleted = await knex("gpx_changed_regenerate")
+                .whereIn("hashed_url", processedHashedUrls)
+                .del();
+            logger.info(`Cleaned up ${deleted} processed entries from gpx_changed_regenerate.`);
+        } catch (err) {
+            logger.error("Error cleaning up gpx_changed_regenerate:", err);
+        }
     }
 };
 
@@ -641,7 +661,7 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                 // Tile pre-warming is now handled by a separate Python script (scripts/prewarm_tiles.py)
                 // Prozess 2: Bildgenerierung mit Worker-Pool langlebiger Tabs (Ad 2B)
                 (async () => {
-                    const PARALLEL_LIMIT = isProd ? 5 : 2;
+                    const PARALLEL_LIMIT = isProd ? 4 : 2;
                     const workerCount = Math.min(PARALLEL_LIMIT, idsForCreation.length);
 
                     logger.info(
@@ -670,7 +690,8 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                     const errorImageTours = [];
                     let successCount = 0;
 
-                    const runWorker = async (page, workerIdx) => {
+                    const runWorker = async (initialPage, workerIdx) => {
+                        let page = initialPage;
                         if (workerIdx > 0) {
                             await delay(workerIdx * 200);
                         }
@@ -697,14 +718,24 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                                         `Worker ${workerIdx} page was closed, recreating for tour ${tourID}...`,
                                     );
                                     page = await createWorkerPage();
+                                    pages[workerIdx] = page;
                                 }
-                                result = await processAndCreateImage(tourID, page, url);
+                                result = await processAndCreateImage(tourID, page, url, false);
                             } catch (pageErr) {
                                 logger.error(
                                     `Worker ${workerIdx} error processing tour ${tourID}:`,
                                     pageErr,
                                 );
                                 result = "failed";
+                            }
+
+                            // Recycle page on failure/timeout to avoid hanging zombie tabs
+                            if (result === "failed") {
+                                if (!page.isClosed()) {
+                                    await page.close().catch(() => {});
+                                }
+                                page = await createWorkerPage();
+                                pages[workerIdx] = page;
                             }
 
                             if (result === "error_image") {
@@ -737,7 +768,12 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                             logger.info(`Starting retry for ${errorImageTours.length} tours...`);
 
                             let retryIndex = 0;
-                            const runRetryWorker = async (page) => {
+                            const runRetryWorker = async (initialPage, workerIdx) => {
+                                let page = initialPage;
+                                if (workerIdx > 0) {
+                                    await delay(workerIdx * 200);
+                                }
+
                                 while (retryIndex < errorImageTours.length) {
                                     if (stopProcessing || isCutoffReached()) {
                                         stopProcessing = true;
@@ -749,14 +785,29 @@ export const createImagesFromMap = async (ids, isRecursiveCall = false) => {
                                     try {
                                         if (page.isClosed()) {
                                             page = await createWorkerPage();
+                                            pages[workerIdx] = page;
                                         }
-                                        result = await processAndCreateImage(tourID, page, url);
+                                        result = await processAndCreateImage(
+                                            tourID,
+                                            page,
+                                            url,
+                                            true,
+                                        );
                                     } catch (retryErr) {
                                         logger.error(
                                             `Error in retry for tour ${tourID}:`,
                                             retryErr,
                                         );
                                         result = "failed";
+                                    }
+
+                                    // Recycle page on failure/timeout to avoid hanging zombie tabs
+                                    if (result === "failed") {
+                                        if (!page.isClosed()) {
+                                            await page.close().catch(() => {});
+                                        }
+                                        page = await createWorkerPage();
+                                        pages[workerIdx] = page;
                                     }
 
                                     if (result === "error_image") {
@@ -828,10 +879,11 @@ export const createImageFromMap = async (pageOrBrowser, filePath, url) => {
             try {
                 await page.waitForFunction(
                     "window.__MAP_READY__ === true || window.__MAP_ERROR__ === true",
-                    { timeout: 25000 },
+                    { timeout: 30000 },
                 );
             } catch {
                 logger.warn(`Wait for map ready timed out on ${safeUrl}`);
+                return null;
             }
 
             // Sicherheitsabstand von 100ms
