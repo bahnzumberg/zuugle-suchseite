@@ -138,12 +138,23 @@ export default function DetailReworked() {
     if (!tour) return;
     const suffix = idOne.slice(-2).padStart(2, "0");
     const url = `https://cdn.zuugle.at/svg365/${suffix}/${idOne}.svg`;
-    fetch(url)
+    fetch(url, { redirect: "follow" })
       .then((r) => {
         if (!r.ok) throw new Error("not found");
+        // The CDN redirects missing files to a default.webp fallback.
+        // fetch() follows 301s transparently and still returns 200, so
+        // we must detect this to avoid injecting binary image data as HTML.
+        if (r.redirected) throw new Error("redirected to fallback");
+        const ct = r.headers.get("content-type") ?? "";
+        if (!ct.includes("svg")) throw new Error("not SVG content");
         return r.text();
       })
       .then((text) => {
+        // Final sanity-check: the body must be actual SVG markup.
+        const trimmed = text.trimStart();
+        if (!trimmed.startsWith("<svg") && !trimmed.startsWith("<?xml")) {
+          throw new Error("response is not SVG markup");
+        }
         setSvgMarkup(text);
         setSvgExists(true);
       })
@@ -826,6 +837,7 @@ export default function DetailReworked() {
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",
+                        isolation: "isolate",
                       }}
                       className="tour-detail-map-container"
                     >
