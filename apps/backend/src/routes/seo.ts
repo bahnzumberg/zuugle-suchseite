@@ -12,9 +12,8 @@ interface TranslationStrings {
     days: (count: number) => string;
     difficulties: Record<number, string>;
     tourTypes: Record<string, string>;
-    maxElevationPrefix: string;
+    highestPointPrefix: string;
     cta: string;
-    locale: string;
     defaultProvider: string;
 }
 
@@ -37,9 +36,8 @@ const I18N: Record<SupportedLang, TranslationStrings> = {
             trailrunning: "Trailrunning",
             weitwandern: "Weitwandern",
         },
-        maxElevationPrefix: "Max.",
+        highestPointPrefix: "Höchster Punkt",
         cta: "Zuugle Tour aufrufen",
-        locale: "de-AT",
         defaultProvider: "Bahn zum Berg",
     },
     sl: {
@@ -60,9 +58,8 @@ const I18N: Record<SupportedLang, TranslationStrings> = {
             trailrunning: "Gorski tek",
             weitwandern: "Daljinske pohodniške poti",
         },
-        maxElevationPrefix: "Maks.",
+        highestPointPrefix: "Najvišja točka",
         cta: "Odpri turo na Zuugle",
-        locale: "sl-SI",
         defaultProvider: "Bahn zum Berg",
     },
     it: {
@@ -83,9 +80,8 @@ const I18N: Record<SupportedLang, TranslationStrings> = {
             trailrunning: "Trail running",
             weitwandern: "Trekking",
         },
-        maxElevationPrefix: "Max.",
+        highestPointPrefix: "Punto più alto",
         cta: "Apri tour su Zuugle",
-        locale: "it-IT",
         defaultProvider: "Bahn zum Berg",
     },
     fr: {
@@ -106,9 +102,8 @@ const I18N: Record<SupportedLang, TranslationStrings> = {
             trailrunning: "Trail",
             weitwandern: "Itinérance pédestre",
         },
-        maxElevationPrefix: "Max.",
+        highestPointPrefix: "Point culminant",
         cta: "Voir la randonnée sur Zuugle",
-        locale: "fr-FR",
         defaultProvider: "Bahn zum Berg",
     },
     en: {
@@ -129,9 +124,8 @@ const I18N: Record<SupportedLang, TranslationStrings> = {
             trailrunning: "Trail running",
             weitwandern: "Long-distance hiking",
         },
-        maxElevationPrefix: "Max.",
+        highestPointPrefix: "Highest point",
         cta: "Open tour on Zuugle",
-        locale: "en-US",
         defaultProvider: "Bahn zum Berg",
     },
 };
@@ -200,7 +194,7 @@ function formatDifficulty(
 /**
  * Builds the rich OpenGraph description string combining provider and metrics in the target language.
  */
-function buildOgDescription(
+export function buildOgDescription(
     tour: {
         title: string | null;
         provider_name: string | null;
@@ -253,9 +247,7 @@ function buildOgDescription(
         parts.push(`↓ ${Math.round(tour.descent)} m`);
     }
     if (tour.max_ele && tour.max_ele > 0) {
-        parts.push(
-            `${t.maxElevationPrefix} ${Math.round(tour.max_ele).toLocaleString(t.locale)} m`,
-        );
+        parts.push(`${t.highestPointPrefix} ${Math.round(tour.max_ele)} m`);
     }
 
     let description = parts.join(" · ");
