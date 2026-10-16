@@ -753,7 +753,6 @@ export default function DetailReworked() {
                       p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
                       flex: 1,
                       minWidth: 0,
-                      minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                     }}
                   >
                     <Box
@@ -797,7 +796,6 @@ export default function DetailReworked() {
                     <Box
                       sx={{
                         mt: "50px",
-                        minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                       }}
                       className="tour-weather-panel"
                     >
@@ -824,7 +822,6 @@ export default function DetailReworked() {
                     top: { md: "72px" },
                     alignSelf: { md: "flex-start" },
                     width: { xs: "100%", md: "auto" },
-                    minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                   }}
                 >
                   {track && (
