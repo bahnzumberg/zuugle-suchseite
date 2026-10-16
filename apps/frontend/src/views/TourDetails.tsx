@@ -837,6 +837,7 @@ export default function DetailReworked() {
                         borderRadius: "12px",
                         overflow: "hidden",
                         position: "relative",
+                        isolation: "isolate",
                       }}
                       className="tour-detail-map-container"
                     >
