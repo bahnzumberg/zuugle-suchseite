@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import { assetUrl } from "../../utils/assetUrl";
 import FavoriteButton from "../Favorites/FavoriteButton";
+import { useIsMobile } from "../../utils/muiUtils";
 
 function PopupCard({
   tour,
@@ -25,6 +26,7 @@ function PopupCard({
   activeMarker: Marker | null;
   setActiveMarker: (marker: Marker | null) => void;
 }) {
+  const isMobile = useIsMobile();
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
@@ -81,10 +83,12 @@ function PopupCard({
             >
               <a
                 href={getTourLink(tour, city, externalLinks)}
-                target="_blank"
+                target={isMobile ? undefined : "_blank"}
                 // Keep our own detail tab as opener so it can detect this
                 // search tab is still open; external links stay noopener.
-                rel={externalLinks ? "noopener" : "opener"}
+                rel={
+                  isMobile ? undefined : externalLinks ? "noopener" : "opener"
+                }
                 className="updated-title curser-link"
               >
                 {tour.title}

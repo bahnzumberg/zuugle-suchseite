@@ -16,6 +16,7 @@ import FavoriteButton from "./Favorites/FavoriteButton";
 import { assetUrl, sizedImageUrl } from "../utils/assetUrl";
 import TourWeatherStrip from "./Weather/TourWeatherStrip";
 import { visibleWeatherDays } from "../models/tourWeather";
+import { useIsMobile } from "../utils/muiUtils";
 
 const DEFAULT_IMAGE = assetUrl("/img/dummy.webp");
 
@@ -30,6 +31,7 @@ export default function TourCard({
   city,
   reserveWeatherSpace = false,
 }: TourCardProps) {
+  const isMobile = useIsMobile();
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
@@ -77,10 +79,10 @@ export default function TourCard({
           textDecoration: "none",
           display: "contents",
         }}
-        target="_blank"
+        target={isMobile ? undefined : "_blank"}
         // Keep our own detail tab as opener so it can detect this search tab is
         // still open; external (cross-origin) links stay noopener for safety.
-        rel={externalLinks ? "noopener" : "opener"}
+        rel={isMobile ? undefined : externalLinks ? "noopener" : "opener"}
       >
         <Box sx={{ position: "relative" }}>
           <CardMedia
