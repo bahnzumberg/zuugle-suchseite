@@ -1,6 +1,7 @@
 import { Tour } from "../models/Tour";
 import { i18n } from "i18next";
 import { Dayjs } from "dayjs";
+import { getApiDomain } from "./apiBase";
 
 /**
  * Rewrites the domain in a bahn-zum-berg URL to match the current Zuugle TLD.
@@ -185,8 +186,8 @@ export function getTLD() {
     "zuugle.fr": "fr",
   };
 
-  // Get the hostname of the current window
-  const domain = window.location.hostname;
+  // Get the hostname of the current window or configured API domain
+  const domain = getApiDomain();
 
   // Find the TLD by checking the domain substrings
   for (const key in tldMap) {
