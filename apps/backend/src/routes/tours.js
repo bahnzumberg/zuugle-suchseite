@@ -10,16 +10,14 @@ import {
     rangeImagePath,
     tourGpxPath,
 } from "../utils/assetPaths";
-import moment from "moment";
+
 import { replaceFilePath, get_domain_country, isNumber } from "../utils/utils";
-import { minutesFromMoment } from "../utils/utils";
 import { convertDifficulty } from "../utils/utils";
 import logger from "../utils/logger";
 import { weatherLimiter } from "../middlewares/rateLimit";
 
 import fs from "fs";
 import path from "path";
-import momenttz from "moment-timezone";
 
 /**
  * Generates a unique cache key based on a prefix and an object (usually query parameters).
@@ -379,37 +377,6 @@ router.get("/provider/:provider", (req, res) => providerWrapper(req, res));
  *         description: KPI statistics.
  */
 router.get("/total", (req, res) => totalWrapper(req, res));
-
-/**
- * @swagger
- * /api/tours/{id}/connections-extended:
- *   get:
- *     summary: Get extended connection data for a tour
- *     description: Returns timetable connections (departure, arrival, transfers, return trips) for a specific tour and city, for the next 7 days.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Tour ID
- *       - in: query
- *         name: city
- *         required: true
- *         schema:
- *           type: string
- *         description: City slug
- *       - in: query
- *         name: domain
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Connection schedule data.
- *       404:
- *         description: Tour or city not found.
- */
-router.get("/:id/connections-extended", (req, res) => connectionsExtendedWrapper(req, res));
 
 /**
  * @swagger
@@ -2043,176 +2010,6 @@ const filterWrapperV2 = async (req, res) => {
     cacheService.set(cacheKey, responseData);
     res.status(200).json(responseData);
 }; // end of filterWrapperV2
-
-/**
- * Retrieves detailed public transport connection schedules (outbound and return) for a specific tour and city.
- * Returns connections for the next 7 days.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
- */
-const connectionsExtendedWrapper = async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const city = req.query.city ? req.query.city : req.params.city ? req.params.city : null;
-
-    if (isNaN(id) || !city) {
-        res.status(404).json({ success: false });
-        return;
-    }
-
-    let connections = [];
-    const fahrplan_sql = `SELECT 
-                          f.calendar_date,
-                          f.connection_departure_datetime,
-                          f.connection_arrival_datetime,
-                          f.connection_duration,
-                          f.connection_no_of_transfers,
-                          f.connection_returns_trips_back,
-                          f.return_departure_datetime,
-                          f.return_duration,
-                          f.return_no_of_transfers,
-                          f.return_arrival_datetime,
-                          f.totour_track_duration,
-                          f.fromtour_track_duration,
-                          f.connection_description_json,
-                          f.return_description_json
-                          FROM tour as t
-                          INNER JOIN fahrplan as f
-                          ON f.hashed_url=t.hashed_url
-                          WHERE t.id=?
-                          AND f.city_slug=?
-                          ORDER BY return_row ASC;`;
-    const fahrplan_result = await knex.raw(fahrplan_sql, [id, city]);
-
-    if (!!fahrplan_result && !!fahrplan_result.rows) {
-        connections = fahrplan_result.rows.map((connection) => {
-            connection.connection_departure_datetime = momenttz(
-                connection.connection_departure_datetime,
-            )
-                .tz("Europe/Berlin")
-                .format();
-            connection.connection_arrival_datetime = momenttz(
-                connection.connection_arrival_datetime,
-            )
-                .tz("Europe/Berlin")
-                .format();
-            connection.return_departure_datetime = momenttz(connection.return_departure_datetime)
-                .tz("Europe/Berlin")
-                .format();
-            return connection;
-        });
-    }
-
-    const today = moment().set("hour", 0).set("minute", 0).set("second", 0);
-    let end = moment().add(7, "day");
-
-    let result = [];
-
-    while (today.isBefore(end)) {
-        const byWeekday = connections.filter(
-            (conn) => moment(conn.calendar_date).format("DD.MM.YYYY") == today.format("DD.MM.YYYY"),
-        );
-        const duplicatesRemoved = [];
-
-        byWeekday.forEach((t) => {
-            let e = { ...t };
-            e.connection_duration_minutes = minutesFromMoment(
-                moment(e.connection_duration, "HH:mm:ss"),
-            );
-            e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
-
-            if (!duplicatesRemoved.find((tt) => compareConnections(e, tt))) {
-                duplicatesRemoved.push(e);
-            }
-        });
-
-        result.push({
-            date: today.format(),
-            connections: duplicatesRemoved,
-            returns: getReturnConnectionsByConnection(connections, today),
-        });
-        today.add(1, "day");
-    }
-
-    //handle last value
-    if (result && result.length > 0) {
-        if (
-            !!result[result.length - 1] &&
-            (!result[result.length - 1].connections ||
-                result[result.length - 1].connections.length == 0)
-        ) {
-            result = result.slice(0, -1);
-        }
-    }
-
-    res.status(200).json({ success: true, result: result });
-};
-
-/**
- * Helper function to filter and map return connections that match the date of the outbound connection.
- * @param {Array} connections - List of all available connections.
- * @param {Moment} today - The specific date to filter for.
- * @returns {Array} List of unique return connections for the given date.
- */
-const getReturnConnectionsByConnection = (connections, today) => {
-    let _connections = [];
-    let _duplicatesRemoved = [];
-
-    _connections = connections.filter(
-        (conn) => moment(conn.calendar_date).format("DD.MM.YYYY") == today.format("DD.MM.YYYY"),
-    );
-
-    //filter and map
-    _connections.forEach((t) => {
-        let e = { ...t };
-        e.connection_duration_minutes = minutesFromMoment(
-            moment(e.connection_duration, "HH:mm:ss"),
-        );
-        e.return_duration_minutes = minutesFromMoment(moment(e.return_duration, "HH:mm:ss"));
-
-        if (!_duplicatesRemoved.find((tt) => compareConnectionReturns(e, tt))) {
-            _duplicatesRemoved.push(e);
-        }
-    });
-    return _duplicatesRemoved;
-};
-
-/**
- * Helper function to compare two connection objects to check if they represent the same trip
- * (based on departure and arrival times).
- * @param {object} trans1 - First connection object.
- * @param {object} trans2 - Second connection object.
- * @returns {boolean} True if they are the same, false otherwise.
- */
-const compareConnections = (trans1, trans2) => {
-    return (
-        trans1 != null &&
-        trans2 != null &&
-        moment(trans1.connection_departure_datetime).isSame(
-            moment(trans2.connection_departure_datetime),
-        ) &&
-        moment(trans1.connection_arrival_datetime).isSame(
-            moment(trans2.connection_arrival_datetime),
-        )
-    );
-};
-
-/**
- * Helper function to compare two return connection objects to check if they represent the same trip.
- * @param {object} conn1 - First return connection object.
- * @param {object} conn2 - Second return connection object.
- * @returns {boolean} True if they are the same, false otherwise.
- */
-const compareConnectionReturns = (conn1, conn2) => {
-    return (
-        conn1 != null &&
-        conn2 != null &&
-        moment(conn1.return_departure_datetime).format("HH:mm:ss") ==
-            moment(conn2.return_departure_datetime).format("HH:mm:ss") &&
-        moment(conn1.return_arrival_datetime).format("HH:mm:ss") ==
-            moment(conn2.return_arrival_datetime).format("HH:mm:ss") &&
-        conn1.return_arrival_stop == conn2.return_arrival_stop
-    );
-};
 
 /**
  * Serves the GPX file for a tour.

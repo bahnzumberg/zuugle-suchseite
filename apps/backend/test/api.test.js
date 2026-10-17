@@ -524,48 +524,6 @@ describe("Zuugle API UAT Tests", () => {
         }
     });
 
-    test("GET /api/tours/:id/connections-extended returns 200 (or 404) with domain=zuugle.de", async () => {
-        // Test for connectionsExtendedWrapper regression
-        const id = 33456;
-        const city = "wien";
-        const url = `${baseUrl}/api/tours/${id}/connections-extended?city=${city}&domain=zuugle.de`;
-
-        const response = await fetch(url, { headers: getHeaders() });
-        expect([200, 404]).toContain(response.status);
-
-        const data = await response.json();
-        if (response.status === 200) {
-            expect(data.success).toBe(true);
-            expect(data.result).toBeDefined();
-            expect(Array.isArray(data.result)).toBe(true);
-        }
-    });
-
-    test("GET /api/tours/:id/connections-extended returns 200 (or 404) with domain=zuugle.at", async () => {
-        const id = 33456;
-        const city = "wien";
-        const url = `${baseUrl}/api/tours/${id}/connections-extended?city=${city}&domain=zuugle.at`;
-
-        const response = await fetch(url, { headers: getHeaders() });
-        expect([200, 404]).toContain(response.status);
-    });
-
-    test("GET /api/tours/:id/connections-extended returns 200 (or 404) without city parameter", async () => {
-        // Test the first call scenario when no city is set yet
-        const id = 33456;
-        const url = `${baseUrl}/api/tours/${id}/connections-extended?domain=zuugle.at`;
-
-        const response = await fetch(url, { headers: getHeaders() });
-        expect([200, 404]).toContain(response.status);
-
-        const data = await response.json();
-        if (response.status === 200) {
-            expect(data.success).toBe(true);
-            expect(data.result).toBeDefined();
-            expect(Array.isArray(data.result)).toBe(true);
-        }
-    });
-
     describe("GET /api/searchphrase", () => {
         test("returns 200 with valid search term", async () => {
             const url = `${baseUrl}/api/searchphrase?search=wilds&tld=AT`;
