@@ -386,7 +386,15 @@
     "verbindungssuche_fehlgeschlagen": "Iskanje povezave ni uspelo. Poskusite znova.",
     "fahrplan_titel": "Pot tja & nazaj",
     "umstieg_label": "prestop",
-    "umstiege_label": "prestopi"
+    "umstiege_label": "prestopi",
+    "abgefahren": "Odšel",
+    "ausfall": "Vožnja odpovedana",
+    "plan_gleis": "Predvideno: Tir {{track}}",
+    "plan_abfahrt": "Predvideno: {{time}}",
+    "fruehere_verbindungen": "Prejšnje povezave",
+    "spaetere_verbindungen": "Naslednje povezave",
+    "meldungen": "Obvestila",
+    "rufbus_hinweis": "Prevoz na klic"
   },
   "search": {
     "go": "Naprej!",
