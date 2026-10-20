@@ -426,7 +426,7 @@ export default function ConnectionSearchForm({
   const handleScroll = useCallback(
     async (direction: "to" | "from", edge: "before" | "after") => {
       if (!connectionsResult) return;
-      const scrollKey = `${direction}-${edge}`;
+      const scrollKey = `${direction}_${edge}`;
       setScrollLoading(scrollKey);
 
       try {

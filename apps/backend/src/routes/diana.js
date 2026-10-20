@@ -377,7 +377,7 @@ router.get("/connections", async (req, res) => {
             if (query.share_id) {
                 cacheKey = `diana:connections:share:${query.share_id}:${query.date || ""}:${query.lang || ""}:${query.use_flex || ""}:${query.include_past || ""}`;
             } else {
-                cacheKey = `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${searchDate}:${query.activity_duration_minutes || ""}:${query.use_flex || ""}:${query.lang || ""}:${query.include_past || ""}`;
+                cacheKey = `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${searchDate}:${query.activity_duration_minutes || ""}:${query.activity_duration_days || ""}:${query.use_flex || ""}:${query.lang || ""}:${query.include_past || ""}`;
             }
         }
 
