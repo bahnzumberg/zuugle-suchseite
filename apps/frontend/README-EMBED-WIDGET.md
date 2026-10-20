@@ -17,36 +17,73 @@ A standalone, embeddable search widget that allows third-party websites to integ
 To embed the widget into a host page, include the stylesheet in `<head>` and place the container `<div>` along with the deferred script where the widget should render:
 
 ```html
-<!-- 1. Widget CSS -->
-<link rel="stylesheet" href="https://dev.zuugle.at/embed/zuugle-embed.css" />
+<!-- 1. Widget CSS (via BunnyCDN Edge or origin) -->
+<link rel="stylesheet" href="https://cdn.zuugle.at/embed/zuugle-embed.css" />
+<!-- Alternative without CDN: https://www.zuugle.at/embed/zuugle-embed.css -->
 
 <!-- 2. Mount point container with configuration attributes -->
 <div
   id="zuugle-embed"
+  data-domain="www.zuugle.at"
   data-lang="de"
   data-city="amstetten"
   data-map="true"
   data-search=""
+  data-sticky-top="0"
+  data-sync-url="false"
 ></div>
 
-<!-- 3. Standalone widget script (deferred) -->
-<script src="https://dev.zuugle.at/embed/zuugle-embed.js" defer></script>
+<!-- 3. Standalone widget script (deferred, via BunnyCDN Edge or origin) -->
+<script src="https://cdn.zuugle.at/embed/zuugle-embed.js" defer></script>
+<!-- Alternative without CDN: https://www.zuugle.at/embed/zuugle-embed.js -->
 ```
 
 ### Supported `data-*` Attributes
 
-| Attribute     | Type                            | Default   | Description                                                  |
-| ------------- | ------------------------------- | --------- | ------------------------------------------------------------ |
-| `data-lang`   | string                          | `"de"`    | UI language code.                                            |
-| `data-city`   | string                          | `null`    | Pre-selects a starting city slug (e.g. `amstetten`, `wien`). |
-| `data-map`    | boolean (`"true"` \| `"false"`) | `"false"` | Whether to display the interactive map on initial load.      |
-| `data-search` | string                          | `null`    | Initial text search query.                                   |
+| Attribute         | Type                            | Default           | Description                                                                                                                       |
+| ----------------- | ------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `data-domain`     | string                          | `"www.zuugle.at"` | Target Zuugle domain (e.g. `www.zuugle.at`, `www.zuugle.de`, `www2.zuugle.at`). Controls API database endpoint and domain filter. |
+| `data-sticky-top` | number / string                 | `0`               | Top offset in pixels for the sticky search bar (e.g. `80` to dock neatly beneath a fixed host navbar).                            |
+| `data-sync-url`   | boolean (`"true"` \| `"false"`) | `"false"`         | When `true`, reads initial filters from and syncs changes to the host page URL query string via `history.replaceState`.           |
+| `data-lang`       | string                          | `"de"`            | UI language code (`de`, `en`, etc.).                                                                                              |
+| `data-city`       | string                          | `null`            | Pre-selects a starting city slug (e.g. `amstetten`, `wien`). Overridden by host `?city=` query param if present.                  |
+| `data-map`        | boolean (`"true"` \| `"false"`) | `"false"`         | Whether to display the interactive map on initial load. Overridden by host `?map=` query param if present.                        |
+| `data-search`     | string                          | `null`            | Initial text search query. Overridden by host `?search=` query param if present.                                                  |
 
 ---
 
-## 3. Architecture & Key Differences from Main App
+## 3. Architecture & Key Features
 
-The widget is self-contained and avoids polluting or conflicting with the host page:
+The widget is completely self-contained and avoids polluting or conflicting with the host page:
+
+### Dynamic Domain & Database Routing (`data-domain`)
+
+- Rather than being hard-coded to a single environment, the widget dynamically configures its API endpoint and domain filter at runtime from `data-domain`.
+- **Default / Fallback**: `"www.zuugle.at"` (talks to `https://www.zuugle.at/api` with Austrian database and filter `tld = 'AT'`).
+- **German Production**: `data-domain="www.zuugle.de"` routes requests to `https://www.zuugle.de/api` with German database and `tld = 'DE'`. Autocomplete suggestions and outbound tour card URLs automatically rewrite to `bahn-zum-berg.de`.
+- **UAT / Staging**: `data-domain="www2.zuugle.at"` routes to `https://www2.zuugle.at/api`.
+- **Asset Base**: Static assets are loaded from `https://cdn.zuugle.at` for production domains, or from the respective environment's `/public` path for UAT/DEV/local.
+
+### Sticky Header & Intelligent Scroll Positioning (`data-sticky-top`)
+
+- **Configurable Docking**: Host websites often feature fixed or sticky navigation headers. Setting `data-sticky-top="80"` (or any pixel value) sets `.sticky-header { position: sticky; top: 80px; }`, preventing the search bar from disappearing beneath the host navbar.
+- **Scroll Offset Compensation**: Mobile quick-nav (`MobileQuickNav`) and scroll position indicators automatically factor in `stickyTop + headerHeight`.
+- **Intelligent Viewport Scrolling**: When a mobile search is submitted or a navigation button ("Suche", "Karte", "Touren") is clicked, the window scrolls smoothly to the top of the `#zuugle-embed` container (minus `stickyTop`) rather than to `(0, 0)` of the document. This preserves the host page's header and hero context.
+
+### URL Deep-Linking & Optional Host URL Synchronization (`data-sync-url`)
+
+- **Direct URL Deep-Linking**: Any URL query parameters (`?search=schneeberg`, `?city=wien`, `?map=true`) are automatically evaluated on initial page load, immediately launching the corresponding search or opening the map.
+- **Two-Way Synchronization (`data-sync-url="true"`)**:
+  - Whenever the user updates search terms, selected city, or toggles the map, the host page's URL query string is kept in sync via `window.history.replaceState`.
+  - Non-Zuugle query parameters on the host page (e.g. UTM parameters, campaign tags) are strictly preserved.
+  - Browser Back and Forward navigation (`popstate` events) syncs back into the search state.
+- When `false` (default), the widget uses an isolated React Router `MemoryRouter` with zero impact on the host page URL (while still respecting initial URL parameters on load).
+
+### Mobile Map View & Dynamic Spacing
+
+- In mobile view (`< 600px`), when the map is displayed (`showMap === true`), a dynamic spacing below the map pushes the tour card container down so that the first tour card tile is not visible in the viewport, plus a 10px safety margin.
+- This ensures full focus on the interactive map without visual distraction from a peeking card tile at the bottom.
+- When scrolling down past the map or switching to the tour view, the tour cards smoothly appear.
 
 ### Fixed Provider (`bahnzumberg`)
 
@@ -54,17 +91,7 @@ The widget is self-contained and avoids polluting or conflicting with the host p
 - In `Filter.tsx`, the provider selection section is hidden in embed mode (`!isEmbed`).
 - In `TotalToursHeader.tsx`, the `bahnzumberg` filter chip is suppressed so users are not presented with a removable chip for a mandatory provider.
 - In `FilterButton.tsx` and filter counter utilities, fixed providers are excluded so the active filter badge count starts at `0`.
-
-### Viewport & Scroll Isolation
-
-- In the standalone app, search updates scroll the browser viewport to `(0, 0)`.
-- In embed mode, `useSearchTours.ts` detects `isEmbed` and `isBoundsOnlyChange` (map panning/zooming) and suppresses `window.scrollTo({ top: 0 })`. This prevents map zoom/pan interactions from jumping the host page viewport to the top.
-
-### Routing & Redux Store
-
-- Uses React Router's `MemoryRouter` rather than `BrowserRouter`, completely isolating widget navigation from the host page's URL history.
-- Mounts its own Redux store instance with `EmbedContext` (`isEmbed: true`, `fixedProviders: ['bahnzumberg']`, `externalLinks: true`).
-- Tour card links navigate directly to tour URLs on `bahn-zum-berg.at`.
+- Tour card links navigate directly to tour URLs on `bahn-zum-berg.at` (or `bahn-zum-berg.de` for `.de` domains).
 
 ### Direct Translation Inlining (`i18n.embed.ts`)
 
@@ -83,8 +110,8 @@ The widget is self-contained and avoids polluting or conflicting with the host p
 
 ### Build Defines & Process Shims (`vite.config.embed.ts`)
 
-- **API Domain**: `__ZUUGLE_DOMAIN__` is injected at build time (`new URL(API_URL).hostname`), ensuring API calls transmit `?domain=dev.zuugle.at` (or production) rather than the host page hostname.
-- **Node Shims**: Vite outputs an IIFE bundle with `window.process = { env: { NODE_ENV: 'production' } }` banner and `process.env.NODE_ENV` compile-time replacement to prevent `ReferenceError: process is not defined` in browsers.
+- **Process Shims**: Vite outputs an IIFE bundle with `window.process = { env: { NODE_ENV: 'production' } }` banner and `process.env.NODE_ENV` compile-time replacement to prevent `ReferenceError: process is not defined` in third-party browsers.
+- **Default Targets**: Build-time defines provide default fallback values when `data-domain` is omitted.
 
 ---
 
@@ -97,22 +124,48 @@ The embed widget is built using a dedicated Vite configuration (`vite.config.emb
 ```bash
 cd apps/frontend
 
-# Development server for testing embed.html
+# Development server for testing embed.html (opens mock host page)
 npm run embed:dev
 
 # Production build for embed bundle
-npm run embed:build
+VITE_API_URL=https://www.zuugle.at/api VITE_ASSET_BASE_URL=https://cdn.zuugle.at npm run embed:build
 ```
 
 Build outputs are saved to `apps/frontend/build-embed/`:
 
-- `zuugle-embed.js` (IIFE single bundle, ~1.37 MB uncompressed, ~440 KB gzipped)
-- `zuugle-embed.css` (bundled stylesheet)
+- `zuugle-embed.js` (IIFE single bundle, ~1.39 MB uncompressed, ~448 KB gzipped)
+- `zuugle-embed.css` (bundled stylesheet, ~35 KB uncompressed, ~10 KB gzipped)
 
-### Server Infrastructure & Hosting (DEV)
+### Server Infrastructure & Hosting
 
-- **Domain**: `https://dev.zuugle.at`
-- **Asset Directory on Server**: `/root/suchseite/dev-embed/`
+#### Production (`https://www.zuugle.at`)
+
+- **Asset Directory**: `/root/suchseite/embed/`
+- **Nginx Configuration** (`deploy/nginx/prod/snippets/zuugle.conf`):
+  ```nginx
+  # Direct access
+  location /embed/ {
+      alias /root/suchseite/embed/;
+      expires 1h;
+      add_header Cache-Control "public";
+      add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
+      add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+      add_header X-Content-Type-Options "nosniff" always;
+  }
+
+  # BunnyCDN Pull Zone access (https://cdn.zuugle.at/embed/...)
+  location /public/embed/ {
+      alias /root/suchseite/embed/;
+      expires 48h;
+      add_header Cache-Control "public";
+      add_header Access-Control-Allow-Origin "*" always;
+      add_header X-Content-Type-Options "nosniff" always;
+  }
+  ```
+
+#### Development (`https://dev.zuugle.at`)
+
+- **Asset Directory**: `/root/suchseite/dev-embed/`
 - **Nginx Configuration** (`deploy/nginx/uat/sites-available/dev.zuugle.at`):
   ```nginx
   location /embed/ {
@@ -122,20 +175,20 @@ Build outputs are saved to `apps/frontend/build-embed/`:
       add_header Cache-Control "public";
       add_header Access-Control-Allow-Origin "https://www.bahn-zum-berg.at" always;
   }
+
+  location /public/embed/ {
+      auth_basic off;
+      alias /root/suchseite/dev-embed/;
+      expires 48h;
+      add_header Cache-Control "public";
+      add_header Access-Control-Allow-Origin "*" always;
+      add_header X-Content-Type-Options "nosniff" always;
+  }
   ```
-- **CORS & Authentication**:
-  - `/embed/`, `/api/`, and `/public/` on `dev.zuugle.at` have `auth_basic off;` to allow cross-origin requests from `https://www.bahn-zum-berg.at`.
-  - CORS header `Access-Control-Allow-Origin: "https://www.bahn-zum-berg.at"` is set on `/embed/` and `/public/` (for fonts/assets).
 
 ### Deployment Workflow
 
-The embed is built and deployed by CI (`_deploy.yml`) on every frontend deploy; `build-embed/` is not committed.
+The embed widget is built and deployed automatically by GitHub Actions (`_deploy.yml` via `deploy2dev.yml` and `deploy2prod.yml`) on every frontend deploy:
 
-- DEV: API `https://dev.zuugle.at/api` → `/root/suchseite/dev-embed/` (secret `DEV_REMOTE_TARGET_EMBED`)
-- PROD: API `https://www.zuugle.at/api` → `/root/suchseite/embed/` (secret `PROD_REMOTE_TARGET_EMBED`), served at `https://www.zuugle.at/embed/`
-
-To build locally, set the target explicitly, the build fails otherwise:
-
-```bash
-VITE_API_URL=https://dev.zuugle.at/api VITE_ASSET_BASE_URL=https://dev.zuugle.at/public npm run embed:build
-```
+- **DEV**: API `https://dev.zuugle.at/api` → `/root/suchseite/dev-embed/` (secret `DEV_REMOTE_TARGET_EMBED`)
+- **PROD**: API `https://www.zuugle.at/api` → `/root/suchseite/embed/` (secret `PROD_REMOTE_TARGET_EMBED`), served at `https://www.zuugle.at/embed/`

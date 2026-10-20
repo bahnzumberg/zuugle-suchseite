@@ -32,11 +32,13 @@ import filterReducer from "./features/filterSlice";
 import favoritesReducer, {
   initialFavoritesState,
 } from "./features/favoritesSlice";
-import { api } from "./features/apiSlice";
+import { api, isValidSearchType, type SearchType } from "./features/apiSlice";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme";
 import EmbedSearchResults from "./views/EmbedSearchResults";
 import { EmbedContext, type EmbedConfig } from "./utils/embedContext";
+import { parseDomainConfig, setApiConfig } from "./utils/apiBase";
+import { setCustomAssetBaseUrl } from "./utils/assetUrl";
 
 import "./App.css";
 
@@ -91,15 +93,50 @@ class EmbedErrorBoundary extends Component<
 
 const FIXED_PROVIDER = "bahnzumberg";
 
+function parsePixelValue(val: string | undefined | null): number {
+  if (!val) return 0;
+  const parsed = parseInt(val, 10);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
 /**
  * Reads data-* attributes from the container element to configure the widget.
  */
 function readConfig(el: HTMLElement) {
+  const syncUrl = el.dataset.syncUrl === "true";
+  const urlParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
+
+  const rawDomain = el.dataset.domain || "www.zuugle.at";
+  const domainConfig = parseDomainConfig(rawDomain);
+
+  const stickyTop = parsePixelValue(
+    el.dataset.stickyTop || el.dataset.topOffset || el.dataset.headerOffset,
+  );
+
+  const initialCity = urlParams?.get("city") || el.dataset.city || null;
+  const initialSearch = urlParams?.get("search") || el.dataset.search || null;
+  const rawSearchType = urlParams?.get("search_type") || null;
+  const initialSearchType: SearchType | null = isValidSearchType(rawSearchType)
+    ? rawSearchType
+    : null;
+  const initialMap = urlParams?.has("map")
+    ? urlParams.get("map") === "true"
+    : el.dataset.map === "true";
+
   return {
     lang: el.dataset.lang || "de",
-    city: el.dataset.city || null,
-    map: el.dataset.map === "true",
-    search: el.dataset.search || null,
+    city: initialCity,
+    map: initialMap,
+    search: initialSearch,
+    searchType: initialSearchType,
+    domain: domainConfig.domain,
+    apiBaseUrl: domainConfig.apiBaseUrl,
+    assetBaseUrl: domainConfig.assetBaseUrl,
+    stickyTop,
+    syncUrl,
   };
 }
 
@@ -112,15 +149,27 @@ function bootstrap() {
 
   const config = readConfig(container);
 
+  // Configure API endpoint and domain
+  setApiConfig({
+    apiBaseUrl: config.apiBaseUrl,
+    domain: config.domain,
+  });
+  if (config.assetBaseUrl) {
+    setCustomAssetBaseUrl(config.assetBaseUrl);
+  }
+
   // Set the language before the store is created
   if (config.lang) {
     i18n.changeLanguage(config.lang);
   }
 
-  // Pre-populate search state from data-* attributes
+  // Pre-populate search state from URL parameters or data-* attributes
   const preloadedSearch = {
     searchWithType: config.search
-      ? { term: config.search, type: "term" as const }
+      ? {
+          term: config.search,
+          type: config.searchType || ("term" as const),
+        }
       : null,
     city: null,
     citySlug: config.city,
@@ -160,6 +209,9 @@ function bootstrap() {
     isEmbed: true,
     fixedProviders: [FIXED_PROVIDER],
     externalLinks: true,
+    stickyTop: config.stickyTop,
+    syncUrl: config.syncUrl,
+    domain: config.domain,
   };
 
   const head = createHead();

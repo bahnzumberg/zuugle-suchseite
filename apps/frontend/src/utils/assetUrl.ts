@@ -18,8 +18,15 @@
  * // PROD → "https://cdn.zuugle.at/img/zuugle.svg"
  * // UAT/DEV/local → "/public/img/zuugle.svg"
  */
+let customAssetBaseUrl: string | null = null;
+
+export function setCustomAssetBaseUrl(url: string | null | undefined) {
+  customAssetBaseUrl = url || null;
+}
+
 export function assetUrl(path: string): string {
-  return `${__ASSET_BASE__}/${path.replace(/^\/+/, "")}`;
+  const base = customAssetBaseUrl || __ASSET_BASE__;
+  return `${base}/${path.replace(/^\/+/, "")}`;
 }
 
 /** Scheme and host of an absolute URL, e.g. the `https://www.zuugle.at` below. */

@@ -9,7 +9,15 @@
  * The provider filter is locked via EmbedContext — see EmbedSearchParamSync.
  */
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -29,6 +37,7 @@ import MobileQuickNav, { QuickNavSection } from "../components/MobileQuickNav";
 import { useSearchTours } from "../hooks/useSearchTours";
 import { useAppDispatch } from "../hooks";
 import { mapUpdated } from "../features/searchSlice";
+import { useEmbed } from "../utils/embedContext";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -49,6 +58,21 @@ export default function EmbedSearchResults() {
 
   const dispatch = useAppDispatch();
 
+  const { stickyTop } = useEmbed();
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const scrollToWidgetTop = useCallback(() => {
+    const container =
+      rootRef.current || document.getElementById("zuugle-embed");
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const targetTop = rect.top + window.scrollY - stickyTop;
+      window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [stickyTop]);
+
   /** Sections the mobile quick-nav scrolls to in embed mode. */
   const searchSections: QuickNavSection[] = useMemo(
     () => [
@@ -62,7 +86,7 @@ export default function EmbedSearchResults() {
         focusSelector: 'input[role="combobox"]',
         skipScroll: true,
         onClick: () => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          scrollToWidgetTop();
           const input = document.querySelector<HTMLInputElement>(
             'input[role="combobox"]',
           );
@@ -80,7 +104,7 @@ export default function EmbedSearchResults() {
           if (!showMap) {
             dispatch(mapUpdated(true));
           }
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          scrollToWidgetTop();
         },
       },
       {
@@ -94,12 +118,79 @@ export default function EmbedSearchResults() {
           if (showMap) {
             dispatch(mapUpdated(false));
           }
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          scrollToWidgetTop();
         },
       },
     ],
-    [showMap, dispatch],
+    [showMap, dispatch, scrollToWidgetTop],
   );
+
+  // ── Mobile: space under map so first card tile is not visible (+10px margin) ──
+  const [mobileCardsMarginTop, setMobileCardsMarginTop] = useState<number>(0);
+
+  useEffect(() => {
+    if (!showMap) {
+      setMobileCardsMarginTop(0);
+      return;
+    }
+
+    let rafId: number;
+    const calculateMargin = () => {
+      // Only applicable on mobile (< 600px)
+      if (window.innerWidth >= 600) {
+        setMobileCardsMarginTop(0);
+        return;
+      }
+
+      const headerEl = document.querySelector<HTMLElement>(".sticky-header");
+      const mapEl = document.querySelector<HTMLElement>(
+        ".map-fullscreen-container",
+      );
+
+      if (!mapEl) {
+        // Fallback estimate while map chunk is loading
+        const estimatedHeader = headerEl ? headerEl.offsetHeight : 130;
+        const estimatedMap = Math.max(300, window.innerHeight - 273);
+        const estimatedBottom = stickyTop + estimatedHeader + estimatedMap;
+        setMobileCardsMarginTop(
+          Math.max(20, window.innerHeight - estimatedBottom),
+        );
+        rafId = requestAnimationFrame(calculateMargin);
+        return;
+      }
+
+      const headerHeight = headerEl ? headerEl.offsetHeight : 130;
+      const mapHeight = mapEl.offsetHeight;
+      const mapBottomAtView = stickyTop + headerHeight + mapHeight;
+
+      // When viewing the map at the top of the widget, map bottom is at mapBottomAtView.
+      // Margin collapsing with TourMapContainer's 10px bottom margin results in
+      // max(10, margin), and the first card has ~10px internal offset.
+      // To ensure the first card tile is placed 10px below the viewport:
+      // (mapBottomAtView + margin + 10px) >= window.innerHeight + 10px
+      // => margin >= window.innerHeight - mapBottomAtView
+      const neededMargin = Math.max(20, window.innerHeight - mapBottomAtView);
+      setMobileCardsMarginTop(neededMargin);
+    };
+
+    calculateMargin();
+
+    window.addEventListener("resize", calculateMargin);
+
+    const resizeObserver = new ResizeObserver(calculateMargin);
+    const headerEl = document.querySelector<HTMLElement>(".sticky-header");
+    const mapEl = document.querySelector<HTMLElement>(
+      ".map-fullscreen-container",
+    );
+    if (headerEl) resizeObserver.observe(headerEl);
+    if (mapEl) resizeObserver.observe(mapEl);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", calculateMargin);
+      resizeObserver.disconnect();
+    };
+  }, [showMap, stickyTop]);
 
   // ── Mobile: scroll to results after search ──────────────────────────────
   const pendingScrollRef = useRef(false);
@@ -114,12 +205,12 @@ export default function EmbedSearchResults() {
 
     // In embed mode, keep host header visible at top
     requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollToWidgetTop();
     });
-  }, [tours, isToursLoading, showMap]);
+  }, [tours, isToursLoading, showMap, scrollToWidgetTop]);
 
   return (
-    <div style={{ width: "100%" }}>
+    <div ref={rootRef} style={{ width: "100%" }}>
       <EmbedSearchParamSync />
       <Filter showFilter={filterOn} setShowFilter={setFilterOn} />
 
@@ -128,7 +219,7 @@ export default function EmbedSearchResults() {
         className="sticky-header"
         sx={{
           position: "sticky",
-          top: 0,
+          top: `${stickyTop}px`,
           zIndex: 100,
           backgroundColor: "#fff",
           borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
@@ -238,7 +329,14 @@ export default function EmbedSearchResults() {
         <Box
           className="cards-container"
           sx={{
-            marginTop: { xs: "20px", md: 0, lg: "14px" },
+            marginTop: {
+              xs:
+                showMap && mobileCardsMarginTop
+                  ? `${mobileCardsMarginTop}px`
+                  : "20px",
+              md: 0,
+              lg: "14px",
+            },
             width: "100%",
             maxWidth: "100%",
           }}
