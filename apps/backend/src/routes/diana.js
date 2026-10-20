@@ -54,6 +54,8 @@ const CONNECTIONS_PARAMS = new Set([
     "timezone",
     "id",
     "use_flex",
+    "include_past",
+    "share_id",
     "to_connections_before",
     "to_connections_after",
     "from_connections_before",
@@ -318,36 +320,43 @@ router.get("/connections", async (req, res) => {
         // property assignments are silently discarded. Work on a mutable copy.
         const query = { ...req.query };
 
-        // Determine date and timezone for UTC conversion of default time windows
-        const date =
-            typeof query.date === "string" && query.date
-                ? query.date
-                : new Date().toISOString().substring(0, 10);
+        // Determine date in Europe/Vienna
+        const todayVienna = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Europe/Vienna",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(new Date());
+
+        const searchDate = typeof query.date === "string" && query.date ? query.date : todayVienna;
 
         // Inject default activity time windows if not provided by the client
-        if (!query.activity_earliest_start_time) {
-            query.activity_earliest_start_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.earliest_start_time,
-                date,
-            );
-        }
-        if (!query.activity_latest_start_time) {
-            query.activity_latest_start_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.latest_start_time,
-                date,
-            );
-        }
-        if (!query.activity_earliest_end_time) {
-            query.activity_earliest_end_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.earliest_end_time,
-                date,
-            );
-        }
-        if (!query.activity_latest_end_time) {
-            query.activity_latest_end_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.latest_end_time,
-                date,
-            );
+        // (Skip when share_id is present, as Diana restores stored activity times from the share)
+        if (!query.share_id) {
+            if (!query.activity_earliest_start_time) {
+                query.activity_earliest_start_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.earliest_start_time,
+                    searchDate,
+                );
+            }
+            if (!query.activity_latest_start_time) {
+                query.activity_latest_start_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.latest_start_time,
+                    searchDate,
+                );
+            }
+            if (!query.activity_earliest_end_time) {
+                query.activity_earliest_end_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.earliest_end_time,
+                    searchDate,
+                );
+            }
+            if (!query.activity_latest_end_time) {
+                query.activity_latest_end_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.latest_end_time,
+                    searchDate,
+                );
+            }
         }
 
         // Normalize language code for Diana API
@@ -363,9 +372,14 @@ router.get("/connections", async (req, res) => {
         );
 
         // Build cache key from the fields that uniquely identify a trip search
-        const cacheKey = isScrollRequest
-            ? null
-            : `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${query.date || ""}`;
+        let cacheKey = null;
+        if (!isScrollRequest) {
+            if (query.share_id) {
+                cacheKey = `diana:connections:share:${query.share_id}:${query.date || ""}:${query.lang || ""}:${query.use_flex || ""}:${query.include_past || ""}`;
+            } else {
+                cacheKey = `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${searchDate}:${query.activity_duration_minutes || ""}:${query.activity_duration_days || ""}:${query.use_flex || ""}:${query.lang || ""}:${query.include_past || ""}`;
+            }
+        }
 
         // Check Valkey cache (only for initial, non-scroll requests)
         if (cacheKey) {
@@ -377,9 +391,11 @@ router.get("/connections", async (req, res) => {
 
         const result = await proxyGet("/connections", queryString);
 
-        // Cache successful initial responses for 24 hours
+        // Cache successful initial responses (5 min for today, 24h for future dates)
+        const isToday = searchDate === todayVienna;
+        const ttlSeconds = isToday ? 5 * 60 : 24 * 60 * 60;
         if (cacheKey && result.status === 200) {
-            cacheService.set(cacheKey, result.body, 24 * 60 * 60);
+            cacheService.set(cacheKey, result.body, ttlSeconds);
         }
 
         res.status(result.status).json(result.body);
@@ -536,6 +552,33 @@ router.get("/share/:hashKey", async (req, res) => {
         res.status(502).json({
             success: false,
             error: "Failed to retrieve shared journey",
+        });
+    }
+});
+
+// ─── GET /api/diana/quota ─────────────────────────────────────────
+
+/**
+ * @swagger
+ * /api/diana/quota:
+ *   get:
+ *     summary: Check Diana API quota usage (Diana proxy)
+ *     description: Proxies the Diana /quota endpoint to return current quota counters and active plans.
+ *     responses:
+ *       200:
+ *         description: Quota status and plans.
+ *       502:
+ *         description: Diana API error.
+ */
+router.get("/quota", async (_req, res) => {
+    try {
+        const result = await proxyGet("/quota", "");
+        res.status(result.status).json(result.body);
+    } catch (error) {
+        logger.error("Diana quota proxy error:", error.message);
+        res.status(502).json({
+            success: false,
+            error: "Failed to fetch quota status",
         });
     }
 });

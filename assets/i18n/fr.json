@@ -384,7 +384,15 @@
     "verbindungssuche_fehlgeschlagen": "La recherche de connexion a échoué. Veuillez réessayer.",
     "fahrplan_titel": "S'y rendre & rentrer",
     "umstieg_label": "correspondance",
-    "umstiege_label": "correspondances"
+    "umstiege_label": "correspondances",
+    "abgefahren": "Parti",
+    "ausfall": "Trajet annulé",
+    "plan_gleis": "Prévu: Voie {{track}}",
+    "plan_abfahrt": "Prévu: {{time}}",
+    "fruehere_verbindungen": "Trajets plus tôt",
+    "spaetere_verbindungen": "Trajets plus tard",
+    "meldungen": "Avis",
+    "rufbus_hinweis": "Transport à la demande"
   },
   "search": {
     "go": "Allez!",

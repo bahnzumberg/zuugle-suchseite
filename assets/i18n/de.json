@@ -384,7 +384,15 @@
     "verbindungssuche_fehlgeschlagen": "Verbindungssuche fehlgeschlagen. Bitte erneut versuchen.",
     "fahrplan_titel": "Wie komme ich hin und wieder zurück?",
     "umstieg_label": "Umstieg",
-    "umstiege_label": "Umstiege"
+    "umstiege_label": "Umstiege",
+    "abgefahren": "Bereits abgefahren",
+    "ausfall": "Fahrt fällt aus",
+    "plan_gleis": "Plan: Gleis {{track}}",
+    "plan_abfahrt": "Plan: {{time}}",
+    "fruehere_verbindungen": "Frühere Verbindungen",
+    "spaetere_verbindungen": "Spätere Verbindungen",
+    "meldungen": "Meldungen",
+    "rufbus_hinweis": "Bedarfsverkehr"
   },
   "search": {
     "go": "Los!",

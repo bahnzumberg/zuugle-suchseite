@@ -29,7 +29,10 @@ import {
 } from "../../hooks/useDepartureLocation";
 import { useDianaAutocomplete } from "../../hooks/useDianaAutocomplete";
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
-import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
+import ConnectionResults, {
+  ConnectionsResultData,
+  Connection,
+} from "./ConnectionResults";
 
 interface ConnectionSearchFormProps {
   tour: Tour;
@@ -161,38 +164,71 @@ export default function ConnectionSearchForm({
    * Build the shared URLSearchParams for the connections API call.
    * Used for both initial search and scroll (before/after) requests.
    */
-  const buildSearchParams = (selectedDate: string): URLSearchParams => {
-    let userStartLocation: string;
-    let userStartLocationType: string;
-    if (departureLat && departureLon) {
-      userStartLocation = `${departureLat},${departureLon}`;
-      userStartLocationType = "coordinates";
-    } else {
-      userStartLocation = departureLocation!.displayName;
-      userStartLocationType = departureLocation!.locationType || "address";
-    }
+  /**
+   * Build the shared URLSearchParams for the connections API call.
+   * Used for both initial search and scroll (before/after) requests.
+   */
+  const buildSearchParams = useCallback(
+    (targetDate: string): URLSearchParams => {
+      let userStartLocation: string;
+      let userStartLocationType: string;
+      if (departureLat && departureLon) {
+        userStartLocation = `${departureLat},${departureLon}`;
+        userStartLocationType = "coordinates";
+      } else {
+        userStartLocation = departureLocation!.displayName;
+        userStartLocationType = departureLocation!.locationType || "address";
+      }
 
-    const params = new URLSearchParams({
-      user_start_location: userStartLocation,
-      user_start_location_type: userStartLocationType,
-      activity_name: tour.title,
-      activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
-      activity_start_location_type: "coordinates",
-      activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
-      activity_end_location_type: "coordinates",
-      activity_duration_minutes: String(activityDurationMinutes),
-      date: selectedDate,
-      lang: lang,
-      use_flex: useFlex ? "true" : "false",
-      timezone: "Europe/Vienna",
-    });
+      const params = new URLSearchParams({
+        user_start_location: userStartLocation,
+        user_start_location_type: userStartLocationType,
+        activity_name: tour.title,
+        activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
+        activity_start_location_type: "coordinates",
+        activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
+        activity_end_location_type: "coordinates",
+        activity_duration_minutes: String(activityDurationMinutes),
+        date: targetDate,
+        lang: lang,
+        use_flex: useFlex ? "true" : "false",
+        timezone: "Europe/Vienna",
+      });
 
-    if (isMultiDay) {
-      params.set("activity_duration_days", String(tour.number_of_days));
-    }
+      if (departureLocation?.displayName) {
+        params.set(
+          "user_start_location_display_name",
+          departureLocation.displayName,
+        );
+      }
 
-    return params;
-  };
+      if (dayjs(targetDate).isSame(dayjs(), "day")) {
+        params.set("include_past", "true");
+      }
+
+      if (isMultiDay) {
+        const diffDays =
+          departureDate && returnDate
+            ? returnDate.diff(departureDate, "day") + 1
+            : tour.number_of_days;
+        params.set("activity_duration_days", String(Math.max(diffDays, 1)));
+      }
+
+      return params;
+    },
+    [
+      departureLat,
+      departureLon,
+      departureLocation,
+      tour,
+      activityDurationMinutes,
+      lang,
+      useFlex,
+      isMultiDay,
+      departureDate,
+      returnDate,
+    ],
+  );
 
   // ── Share restore: fetch shared journey and auto-search ──
   const triggerSearchWithParams = useCallback(
@@ -230,6 +266,14 @@ export default function ConnectionSearchForm({
           timezone: "Europe/Vienna",
         });
 
+        if (displayName) {
+          params.set("user_start_location_display_name", displayName);
+        }
+
+        if (dayjs(date).isSame(dayjs(), "day")) {
+          params.set("include_past", "true");
+        }
+
         const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
 
         if (!resp.ok) {
@@ -252,7 +296,7 @@ export default function ConnectionSearchForm({
         setIsSearching(false);
       }
     },
-    [tour, lang, t, activityDurationMinutes, today, setDepartureLocation],
+    [tour, lang, t, activityDurationMinutes, setDepartureLocation, useFlex],
   );
 
   useEffect(() => {
@@ -266,11 +310,74 @@ export default function ConnectionSearchForm({
     }
 
     const restoreShare = async () => {
+      setIsSearching(true);
+      setConnectionsResult(null);
+      setSearchError(null);
+
       try {
+        // Try bundled connections endpoint first (single-request replay)
+        const bundledParams = new URLSearchParams({
+          share_id: shareId,
+          lang,
+        });
+        if (flexParam === "1") {
+          bundledParams.set("use_flex", "true");
+        }
+
+        const bundledResp = await fetch(
+          `${DIANA_PROXY_BASE}/connections?${bundledParams}`,
+        );
+
+        if (bundledResp.ok) {
+          const data = await bundledResp.json();
+          if (data?.shared_journey) {
+            const sj = data.shared_journey;
+            const lat = sj.origin_lat ? parseFloat(sj.origin_lat) : null;
+            const lon = sj.origin_lon ? parseFloat(sj.origin_lon) : null;
+            const displayName = sj.origin_display_name || sj.origin || "";
+
+            const loc: DepartureLocation = {
+              displayName,
+              locationType: lat && lon ? "address" : "station",
+            };
+            setDepartureLocation(loc, lat, lon);
+            setInputValue(displayName);
+
+            if (sj.date) {
+              const d = dayjs(sj.date);
+              setSelectedDate(d);
+            }
+            if (sj.use_flex !== undefined) {
+              setUseFlex(!!sj.use_flex);
+            }
+
+            setShareTimeHints({
+              toStart: sj.to_connection_start_time ?? undefined,
+              toEnd: sj.to_connection_end_time ?? undefined,
+              fromStart: sj.from_connection_start_time ?? undefined,
+              fromEnd: sj.from_connection_end_time ?? undefined,
+            });
+          }
+
+          const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
+          const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
+          if (!hasTo && !hasFrom) {
+            setSearchError(t("details.keine_verbindungen"));
+          } else {
+            setConnectionsResult(data);
+          }
+          setIsSearching(false);
+          return;
+        }
+
+        // Fallback for older shares without activity object (e.g. code 5004): 2-step restore
         const resp = await fetch(
           `${DIANA_PROXY_BASE}/share/${encodeURIComponent(shareId)}`,
         );
-        if (!resp.ok) return;
+        if (!resp.ok) {
+          setIsSearching(false);
+          return;
+        }
 
         const shareData = await resp.json();
 
@@ -294,14 +401,156 @@ export default function ConnectionSearchForm({
 
         if (lat && lon) {
           await triggerSearchWithParams(lat, lon, displayName, date);
+        } else {
+          setIsSearching(false);
         }
       } catch (err) {
         console.error("Share restore error:", err);
+        setIsSearching(false);
       }
     };
 
     restoreShare();
-  }, [shareId, triggerSearchWithParams]);
+  }, [
+    shareId,
+    searchParams,
+    lang,
+    t,
+    setDepartureLocation,
+    triggerSearchWithParams,
+  ]);
+
+  // ── Scroll handler: fetch earlier or later connections ──
+  const [scrollLoading, setScrollLoading] = useState<string | null>(null);
+
+  const handleScroll = useCallback(
+    async (direction: "to" | "from", edge: "before" | "after") => {
+      if (!connectionsResult) return;
+      const scrollKey = `${direction}_${edge}`;
+      setScrollLoading(scrollKey);
+
+      try {
+        const selectedDate = getSelectedDate();
+        const params = buildSearchParams(selectedDate);
+
+        if (direction === "to") {
+          const list = connectionsResult.connections.to_activity;
+          if (!list || list.length === 0) return;
+          if (edge === "before") {
+            params.set(
+              "to_connections_before",
+              list[0].connection_start_timestamp,
+            );
+          } else {
+            params.set(
+              "to_connections_after",
+              list[list.length - 1].connection_start_timestamp,
+            );
+          }
+        } else {
+          const list = connectionsResult.connections.from_activity;
+          if (!list || list.length === 0) return;
+          if (edge === "before") {
+            params.set(
+              "from_connections_before",
+              list[0].connection_start_timestamp,
+            );
+          } else {
+            params.set(
+              "from_connections_after",
+              list[list.length - 1].connection_start_timestamp,
+            );
+          }
+        }
+
+        const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
+        if (!resp.ok) return;
+
+        const newData = await resp.json();
+        if (!newData?.connections) return;
+
+        setConnectionsResult((prev) => {
+          if (!prev) return newData;
+
+          const updated = {
+            ...prev,
+            connections: {
+              ...prev.connections,
+            },
+          };
+
+          if (direction === "to") {
+            const newItems = newData.connections.to_activity || [];
+            if (newItems.length > 0) {
+              const existingIds = new Set(
+                prev.connections.to_activity.map((c) => c.connection_id),
+              );
+              const filteredNew = newItems.filter(
+                (c: Connection) => !existingIds.has(c.connection_id),
+              );
+
+              updated.connections.to_activity =
+                edge === "before"
+                  ? [...filteredNew, ...prev.connections.to_activity]
+                  : [...prev.connections.to_activity, ...filteredNew];
+            }
+
+            if (
+              newData.connections.has_more_before_to_activity !== null &&
+              newData.connections.has_more_before_to_activity !== undefined
+            ) {
+              updated.connections.has_more_before_to_activity =
+                newData.connections.has_more_before_to_activity;
+            }
+            if (
+              newData.connections.has_more_after_to_activity !== null &&
+              newData.connections.has_more_after_to_activity !== undefined
+            ) {
+              updated.connections.has_more_after_to_activity =
+                newData.connections.has_more_after_to_activity;
+            }
+          } else {
+            const newItems = newData.connections.from_activity || [];
+            if (newItems.length > 0) {
+              const existingIds = new Set(
+                prev.connections.from_activity.map((c) => c.connection_id),
+              );
+              const filteredNew = newItems.filter(
+                (c: Connection) => !existingIds.has(c.connection_id),
+              );
+
+              updated.connections.from_activity =
+                edge === "before"
+                  ? [...filteredNew, ...prev.connections.from_activity]
+                  : [...prev.connections.from_activity, ...filteredNew];
+            }
+
+            if (
+              newData.connections.has_more_before_from_activity !== null &&
+              newData.connections.has_more_before_from_activity !== undefined
+            ) {
+              updated.connections.has_more_before_from_activity =
+                newData.connections.has_more_before_from_activity;
+            }
+            if (
+              newData.connections.has_more_after_from_activity !== null &&
+              newData.connections.has_more_after_from_activity !== undefined
+            ) {
+              updated.connections.has_more_after_from_activity =
+                newData.connections.has_more_after_from_activity;
+            }
+          }
+
+          return updated;
+        });
+      } catch (err) {
+        console.error("Scroll error:", err);
+      } finally {
+        setScrollLoading(null);
+      }
+    },
+    [connectionsResult, buildSearchParams, getSelectedDate],
+  );
 
   const handleSearch = async () => {
     if (!departureLocation) return;
@@ -1023,6 +1272,8 @@ export default function ConnectionSearchForm({
             shareTimeHints={shareTimeHints}
             onStopHover={onStopHover}
             useFlex={useFlex}
+            onScroll={handleScroll}
+            scrollLoading={scrollLoading}
           />
         )}
       </Box>

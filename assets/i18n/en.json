@@ -384,7 +384,15 @@
     "verbindungssuche_fehlgeschlagen": "Connection search failed. Please try again.",
     "fahrplan_titel": "Getting there & back",
     "umstieg_label": "transfer",
-    "umstiege_label": "transfers"
+    "umstiege_label": "transfers",
+    "abgefahren": "Departed",
+    "ausfall": "Trip cancelled",
+    "plan_gleis": "Scheduled: Track {{track}}",
+    "plan_abfahrt": "Scheduled: {{time}}",
+    "fruehere_verbindungen": "Earlier connections",
+    "spaetere_verbindungen": "Later connections",
+    "meldungen": "Alerts",
+    "rufbus_hinweis": "On-demand service"
   },
   "search": {
     "go": "Go!",
