@@ -30,6 +30,7 @@ function PopupCard({
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
+  const openInSameTab = isMobile && !externalLinks;
   if (!activeMarker || !tour) return null;
   return (
     <Popup
@@ -83,11 +84,15 @@ function PopupCard({
             >
               <a
                 href={getTourLink(tour, city, externalLinks)}
-                target={isMobile ? undefined : "_blank"}
+                target={openInSameTab ? undefined : "_blank"}
                 // Keep our own detail tab as opener so it can detect this
                 // search tab is still open; external links stay noopener.
                 rel={
-                  isMobile ? undefined : externalLinks ? "noopener" : "opener"
+                  openInSameTab
+                    ? undefined
+                    : externalLinks
+                      ? "noopener"
+                      : "opener"
                 }
                 className="updated-title curser-link"
               >
