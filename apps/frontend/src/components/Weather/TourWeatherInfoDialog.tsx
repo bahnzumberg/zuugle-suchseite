@@ -8,10 +8,10 @@ import Typography from "@mui/material/Typography";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import AirIcon from "@mui/icons-material/Air";
+import FlashOnIcon from "@mui/icons-material/FlashOn";
 import CloseIcon from "@mui/icons-material/Close";
 import NavigationIcon from "@mui/icons-material/Navigation";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
-import ThunderstormOutlinedIcon from "@mui/icons-material/ThunderstormOutlined";
 import WaterDropOutlinedIcon from "@mui/icons-material/WaterDropOutlined";
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import WbTwilightIcon from "@mui/icons-material/WbTwilight";
@@ -36,7 +36,7 @@ const ROWS: {
   { key: "wind_direction", icon: NavigationIcon },
   { key: "wind_speed", icon: AirIcon, unit: "km/h" },
   { key: "precipitation", icon: WaterDropOutlinedIcon, unit: "mm" },
-  { key: "thunderstorm", icon: ThunderstormOutlinedIcon, unit: "%" },
+  { key: "thunderstorm", icon: FlashOnIcon, unit: "%" },
   { key: "freezing_level", icon: AcUnitIcon, unit: "m" },
 ];
 

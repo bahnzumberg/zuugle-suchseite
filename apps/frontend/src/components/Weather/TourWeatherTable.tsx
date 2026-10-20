@@ -10,9 +10,9 @@ import Tooltip from "@mui/material/Tooltip";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import AirIcon from "@mui/icons-material/Air";
+import FlashOnIcon from "@mui/icons-material/FlashOn";
 import NavigationIcon from "@mui/icons-material/Navigation";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
-import ThunderstormOutlinedIcon from "@mui/icons-material/ThunderstormOutlined";
 import WaterDropOutlinedIcon from "@mui/icons-material/WaterDropOutlined";
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import { useTranslation } from "react-i18next";
@@ -199,7 +199,7 @@ function buildRows(
     },
     {
       key: "thunderstorm",
-      icon: ThunderstormOutlinedIcon,
+      icon: FlashOnIcon,
       unit: "%",
       label: t("weather.detail.rows.thunderstorm.label"),
       alert: (hour) =>
