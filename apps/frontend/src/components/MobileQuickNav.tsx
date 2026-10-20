@@ -105,10 +105,10 @@ export default function MobileQuickNav({
 
   const getHeaderHeight = useCallback(() => {
     if (!headerSelector) return headerOffset;
-    return (
-      document.querySelector<HTMLElement>(headerSelector)?.offsetHeight ??
-      headerOffset
-    );
+    const el = document.querySelector<HTMLElement>(headerSelector);
+    if (!el) return headerOffset;
+    const top = parseFloat(window.getComputedStyle(el).top) || 0;
+    return el.offsetHeight + top;
   }, [headerSelector, headerOffset]);
 
   // ── DOM scanning: track which sections exist ───────────────────────────────

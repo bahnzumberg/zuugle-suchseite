@@ -397,7 +397,15 @@
     "error_activity_end": "Il punto di arrivo di questo tour non è stato associato a nessuna fermata.",
     "fahrplan_titel": "Come arrivare & tornare",
     "umstieg_label": "cambio",
-    "umstiege_label": "cambi"
+    "umstiege_label": "cambi",
+    "abgefahren": "Partito",
+    "ausfall": "Corsa cancellata",
+    "plan_gleis": "Previsto: Binario {{track}}",
+    "plan_abfahrt": "Previsto: {{time}}",
+    "fruehere_verbindungen": "Collegamenti precedenti",
+    "spaetere_verbindungen": "Collegamenti successivi",
+    "meldungen": "Avvisi",
+    "rufbus_hinweis": "Servizio a chiamata"
   },
   "search": {
     "go": "Vai!",

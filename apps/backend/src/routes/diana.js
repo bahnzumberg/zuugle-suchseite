@@ -55,6 +55,7 @@ const CONNECTIONS_PARAMS = new Set([
     "id",
     "use_flex",
     "include_past",
+    "share_id",
     "to_connections_before",
     "to_connections_after",
     "from_connections_before",
@@ -276,38 +277,11 @@ const CONNECTIONS_SCROLL_PARAMS = [
 ];
 
 /**
- * Build a deterministic cache key for a connections request.
- * Includes origin, destination, user location, date, and any duration/flex/pagination parameters.
- */
-function buildConnectionsCacheKey(query) {
-    const base = `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${query.date || ""}`;
-    const extras = [];
-    if (query.use_flex && query.use_flex !== "false") {
-        extras.push(`flex=${query.use_flex}`);
-    }
-    if (query.include_past) {
-        extras.push(`past=${query.include_past}`);
-    }
-    if (query.activity_duration_minutes) {
-        extras.push(`dur=${query.activity_duration_minutes}`);
-    }
-    if (query.activity_duration_days) {
-        extras.push(`days=${query.activity_duration_days}`);
-    }
-    for (const p of CONNECTIONS_SCROLL_PARAMS) {
-        if (query[p] && typeof query[p] === "string") {
-            extras.push(`${p}=${query[p]}`);
-        }
-    }
-    return extras.length > 0 ? `${base}:${extras.join(":")}` : base;
-}
-
-/**
  * @swagger
  * /api/diana/connections:
  *   get:
  *     summary: Get public transport connections (Diana proxy)
- *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Cached in Valkey (10m for today, 6h for future). Supports cache_only lookups.
+ *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Initial requests are cached (5m for today, 24h for future); pagination requests bypass the cache. Supports cache_only lookups.
  *     parameters:
  *       - in: query
  *         name: user_start_location
@@ -346,48 +320,52 @@ router.get("/connections", async (req, res) => {
         // property assignments are silently discarded. Work on a mutable copy.
         const query = { ...req.query };
 
-        // Determine departure date and return date for multi-day tours
-        const date =
-            typeof query.date === "string" && query.date
-                ? query.date
-                : new Date().toISOString().substring(0, 10);
+        // Determine date in Europe/Vienna
+        const todayVienna = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Europe/Vienna",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(new Date());
 
+        const searchDate = typeof query.date === "string" && query.date ? query.date : todayVienna;
+
+        // Calculate end date for multi-day tours so return times target the tour finish day
         const durationDays = parseInt(query.activity_duration_days, 10) || 1;
-        let endDate = date;
+        let endDate = searchDate;
         if (durationDays > 1) {
-            const d = new Date(date);
+            const d = new Date(searchDate);
             d.setDate(d.getDate() + (durationDays - 1));
             endDate = d.toISOString().substring(0, 10);
         }
 
-        // Always include already departed connections so daytime/morning trains
-        // are returned when querying for "today" (even in the afternoon or evening)
-        query.include_past = "true";
-
         // Inject default activity time windows if not provided by the client
-        if (!query.activity_earliest_start_time) {
-            query.activity_earliest_start_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.earliest_start_time,
-                date,
-            );
-        }
-        if (!query.activity_latest_start_time) {
-            query.activity_latest_start_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.latest_start_time,
-                date,
-            );
-        }
-        if (!query.activity_earliest_end_time) {
-            query.activity_earliest_end_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.earliest_end_time,
-                endDate,
-            );
-        }
-        if (!query.activity_latest_end_time) {
-            query.activity_latest_end_time = localTimeToUtc(
-                DIANA_ACTIVITY_TIMES.latest_end_time,
-                endDate,
-            );
+        // (Skip when share_id is present, as Diana restores stored activity times from the share)
+        if (!query.share_id) {
+            if (!query.activity_earliest_start_time) {
+                query.activity_earliest_start_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.earliest_start_time,
+                    searchDate,
+                );
+            }
+            if (!query.activity_latest_start_time) {
+                query.activity_latest_start_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.latest_start_time,
+                    searchDate,
+                );
+            }
+            if (!query.activity_earliest_end_time) {
+                query.activity_earliest_end_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.earliest_end_time,
+                    endDate,
+                );
+            }
+            if (!query.activity_latest_end_time) {
+                query.activity_latest_end_time = localTimeToUtc(
+                    DIANA_ACTIVITY_TIMES.latest_end_time,
+                    endDate,
+                );
+            }
         }
 
         // Normalize language code for Diana API
@@ -397,13 +375,27 @@ router.get("/connections", async (req, res) => {
 
         const queryString = filterParams(query, CONNECTIONS_PARAMS);
 
-        // Build cache key including trip endpoints, date, and scroll/pagination parameters
-        const cacheKey = buildConnectionsCacheKey(query);
+        // Determine if this is a scroll/pagination request
+        const isScrollRequest = CONNECTIONS_SCROLL_PARAMS.some(
+            (p) => query[p] && typeof query[p] === "string",
+        );
 
-        // Check Valkey cache first
-        const cached = await cacheService.get(cacheKey);
-        if (cached) {
-            return res.status(200).json(cached);
+        // Build cache key from the fields that uniquely identify a trip search
+        let cacheKey = null;
+        if (!isScrollRequest) {
+            if (query.share_id) {
+                cacheKey = `diana:connections:share:${query.share_id}:${query.date || ""}:${query.lang || ""}:${query.use_flex || ""}:${query.include_past || ""}`;
+            } else {
+                cacheKey = `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${searchDate}:${query.activity_duration_minutes || ""}:${query.activity_duration_days || ""}:${query.use_flex || ""}:${query.lang || ""}:${query.include_past || ""}`;
+            }
+        }
+
+        // Check Valkey cache (only for initial, non-scroll requests)
+        if (cacheKey) {
+            const cached = await cacheService.get(cacheKey);
+            if (cached) {
+                return res.status(200).json(cached);
+            }
         }
 
         // If client only requested cached data, return miss immediately without calling Diana API
@@ -414,16 +406,11 @@ router.get("/connections", async (req, res) => {
 
         const result = await proxyGet("/connections", queryString);
 
-        // Cache successful responses:
-        // TTL: 10 minutes for queries for today, 6 hours for future dates
-        if (result.status === 200 && result.body) {
-            const todayVienna = new Date().toLocaleDateString("sv-SE", {
-                timeZone: "Europe/Vienna",
-            });
-            const isToday = !query.date || query.date === todayVienna;
-            const ttl = isToday ? 10 * 60 : 6 * 60 * 60; // 10 min for today, 6h for future
-
-            cacheService.set(cacheKey, result.body, ttl);
+        // Cache successful initial responses (5 min for today, 24h for future dates)
+        const isToday = searchDate === todayVienna;
+        const ttlSeconds = isToday ? 5 * 60 : 24 * 60 * 60;
+        if (cacheKey && result.status === 200 && result.body) {
+            cacheService.set(cacheKey, result.body, ttlSeconds);
         }
 
         res.status(result.status).json(result.body);
@@ -580,6 +567,33 @@ router.get("/share/:hashKey", async (req, res) => {
         res.status(502).json({
             success: false,
             error: "Failed to retrieve shared journey",
+        });
+    }
+});
+
+// ─── GET /api/diana/quota ─────────────────────────────────────────
+
+/**
+ * @swagger
+ * /api/diana/quota:
+ *   get:
+ *     summary: Check Diana API quota usage (Diana proxy)
+ *     description: Proxies the Diana /quota endpoint to return current quota counters and active plans.
+ *     responses:
+ *       200:
+ *         description: Quota status and plans.
+ *       502:
+ *         description: Diana API error.
+ */
+router.get("/quota", async (_req, res) => {
+    try {
+        const result = await proxyGet("/quota", "");
+        res.status(result.status).json(result.body);
+    } catch (error) {
+        logger.error("Diana quota proxy error:", error.message);
+        res.status(502).json({
+            success: false,
+            error: "Failed to fetch quota status",
         });
     }
 });

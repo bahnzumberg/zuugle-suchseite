@@ -30,31 +30,82 @@ import CommuteIcon from "@mui/icons-material/Commute";
 
 import ShareIcon from "@mui/icons-material/Share";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { icons } from "../../icons/icons";
 import { useTourType } from "../../utils/tourType";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
 import { Tour } from "../../models/Tour";
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface ConnectionElement {
+export interface Alert {
+  severity?: "info" | "warning" | "severe";
+  scope?: string;
+  stop_name?: string;
+  cause?: string;
+  effect?: string;
+  header_text?: string;
+  description_text?: string;
+  url?: string;
+}
+
+export interface BookingRule {
+  booking_type?: string;
+  message?: string;
+  pickup_message?: string;
+  drop_off_message?: string;
+  phone_number?: string;
+  info_url?: string;
+  booking_url?: string;
+  latest_booking_time?: string;
+}
+
+export interface FlexInfo {
+  name?: string;
+  id?: string;
+  pickup_window_start?: string;
+  pickup_window_end?: string;
+  drop_off_window_start?: string;
+  drop_off_window_end?: string;
+}
+
+export interface ConnectionElement {
   from_location: string;
   from_location_coordinates?: { lat: number; lon: number };
   to_location: string;
   to_location_coordinates?: { lat: number; lon: number };
   departure_time: string;
   arrival_time: string;
-  type: string; // "JNY" = journey, "TRSF" = transfer
+  type: string; // "JNY" = journey, "TRSF" = transfer, "WALK" = walk
   vehicle_name?: string;
   vehicle_type?: number;
   n_intermediate_stops?: number;
   direction?: string;
   platform_orig?: string;
   platform_dest?: string;
+  platform_orig_scheduled?: string;
+  platform_dest_scheduled?: string;
+  realtime?: boolean;
+  departure_time_scheduled?: string;
+  arrival_time_scheduled?: string;
+  departure_delay?: number;
+  arrival_delay?: number;
+  cancelled?: boolean;
+  additional_service?: boolean;
+  alerts?: Alert[];
+  flex?: FlexInfo;
+  booking?:
+    | {
+        pickup?: BookingRule;
+        drop_off?: BookingRule;
+      }
+    | BookingRule;
 }
 
-interface Connection {
+export interface Connection {
   connection_id: number;
   connection_start_timestamp: string;
   connection_end_timestamp: string;
@@ -62,7 +113,7 @@ interface Connection {
   connection_elements: ConnectionElement[];
 }
 
-interface Activity {
+export interface Activity {
   activity_name: string;
   activity_start_location_display_name?: string;
   activity_end_location_display_name?: string;
@@ -107,6 +158,11 @@ interface ConnectionResultsProps {
   } | null;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
   useFlex?: boolean;
+  onScroll?: (
+    direction: "to" | "from",
+    edge: "before" | "after",
+  ) => Promise<void>;
+  scrollLoading?: string | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -388,6 +444,13 @@ function ConnectionTabs({
   conflictThreshold,
   conflictCheckStart,
   isToday,
+  hasMoreBefore,
+  hasMoreAfter,
+  onScrollBefore,
+  onScrollAfter,
+  loadingBefore,
+  loadingAfter,
+  t,
 }: {
   connections: Connection[];
   selectedId: number;
@@ -398,6 +461,13 @@ function ConnectionTabs({
    *  When false/undefined, checks connection_end_timestamp > threshold (for Hinfahrt). */
   conflictCheckStart?: boolean;
   isToday?: boolean;
+  hasMoreBefore?: boolean | null;
+  hasMoreAfter?: boolean | null;
+  onScrollBefore?: () => void;
+  onScrollAfter?: () => void;
+  loadingBefore?: boolean;
+  loadingAfter?: boolean;
+  t: TFunction;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -432,6 +502,43 @@ function ConnectionTabs({
     <Box
       sx={{ display: "flex", alignItems: "center", gap: "6px", width: "100%" }}
     >
+      {/* Scroll earlier button */}
+      {hasMoreBefore && onScrollBefore && (
+        <Button
+          size="small"
+          variant="outlined"
+          disabled={loadingBefore}
+          onClick={onScrollBefore}
+          aria-label={t(
+            "details.fruehere_verbindungen",
+            "Frühere Verbindungen",
+          )}
+          sx={{
+            minWidth: { xs: "34px", sm: "auto" },
+            px: { xs: "6px", sm: "8px" },
+            py: "4px",
+            borderRadius: "10px",
+            borderColor: "var(--bzb-bahnblau)",
+            color: "var(--bzb-bahnblau)",
+            fontSize: "12px",
+            fontWeight: 600,
+            textTransform: "none",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            "&:hover": {
+              borderColor: "var(--bzb-bahnblau)",
+              bgcolor: "rgba(23, 76, 139, 0.08)",
+            },
+          }}
+        >
+          {loadingBefore ? (
+            <CircularProgress size={14} sx={{ color: "var(--bzb-bahnblau)" }} />
+          ) : (
+            `‹ ${t("details.frueher", "Früher")}`
+          )}
+        </Button>
+      )}
+
       {/* Tab scroll area */}
       <Box
         ref={scrollRef}
@@ -475,6 +582,10 @@ function ConnectionTabs({
               : new Date(conn.connection_end_timestamp) >
                 new Date(conflictThreshold));
 
+          // Departed indication (for searches today)
+          const isDeparted =
+            new Date(conn.connection_start_timestamp).getTime() < Date.now();
+
           return (
             <Box
               key={conn.connection_id}
@@ -507,7 +618,12 @@ function ConnectionTabs({
                     ? PAST_COLOR
                     : "#333",
                 transition: "all 0.15s ease",
-                opacity: isConflicting && !isSelected ? 0.35 : 1,
+                opacity:
+                  isConflicting && !isSelected
+                    ? 0.35
+                    : isDeparted && !isSelected
+                      ? 0.75
+                      : 1,
                 "&:hover": {
                   borderColor: isSelected
                     ? "var(--bzb-bahnblau)"
@@ -525,6 +641,19 @@ function ConnectionTabs({
                 },
               }}
             >
+              {isDeparted && (
+                <Typography
+                  sx={{
+                    fontSize: "10px",
+                    lineHeight: 1.1,
+                    mb: "2px",
+                    fontStyle: "italic",
+                    color: isSelected ? "rgba(255,255,255,0.85)" : "#888",
+                  }}
+                >
+                  {t("details.abgefahren", "Abgefahren")}
+                </Typography>
+              )}
               <Typography
                 sx={{ fontSize: "13px", fontWeight: 700, whiteSpace: "nowrap" }}
               >
@@ -575,6 +704,43 @@ function ConnectionTabs({
           );
         })}
       </Box>
+
+      {/* Scroll later button */}
+      {hasMoreAfter && onScrollAfter && (
+        <Button
+          size="small"
+          variant="outlined"
+          disabled={loadingAfter}
+          onClick={onScrollAfter}
+          aria-label={t(
+            "details.spaetere_verbindungen",
+            "Spätere Verbindungen",
+          )}
+          sx={{
+            minWidth: { xs: "34px", sm: "auto" },
+            px: { xs: "6px", sm: "8px" },
+            py: "4px",
+            borderRadius: "10px",
+            borderColor: "var(--bzb-bahnblau)",
+            color: "var(--bzb-bahnblau)",
+            fontSize: "12px",
+            fontWeight: 600,
+            textTransform: "none",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            "&:hover": {
+              borderColor: "var(--bzb-bahnblau)",
+              bgcolor: "rgba(23, 76, 139, 0.08)",
+            },
+          }}
+        >
+          {loadingAfter ? (
+            <CircularProgress size={14} sx={{ color: "var(--bzb-bahnblau)" }} />
+          ) : (
+            `${t("details.spaeter", "Später")} ›`
+          )}
+        </Button>
+      )}
     </Box>
   );
 }
@@ -591,7 +757,7 @@ function ConnectionTimeline({
   elements: ConnectionElement[];
   coordinateReplacements?: CoordinateReplacement;
   lang: string;
-  t: (key: string) => string;
+  t: TFunction;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
   isToday?: boolean;
 }) {
@@ -712,17 +878,13 @@ function ConnectionTimeline({
             idx < elements.length - 1
               ? elements[idx + 1].platform_orig
               : undefined;
-          const tInterp = t as unknown as (
-            key: string,
-            opts: Record<string, string>,
-          ) => string;
           const platformInfo =
             prevPlatform && nextPlatform
-              ? `, ${tInterp("details.von_gleis_zu_gleis", { from: prevPlatform, to: nextPlatform })}`
+              ? `, ${t("details.von_gleis_zu_gleis", { from: prevPlatform, to: nextPlatform })}`
               : prevPlatform
-                ? `, ${tInterp("details.von_gleis", { from: prevPlatform })}`
+                ? `, ${t("details.von_gleis", { from: prevPlatform })}`
                 : nextPlatform
-                  ? `, ${tInterp("details.zu_gleis", { to: nextPlatform })}`
+                  ? `, ${t("details.zu_gleis", { to: nextPlatform })}`
                   : "";
           return (
             <Box
@@ -751,10 +913,20 @@ function ConnectionTimeline({
         const arrPast = isPast(el.arrival_time);
 
         // Journey leg
+        const isCancelled = el.cancelled === true;
+        const hasDepDelay =
+          el.realtime &&
+          el.departure_delay !== undefined &&
+          el.departure_delay !== 0;
+        const hasArrDelay =
+          el.realtime &&
+          el.arrival_delay !== undefined &&
+          el.arrival_delay !== 0;
+
         return (
           <Box key={idx}>
             {/* Departure */}
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "flex-start" }}>
               <Box
                 sx={{
                   width: "30px",
@@ -762,6 +934,7 @@ function ConnectionTimeline({
                   flexDirection: "column",
                   alignItems: "center",
                   flexShrink: 0,
+                  pt: "4px",
                 }}
               >
                 <Box
@@ -769,31 +942,89 @@ function ConnectionTimeline({
                     width: "10px",
                     height: "10px",
                     borderRadius: "50%",
-                    border: `2px solid ${depPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
-                    bgcolor: isFirst
-                      ? depPast
-                        ? PAST_COLOR
-                        : "var(--bzb-akelei)"
-                      : "#fff",
+                    border: `2px solid ${isCancelled ? "#d32f2f" : depPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
+                    bgcolor: isCancelled
+                      ? "#d32f2f"
+                      : isFirst
+                        ? depPast
+                          ? PAST_COLOR
+                          : "var(--bzb-akelei)"
+                        : "#fff",
                   }}
                 />
+              </Box>
+
+              <Box sx={{ minWidth: "62px", mr: "12px" }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "baseline", gap: "4px" }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: isCancelled
+                        ? "#d32f2f"
+                        : depPast
+                          ? PAST_COLOR
+                          : "var(--bzb-akelei)",
+                      textDecoration: isCancelled ? "line-through" : "none",
+                    }}
+                  >
+                    {formatTime(el.departure_time)}
+                  </Typography>
+                  {hasDepDelay && !isCancelled && (
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        color:
+                          (el.departure_delay ?? 0) > 0 ? "#d32f2f" : "#2e7d32",
+                      }}
+                    >
+                      {(el.departure_delay ?? 0) > 0
+                        ? `+${el.departure_delay}`
+                        : `${el.departure_delay}`}
+                    </Typography>
+                  )}
+                </Box>
+                {el.departure_time_scheduled &&
+                  el.departure_time_scheduled !== el.departure_time &&
+                  !isCancelled && (
+                    <Typography
+                      sx={{ fontSize: "11px", color: "#888", lineHeight: 1.1 }}
+                    >
+                      {t("details.plan_abfahrt", {
+                        time: formatTime(el.departure_time_scheduled),
+                      })}
+                    </Typography>
+                  )}
+                {isCancelled && (
+                  <Typography
+                    sx={{
+                      display: "inline-block",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: "#d32f2f",
+                      bgcolor: "#ffebee",
+                      px: "4px",
+                      py: "1px",
+                      borderRadius: "4px",
+                      mt: "2px",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {t("details.ausfall", "Fahrt fällt aus")}
+                  </Typography>
+                )}
               </Box>
               <Typography
                 sx={{
                   fontSize: "16px",
-                  fontWeight: 700,
-                  color: depPast ? PAST_COLOR : "var(--bzb-akelei)",
-                  minWidth: "50px",
-                  mr: "12px",
-                }}
-              >
-                {formatTime(el.departure_time)}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: "16px",
                   fontWeight: 600,
+                  color: isCancelled ? "#888" : "inherit",
+                  textDecoration: isCancelled ? "line-through" : "none",
                   cursor: el.from_location_coordinates ? "pointer" : undefined,
+                  pt: "1px",
                 }}
                 onMouseEnter={() =>
                   el.from_location_coordinates &&
@@ -805,22 +1036,27 @@ function ConnectionTimeline({
               </Typography>
             </Box>
 
-            {/* Vehicle info */}
+            {/* Vehicle info & details container */}
             <Box
               sx={{
                 display: "flex",
-                alignItems: "flex-start",
+                flexDirection: "column",
                 ml: "14px",
                 pl: "76px",
-                borderLeft: `2px solid ${depPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
-                py: "2px",
+                borderLeft: `2px solid ${isCancelled ? "#d32f2f" : depPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
+                py: "4px",
               }}
             >
               <Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <VehicleIcon vehicleType={el.vehicle_type} lang={lang} />
                   <Typography
-                    sx={{ fontSize: "14px", fontWeight: 600, color: "#333" }}
+                    sx={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      color: isCancelled ? "#888" : "#333",
+                      textDecoration: isCancelled ? "line-through" : "none",
+                    }}
                   >
                     {[
                       getVehicleTypeLabel(el.vehicle_type, lang),
@@ -838,6 +1074,19 @@ function ConnectionTimeline({
                     {el.direction && el.platform_orig && `, `}
                     {el.platform_orig &&
                       `${t("details.gleis")} ${el.platform_orig}`}
+                    {el.platform_orig_scheduled &&
+                      el.platform_orig_scheduled !== el.platform_orig && (
+                        <Box
+                          component="span"
+                          sx={{ color: "#d32f2f", ml: "6px", fontWeight: 600 }}
+                        >
+                          (
+                          {t("details.plan_gleis", {
+                            track: el.platform_orig_scheduled,
+                          })}
+                          )
+                        </Box>
+                      )}
                   </Typography>
                 )}
                 <Typography sx={{ fontSize: "14px", color: "#888", mt: "1px" }}>
@@ -847,6 +1096,217 @@ function ConnectionTimeline({
                   )
                 </Typography>
               </Box>
+
+              {/* Flex / On-Demand / Booking info */}
+              {(el.flex || el.booking || el.vehicle_type === 10) && (
+                <Box
+                  sx={{
+                    mt: "8px",
+                    p: "8px 10px",
+                    borderRadius: "8px",
+                    bgcolor: "rgba(23, 76, 139, 0.06)",
+                    borderLeft: "3px solid var(--bzb-bahnblau)",
+                    fontSize: "13px",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      mb: "2px",
+                    }}
+                  >
+                    <LocalTaxiIcon
+                      sx={{ fontSize: "16px", color: "var(--bzb-bahnblau)" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        color: "var(--bzb-bahnblau)",
+                      }}
+                    >
+                      {el.flex?.name
+                        ? `${el.flex.name} (${t("details.rufbus_hinweis", "Bedarfsverkehr")})`
+                        : t("details.rufbus_hinweis", "Bedarfsverkehr")}
+                    </Typography>
+                  </Box>
+                  {(() => {
+                    const booking = el.booking;
+                    if (!booking) return null;
+                    const rule: BookingRule | undefined =
+                      "pickup" in booking || "drop_off" in booking
+                        ? booking.pickup || booking.drop_off
+                        : (booking as BookingRule);
+                    if (!rule) return null;
+
+                    return (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "3px",
+                          mt: "4px",
+                        }}
+                      >
+                        {rule.message && (
+                          <Typography sx={{ fontSize: "12px", color: "#444" }}>
+                            {rule.message}
+                          </Typography>
+                        )}
+                        {rule.pickup_message && (
+                          <Typography sx={{ fontSize: "12px", color: "#444" }}>
+                            {rule.pickup_message}
+                          </Typography>
+                        )}
+                        {rule.phone_number && (
+                          <Typography sx={{ fontSize: "12px", color: "#444" }}>
+                            Tel:{" "}
+                            <Box
+                              component="a"
+                              href={`tel:${rule.phone_number}`}
+                              sx={{
+                                color: "var(--bzb-bahnblau)",
+                                fontWeight: 700,
+                                textDecoration: "none",
+                              }}
+                            >
+                              {rule.phone_number}
+                            </Box>
+                          </Typography>
+                        )}
+                        {rule.booking_url && (
+                          <Box
+                            component="a"
+                            href={rule.booking_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              fontSize: "12px",
+                              color: "var(--bzb-bahnblau)",
+                              fontWeight: 700,
+                              textDecoration: "underline",
+                              mt: "2px",
+                            }}
+                          >
+                            Online buchen →
+                          </Box>
+                        )}
+                      </Box>
+                    );
+                  })()}
+                </Box>
+              )}
+
+              {/* Service Alerts */}
+              {el.alerts && el.alerts.length > 0 && (
+                <Box
+                  sx={{
+                    mt: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  {el.alerts.map((alert, aIdx) => {
+                    const isSevere =
+                      alert.severity === "severe" ||
+                      alert.effect === "NO_SERVICE";
+                    const isWarning =
+                      alert.severity === "warning" || !alert.severity;
+                    const borderColor = isSevere
+                      ? "#d32f2f"
+                      : isWarning
+                        ? "#ed6c02"
+                        : "var(--bzb-bahnblau)";
+                    const bgColor = isSevere
+                      ? "#fdecea"
+                      : isWarning
+                        ? "#fff4e5"
+                        : "#e8f4fd";
+                    const textColor = isSevere
+                      ? "#5f2120"
+                      : isWarning
+                        ? "#663c00"
+                        : "#014361";
+
+                    return (
+                      <Box
+                        key={aIdx}
+                        sx={{
+                          p: "8px 10px",
+                          borderRadius: "8px",
+                          bgcolor: bgColor,
+                          borderLeft: `3px solid ${borderColor}`,
+                          color: textColor,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            mb:
+                              alert.header_text || alert.description_text
+                                ? "4px"
+                                : 0,
+                          }}
+                        >
+                          {isSevere ? (
+                            <WarningAmberIcon
+                              sx={{ fontSize: "16px", color: borderColor }}
+                            />
+                          ) : (
+                            <InfoOutlinedIcon
+                              sx={{ fontSize: "16px", color: borderColor }}
+                            />
+                          )}
+                          <Typography
+                            sx={{
+                              fontSize: "12px",
+                              fontWeight: 700,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.5px",
+                            }}
+                          >
+                            {alert.header_text ||
+                              t("details.meldungen", "Meldungen")}
+                          </Typography>
+                        </Box>
+                        {alert.description_text && (
+                          <Typography
+                            sx={{
+                              fontSize: "12px",
+                              whiteSpace: "pre-wrap",
+                              mb: alert.url ? "4px" : 0,
+                            }}
+                          >
+                            {alert.description_text}
+                          </Typography>
+                        )}
+                        {alert.url && (
+                          <Box
+                            component="a"
+                            href={alert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              fontSize: "12px",
+                              color: borderColor,
+                              fontWeight: 700,
+                              display: "inline-block",
+                            }}
+                          >
+                            Mehr Informationen →
+                          </Box>
+                        )}
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
             </Box>
 
             {/* Arrival: show when last JNY, or next element is TRSF/WALK */}
@@ -854,7 +1314,7 @@ function ConnectionTimeline({
               (idx < elements.length - 1 &&
                 (elements[idx + 1].type === "TRSF" ||
                   elements[idx + 1].type === "WALK"))) && (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                 <Box
                   sx={{
                     width: "30px",
@@ -862,6 +1322,7 @@ function ConnectionTimeline({
                     flexDirection: "column",
                     alignItems: "center",
                     flexShrink: 0,
+                    pt: "4px",
                   }}
                 >
                   <Box
@@ -869,31 +1330,73 @@ function ConnectionTimeline({
                       width: "10px",
                       height: "10px",
                       borderRadius: "50%",
-                      border: `2px solid ${arrPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
-                      bgcolor: isLast
-                        ? arrPast
-                          ? PAST_COLOR
-                          : "var(--bzb-akelei)"
-                        : "#fff",
+                      border: `2px solid ${isCancelled ? "#d32f2f" : arrPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
+                      bgcolor: isCancelled
+                        ? "#d32f2f"
+                        : isLast
+                          ? arrPast
+                            ? PAST_COLOR
+                            : "var(--bzb-akelei)"
+                          : "#fff",
                     }}
                   />
+                </Box>
+
+                <Box sx={{ minWidth: "62px", mr: "12px" }}>
+                  <Box
+                    sx={{ display: "flex", alignItems: "baseline", gap: "4px" }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        fontWeight: 700,
+                        color: isCancelled
+                          ? "#d32f2f"
+                          : arrPast
+                            ? PAST_COLOR
+                            : "var(--bzb-akelei)",
+                        textDecoration: isCancelled ? "line-through" : "none",
+                      }}
+                    >
+                      {formatTime(el.arrival_time)}
+                    </Typography>
+                    {hasArrDelay && !isCancelled && (
+                      <Typography
+                        sx={{
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          color:
+                            (el.arrival_delay ?? 0) > 0 ? "#d32f2f" : "#2e7d32",
+                        }}
+                      >
+                        {(el.arrival_delay ?? 0) > 0
+                          ? `+${el.arrival_delay}`
+                          : `${el.arrival_delay}`}
+                      </Typography>
+                    )}
+                  </Box>
+                  {el.arrival_time_scheduled &&
+                    el.arrival_time_scheduled !== el.arrival_time &&
+                    !isCancelled && (
+                      <Typography
+                        sx={{
+                          fontSize: "11px",
+                          color: "#888",
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        Plan: {formatTime(el.arrival_time_scheduled)}
+                      </Typography>
+                    )}
                 </Box>
                 <Typography
                   sx={{
                     fontSize: "16px",
-                    fontWeight: 700,
-                    color: arrPast ? PAST_COLOR : "var(--bzb-akelei)",
-                    minWidth: "50px",
-                    mr: "12px",
-                  }}
-                >
-                  {formatTime(el.arrival_time)}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "16px",
                     fontWeight: 600,
+                    color: isCancelled ? "#888" : "inherit",
+                    textDecoration: isCancelled ? "line-through" : "none",
                     cursor: el.to_location_coordinates ? "pointer" : undefined,
+                    pt: "1px",
                   }}
                   onMouseEnter={() =>
                     el.to_location_coordinates &&
@@ -979,7 +1482,7 @@ function ConnectionCompactSummary({
   connection: Connection;
   coordinateReplacements?: CoordinateReplacement;
   lang: string;
-  t: (key: string) => string;
+  t: TFunction;
 }) {
   const els = connection.connection_elements;
   const fromName = resolveLocationName(
@@ -1132,6 +1635,8 @@ export default function ConnectionResults({
   shareTimeHints,
   onStopHover,
   useFlex,
+  onScroll,
+  scrollLoading,
 }: ConnectionResultsProps) {
   const { t, i18n } = useTranslation();
   const { connections, activity } = data;
@@ -1321,7 +1826,8 @@ export default function ConnectionResults({
           selectedFrom?.connection_start_timestamp ?? null,
         from_connection_end_time:
           selectedFrom?.connection_end_timestamp ?? null,
-        activity: null,
+        activity: data.activity || null,
+        use_flex: !!useFlex,
         shareURLPrefix: window.location.origin + window.location.pathname,
       };
 
@@ -1455,7 +1961,9 @@ export default function ConnectionResults({
                   </Box>
                 </Typography>
                 {/* Live badge */}
-                {data.live === true && (
+                {selectedTo.connection_elements?.some(
+                  (el) => el.realtime === true,
+                ) && (
                   <Box
                     sx={{
                       display: "inline-flex",
@@ -1515,6 +2023,13 @@ export default function ConnectionResults({
                 onSelect={handleToSelect}
                 conflictThreshold={toConflictThreshold}
                 isToday={isToday}
+                hasMoreBefore={connections.has_more_before_to_activity}
+                hasMoreAfter={connections.has_more_after_to_activity}
+                onScrollBefore={() => onScroll?.("to", "before")}
+                onScrollAfter={() => onScroll?.("to", "after")}
+                loadingBefore={scrollLoading === "to_before"}
+                loadingAfter={scrollLoading === "to_after"}
+                t={t}
               />
             </Box>
 
@@ -1712,38 +2227,84 @@ export default function ConnectionResults({
             }}
           >
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography
+              <Box
                 sx={{
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  color: isSelectedFromPast ? PAST_COLOR : "var(--bzb-akelei)",
-                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
                   mb: "2px",
                 }}
               >
-                {t("details.rueckreise")}{" "}
-                <Box
-                  component="span"
+                <Typography
                   sx={{
-                    color: isSelectedFromStartPast
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: isSelectedFromPast
                       ? PAST_COLOR
                       : "var(--bzb-akelei)",
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  {formatTime(selectedFrom.connection_start_timestamp)}
-                </Box>
-                {" - "}
-                <Box
-                  component="span"
-                  sx={{
-                    color: isSelectedFromEndPast
-                      ? PAST_COLOR
-                      : "var(--bzb-akelei)",
-                  }}
-                >
-                  {formatTime(selectedFrom.connection_end_timestamp)}
-                </Box>
-              </Typography>
+                  {t("details.rueckreise")}{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: isSelectedFromStartPast
+                        ? PAST_COLOR
+                        : "var(--bzb-akelei)",
+                    }}
+                  >
+                    {formatTime(selectedFrom.connection_start_timestamp)}
+                  </Box>
+                  {" - "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: isSelectedFromEndPast
+                        ? PAST_COLOR
+                        : "var(--bzb-akelei)",
+                    }}
+                  >
+                    {formatTime(selectedFrom.connection_end_timestamp)}
+                  </Box>
+                </Typography>
+                {/* Live badge */}
+                {selectedFrom.connection_elements?.some(
+                  (el) => el.realtime === true,
+                ) && (
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      bgcolor: "var(--bzb-lindgruen)",
+                      borderRadius: "12px",
+                      px: "8px",
+                      py: "2px",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        bgcolor: "var(--bzb-bahnblau)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        color: "var(--bzb-bahnblau)",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {t("details.echtzeit")}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
               <ConnectionCompactSummary
                 connection={selectedFrom}
                 coordinateReplacements={coordinateReplacements}
@@ -1781,6 +2342,13 @@ export default function ConnectionResults({
                 conflictThreshold={fromConflictThreshold}
                 conflictCheckStart={true}
                 isToday={isToday}
+                hasMoreBefore={connections.has_more_before_from_activity}
+                hasMoreAfter={connections.has_more_after_from_activity}
+                onScrollBefore={() => onScroll?.("from", "before")}
+                onScrollAfter={() => onScroll?.("from", "after")}
+                loadingBefore={scrollLoading === "from_before"}
+                loadingAfter={scrollLoading === "from_after"}
+                t={t}
               />
             </Box>
           </AccordionDetails>

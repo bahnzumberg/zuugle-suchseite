@@ -11,10 +11,17 @@
         background: #f5f5f5;
       }
       .wp-mock-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-sizing: border-box;
+        height: 60px;
         background: #23282d;
         color: #fff;
         padding: 16px 24px;
         font-size: 18px;
+        display: flex;
+        align-items: center;
       }
       .wp-mock-footer {
         background: #23282d;
@@ -26,13 +33,16 @@
     </style>
   </head>
   <body>
-    <!-- Simulates the WordPress page around the embed -->
+    <!-- Simulates a sticky host header on WordPress (height: 60px) -->
     <div class="wp-mock-header">
-      🚞 bahn-zum-berg.at — Mock WordPress Header
+      🚞 bahn-zum-berg.at — Mock WordPress Sticky Header (60px)
     </div>
 
     <div
       id="zuugle-embed"
+      data-domain="www.zuugle.at"
+      data-sticky-top="60"
+      data-sync-url="true"
       data-lang="de"
       data-city="amstetten"
       data-map="true"

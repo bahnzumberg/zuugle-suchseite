@@ -23,12 +23,27 @@ export interface EmbedConfig {
    * (e.g. bahn-zum-berg.at) instead of the internal /tour/ detail pages.
    */
   externalLinks: boolean;
+  /**
+   * Top offset in pixels for the sticky search bar (e.g. to fit below a host header).
+   */
+  stickyTop: number;
+  /**
+   * When true, synchronizes search/filter parameters with host page query params.
+   */
+  syncUrl: boolean;
+  /**
+   * Target Zuugle domain (e.g. www.zuugle.at, www.zuugle.de, www2.zuugle.at).
+   */
+  domain: string;
 }
 
 const defaultConfig: EmbedConfig = {
   isEmbed: false,
   fixedProviders: [],
   externalLinks: false,
+  stickyTop: 0,
+  syncUrl: false,
+  domain: "www.zuugle.at",
 };
 
 export const EmbedContext = createContext<EmbedConfig>(defaultConfig);
