@@ -27,11 +27,11 @@ export function formatWeatherGeneratedAt(
       minute: "2-digit",
       timeZone: "Europe/Vienna",
     });
-    const formattedDateTime = `${dateStr}, ${timeStr}`;
+    const formattedDateTime = `${dateStr} ${timeStr}`;
 
     return t("weather.as_of", {
       date: formattedDateTime,
-      defaultValue: `Stand: ${formattedDateTime} Uhr`,
+      defaultValue: `Wettermodell mit Stand vom ${formattedDateTime} Uhr.`,
     });
   } catch {
     return isoString;

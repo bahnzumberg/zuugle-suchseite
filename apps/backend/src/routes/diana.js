@@ -54,6 +54,7 @@ const CONNECTIONS_PARAMS = new Set([
     "timezone",
     "id",
     "use_flex",
+    "include_past",
     "to_connections_before",
     "to_connections_after",
     "from_connections_before",
@@ -275,11 +276,38 @@ const CONNECTIONS_SCROLL_PARAMS = [
 ];
 
 /**
+ * Build a deterministic cache key for a connections request.
+ * Includes origin, destination, user location, date, and any duration/flex/pagination parameters.
+ */
+function buildConnectionsCacheKey(query) {
+    const base = `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${query.date || ""}`;
+    const extras = [];
+    if (query.use_flex && query.use_flex !== "false") {
+        extras.push(`flex=${query.use_flex}`);
+    }
+    if (query.include_past) {
+        extras.push(`past=${query.include_past}`);
+    }
+    if (query.activity_duration_minutes) {
+        extras.push(`dur=${query.activity_duration_minutes}`);
+    }
+    if (query.activity_duration_days) {
+        extras.push(`days=${query.activity_duration_days}`);
+    }
+    for (const p of CONNECTIONS_SCROLL_PARAMS) {
+        if (query[p] && typeof query[p] === "string") {
+            extras.push(`${p}=${query[p]}`);
+        }
+    }
+    return extras.length > 0 ? `${base}:${extras.join(":")}` : base;
+}
+
+/**
  * @swagger
  * /api/diana/connections:
  *   get:
  *     summary: Get public transport connections (Diana proxy)
- *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Initial requests are cached 24h; pagination requests bypass the cache.
+ *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Cached in Valkey (10m for today, 6h for future). Supports cache_only lookups.
  *     parameters:
  *       - in: query
  *         name: user_start_location
@@ -318,11 +346,23 @@ router.get("/connections", async (req, res) => {
         // property assignments are silently discarded. Work on a mutable copy.
         const query = { ...req.query };
 
-        // Determine date and timezone for UTC conversion of default time windows
+        // Determine departure date and return date for multi-day tours
         const date =
             typeof query.date === "string" && query.date
                 ? query.date
                 : new Date().toISOString().substring(0, 10);
+
+        const durationDays = parseInt(query.activity_duration_days, 10) || 1;
+        let endDate = date;
+        if (durationDays > 1) {
+            const d = new Date(date);
+            d.setDate(d.getDate() + (durationDays - 1));
+            endDate = d.toISOString().substring(0, 10);
+        }
+
+        // Always include already departed connections so daytime/morning trains
+        // are returned when querying for "today" (even in the afternoon or evening)
+        query.include_past = "true";
 
         // Inject default activity time windows if not provided by the client
         if (!query.activity_earliest_start_time) {
@@ -340,13 +380,13 @@ router.get("/connections", async (req, res) => {
         if (!query.activity_earliest_end_time) {
             query.activity_earliest_end_time = localTimeToUtc(
                 DIANA_ACTIVITY_TIMES.earliest_end_time,
-                date,
+                endDate,
             );
         }
         if (!query.activity_latest_end_time) {
             query.activity_latest_end_time = localTimeToUtc(
                 DIANA_ACTIVITY_TIMES.latest_end_time,
-                date,
+                endDate,
             );
         }
 
@@ -357,29 +397,33 @@ router.get("/connections", async (req, res) => {
 
         const queryString = filterParams(query, CONNECTIONS_PARAMS);
 
-        // Determine if this is a scroll/pagination request
-        const isScrollRequest = CONNECTIONS_SCROLL_PARAMS.some(
-            (p) => query[p] && typeof query[p] === "string",
-        );
+        // Build cache key including trip endpoints, date, and scroll/pagination parameters
+        const cacheKey = buildConnectionsCacheKey(query);
 
-        // Build cache key from the fields that uniquely identify a trip search
-        const cacheKey = isScrollRequest
-            ? null
-            : `diana:connections:${query.activity_start_location || ""}:${query.activity_end_location || ""}:${query.user_start_location || ""}:${query.date || ""}`;
+        // Check Valkey cache first
+        const cached = await cacheService.get(cacheKey);
+        if (cached) {
+            return res.status(200).json(cached);
+        }
 
-        // Check Valkey cache (only for initial, non-scroll requests)
-        if (cacheKey) {
-            const cached = await cacheService.get(cacheKey);
-            if (cached) {
-                return res.status(200).json(cached);
-            }
+        // If client only requested cached data, return miss immediately without calling Diana API
+        const isCacheOnly = req.query.cache_only === "true" || req.query.cache_only === "1";
+        if (isCacheOnly) {
+            return res.status(200).json({ cached: false, connections: null });
         }
 
         const result = await proxyGet("/connections", queryString);
 
-        // Cache successful initial responses for 24 hours
-        if (cacheKey && result.status === 200) {
-            cacheService.set(cacheKey, result.body, 24 * 60 * 60);
+        // Cache successful responses:
+        // TTL: 10 minutes for queries for today, 6 hours for future dates
+        if (result.status === 200 && result.body) {
+            const todayVienna = new Date().toLocaleDateString("sv-SE", {
+                timeZone: "Europe/Vienna",
+            });
+            const isToday = !query.date || query.date === todayVienna;
+            const ttl = isToday ? 10 * 60 : 6 * 60 * 60; // 10 min for today, 6h for future
+
+            cacheService.set(cacheKey, result.body, ttl);
         }
 
         res.status(result.status).json(result.body);
