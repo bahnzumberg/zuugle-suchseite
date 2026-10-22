@@ -146,6 +146,8 @@ export default function TourWeatherDay({
         </Box>
         {range && (
           <Box
+            className="notranslate"
+            translate="no"
             sx={{
               fontSize: 15,
               whiteSpace: "nowrap",

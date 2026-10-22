@@ -281,7 +281,7 @@ const CONNECTIONS_SCROLL_PARAMS = [
  * /api/diana/connections:
  *   get:
  *     summary: Get public transport connections (Diana proxy)
- *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Initial requests are cached 24h; pagination requests bypass the cache.
+ *     description: Proxies the Diana connections endpoint. Returns outbound and return connections for a tour. Initial requests are cached (5m for today, 24h for future); pagination requests bypass the cache. Supports cache_only lookups.
  *     parameters:
  *       - in: query
  *         name: user_start_location
@@ -330,6 +330,15 @@ router.get("/connections", async (req, res) => {
 
         const searchDate = typeof query.date === "string" && query.date ? query.date : todayVienna;
 
+        // Calculate end date for multi-day tours so return times target the tour finish day
+        const durationDays = parseInt(query.activity_duration_days, 10) || 1;
+        let endDate = searchDate;
+        if (durationDays > 1) {
+            const d = new Date(searchDate);
+            d.setDate(d.getDate() + (durationDays - 1));
+            endDate = d.toISOString().substring(0, 10);
+        }
+
         // Inject default activity time windows if not provided by the client
         // (Skip when share_id is present, as Diana restores stored activity times from the share)
         if (!query.share_id) {
@@ -348,13 +357,13 @@ router.get("/connections", async (req, res) => {
             if (!query.activity_earliest_end_time) {
                 query.activity_earliest_end_time = localTimeToUtc(
                     DIANA_ACTIVITY_TIMES.earliest_end_time,
-                    searchDate,
+                    endDate,
                 );
             }
             if (!query.activity_latest_end_time) {
                 query.activity_latest_end_time = localTimeToUtc(
                     DIANA_ACTIVITY_TIMES.latest_end_time,
-                    searchDate,
+                    endDate,
                 );
             }
         }
@@ -389,12 +398,18 @@ router.get("/connections", async (req, res) => {
             }
         }
 
+        // If client only requested cached data, return miss immediately without calling Diana API
+        const isCacheOnly = req.query.cache_only === "true" || req.query.cache_only === "1";
+        if (isCacheOnly) {
+            return res.status(200).json({ cached: false, connections: null });
+        }
+
         const result = await proxyGet("/connections", queryString);
 
         // Cache successful initial responses (5 min for today, 24h for future dates)
         const isToday = searchDate === todayVienna;
         const ttlSeconds = isToday ? 5 * 60 : 24 * 60 * 60;
-        if (cacheKey && result.status === 200) {
+        if (cacheKey && result.status === 200 && result.body) {
             cacheService.set(cacheKey, result.body, ttlSeconds);
         }
 

@@ -167,6 +167,38 @@ interface ConnectionResultsProps {
 
 // ─── Helpers ──────────────────────────────────────────────────
 
+/** Dark grey color for past times, dots, and lines */
+const PAST_COLOR = "#666";
+const PAST_BORDER = "#888";
+
+/**
+ * Check if the queried date is today in Europe/Vienna timezone.
+ */
+function getIsToday(searchDate?: string, sampleTimestamp?: string): boolean {
+  const todayVienna = new Date().toLocaleDateString("sv-SE", {
+    timeZone: "Europe/Vienna",
+  });
+  if (searchDate) {
+    return searchDate === todayVienna;
+  }
+  if (sampleTimestamp) {
+    const sampleDate = new Date(sampleTimestamp).toLocaleDateString("sv-SE", {
+      timeZone: "Europe/Vienna",
+    });
+    return sampleDate === todayVienna;
+  }
+  return false;
+}
+
+/**
+ * Check if a timestamp is in the past, only when today is queried.
+ */
+function isPastTime(isoString?: string, isToday?: boolean): boolean {
+  if (!isToday || !isoString) return false;
+  const time = new Date(isoString).getTime();
+  return !isNaN(time) && time < Date.now();
+}
+
 function formatTime(isoString: string): string {
   const d = new Date(isoString);
   return d.toLocaleTimeString("de-AT", {
@@ -411,6 +443,7 @@ function ConnectionTabs({
   onSelect,
   conflictThreshold,
   conflictCheckStart,
+  isToday,
   hasMoreBefore,
   hasMoreAfter,
   onScrollBefore,
@@ -427,6 +460,7 @@ function ConnectionTabs({
   /** When true, checks connection_start_timestamp < threshold (for Rückfahrt).
    *  When false/undefined, checks connection_end_timestamp > threshold (for Hinfahrt). */
   conflictCheckStart?: boolean;
+  isToday?: boolean;
   hasMoreBefore?: boolean | null;
   hasMoreAfter?: boolean | null;
   onScrollBefore?: () => void;
@@ -524,7 +558,12 @@ function ConnectionTabs({
       >
         {connections.map((conn) => {
           const isSelected = conn.connection_id === selectedId;
-          const timeRange = `${formatTime(conn.connection_start_timestamp)} - ${formatTime(conn.connection_end_timestamp)}`;
+          const isPast = isPastTime(conn.connection_start_timestamp, isToday);
+          const isStartPast = isPastTime(
+            conn.connection_start_timestamp,
+            isToday,
+          );
+          const isEndPast = isPastTime(conn.connection_end_timestamp, isToday);
           const durationMin = calcDurationMinutes(
             conn.connection_start_timestamp,
             conn.connection_end_timestamp,
@@ -560,10 +599,24 @@ function ConnectionTabs({
                 textAlign: "center",
                 flexShrink: 0,
                 border: isSelected
-                  ? "2px solid var(--bzb-bahnblau)"
-                  : "1px solid #ddd",
-                bgcolor: isSelected ? "var(--bzb-bahnblau)" : "#fff",
-                color: isSelected ? "#fff" : "#333",
+                  ? isPast
+                    ? "2px dashed var(--bzb-bahnblau)"
+                    : "2px solid var(--bzb-bahnblau)"
+                  : isPast
+                    ? `1.5px dashed ${PAST_BORDER}`
+                    : "1px solid #ddd",
+                bgcolor: isSelected
+                  ? isPast
+                    ? "#edf2f7"
+                    : "var(--bzb-bahnblau)"
+                  : "#fff",
+                color: isSelected
+                  ? isPast
+                    ? "#555"
+                    : "#fff"
+                  : isPast
+                    ? PAST_COLOR
+                    : "#333",
                 transition: "all 0.15s ease",
                 opacity:
                   isConflicting && !isSelected
@@ -572,8 +625,18 @@ function ConnectionTabs({
                       ? 0.75
                       : 1,
                 "&:hover": {
-                  borderColor: "var(--bzb-bahnblau)",
-                  bgcolor: isSelected ? "var(--bzb-bahnblau)" : "#f0f4ff",
+                  borderColor: isSelected
+                    ? "var(--bzb-bahnblau)"
+                    : isPast
+                      ? PAST_COLOR
+                      : "var(--bzb-bahnblau)",
+                  bgcolor: isSelected
+                    ? isPast
+                      ? "#e2eaf4"
+                      : "var(--bzb-bahnblau)"
+                    : isPast
+                      ? "#f0f0f0"
+                      : "#f0f4ff",
                   opacity: isConflicting && !isSelected ? 0.6 : 1,
                 },
               }}
@@ -594,10 +657,46 @@ function ConnectionTabs({
               <Typography
                 sx={{ fontSize: "13px", fontWeight: 700, whiteSpace: "nowrap" }}
               >
-                {timeRange}
+                <Box
+                  component="span"
+                  sx={{
+                    color:
+                      isSelected && !isPast
+                        ? "#fff"
+                        : isStartPast
+                          ? PAST_COLOR
+                          : "inherit",
+                  }}
+                >
+                  {formatTime(conn.connection_start_timestamp)}
+                </Box>
+                {" - "}
+                <Box
+                  component="span"
+                  sx={{
+                    color:
+                      isSelected && !isPast
+                        ? "#fff"
+                        : isEndPast
+                          ? PAST_COLOR
+                          : "inherit",
+                  }}
+                >
+                  {formatTime(conn.connection_end_timestamp)}
+                </Box>
               </Typography>
               <Typography
-                sx={{ fontSize: "11px", mt: "2px", whiteSpace: "nowrap" }}
+                sx={{
+                  fontSize: "11px",
+                  mt: "2px",
+                  whiteSpace: "nowrap",
+                  color:
+                    isSelected && !isPast
+                      ? "#fff"
+                      : isPast
+                        ? PAST_COLOR
+                        : "inherit",
+                }}
               >
                 {durationLabel} &nbsp;{transfers} ⇄
               </Typography>
@@ -653,13 +752,17 @@ function ConnectionTimeline({
   lang,
   t,
   onStopHover,
+  isToday,
 }: {
   elements: ConnectionElement[];
   coordinateReplacements?: CoordinateReplacement;
   lang: string;
   t: TFunction;
   onStopHover?: (coords: { lat: number; lon: number } | null) => void;
+  isToday?: boolean;
 }) {
+  const isPast = (isoString?: string) => isPastTime(isoString, isToday);
+
   const firstEl = elements[0];
   const lastEl = elements[elements.length - 1];
   const firstIsNonJourney =
@@ -686,8 +789,10 @@ function ConnectionTimeline({
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                border: "2px solid var(--bzb-akelei)",
-                bgcolor: "var(--bzb-akelei)",
+                border: `2px solid ${isPast(firstEl.departure_time) ? PAST_COLOR : "var(--bzb-akelei)"}`,
+                bgcolor: isPast(firstEl.departure_time)
+                  ? PAST_COLOR
+                  : "var(--bzb-akelei)",
               }}
             />
           </Box>
@@ -695,7 +800,9 @@ function ConnectionTimeline({
             sx={{
               fontSize: "16px",
               fontWeight: 700,
-              color: "var(--bzb-akelei)",
+              color: isPast(firstEl.departure_time)
+                ? PAST_COLOR
+                : "var(--bzb-akelei)",
               minWidth: "50px",
               mr: "12px",
             }}
@@ -731,6 +838,7 @@ function ConnectionTimeline({
         const isWalk = el.type === "WALK";
 
         if (isWalk) {
+          const walkPast = isPast(el.departure_time);
           return (
             <Box
               key={idx}
@@ -740,13 +848,22 @@ function ConnectionTimeline({
                 pl: "76px",
                 py: "4px",
                 ml: "14px",
-                borderLeft: "2px dashed var(--bzb-akelei)",
+                borderLeft: `2px dashed ${walkPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
               }}
             >
               <DirectionsWalkIcon
-                sx={{ fontSize: "16px", color: "var(--bzb-akelei)", mr: "6px" }}
+                sx={{
+                  fontSize: "16px",
+                  color: walkPast ? PAST_COLOR : "var(--bzb-akelei)",
+                  mr: "6px",
+                }}
               />
-              <Typography sx={{ fontSize: "14px", color: "var(--bzb-akelei)" }}>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  color: walkPast ? PAST_COLOR : "var(--bzb-akelei)",
+                }}
+              >
                 {t("details.fussweg")} ({durationMin} {t("details.min_minute")})
               </Typography>
             </Box>
@@ -792,6 +909,9 @@ function ConnectionTimeline({
           );
         }
 
+        const depPast = isPast(el.departure_time);
+        const arrPast = isPast(el.arrival_time);
+
         // Journey leg
         const isCancelled = el.cancelled === true;
         const hasDepDelay =
@@ -822,11 +942,13 @@ function ConnectionTimeline({
                     width: "10px",
                     height: "10px",
                     borderRadius: "50%",
-                    border: `2px solid ${isCancelled ? "#d32f2f" : "var(--bzb-akelei)"}`,
+                    border: `2px solid ${isCancelled ? "#d32f2f" : depPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
                     bgcolor: isCancelled
                       ? "#d32f2f"
                       : isFirst
-                        ? "var(--bzb-akelei)"
+                        ? depPast
+                          ? PAST_COLOR
+                          : "var(--bzb-akelei)"
                         : "#fff",
                   }}
                 />
@@ -840,7 +962,11 @@ function ConnectionTimeline({
                     sx={{
                       fontSize: "16px",
                       fontWeight: 700,
-                      color: isCancelled ? "#d32f2f" : "var(--bzb-akelei)",
+                      color: isCancelled
+                        ? "#d32f2f"
+                        : depPast
+                          ? PAST_COLOR
+                          : "var(--bzb-akelei)",
                       textDecoration: isCancelled ? "line-through" : "none",
                     }}
                   >
@@ -891,7 +1017,6 @@ function ConnectionTimeline({
                   </Typography>
                 )}
               </Box>
-
               <Typography
                 sx={{
                   fontSize: "16px",
@@ -918,7 +1043,7 @@ function ConnectionTimeline({
                 flexDirection: "column",
                 ml: "14px",
                 pl: "76px",
-                borderLeft: `2px solid ${isCancelled ? "#d32f2f" : "var(--bzb-akelei)"}`,
+                borderLeft: `2px solid ${isCancelled ? "#d32f2f" : depPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
                 py: "4px",
               }}
             >
@@ -1205,11 +1330,13 @@ function ConnectionTimeline({
                       width: "10px",
                       height: "10px",
                       borderRadius: "50%",
-                      border: `2px solid ${isCancelled ? "#d32f2f" : "var(--bzb-akelei)"}`,
+                      border: `2px solid ${isCancelled ? "#d32f2f" : arrPast ? PAST_COLOR : "var(--bzb-akelei)"}`,
                       bgcolor: isCancelled
                         ? "#d32f2f"
                         : isLast
-                          ? "var(--bzb-akelei)"
+                          ? arrPast
+                            ? PAST_COLOR
+                            : "var(--bzb-akelei)"
                           : "#fff",
                     }}
                   />
@@ -1223,7 +1350,11 @@ function ConnectionTimeline({
                       sx={{
                         fontSize: "16px",
                         fontWeight: 700,
-                        color: isCancelled ? "#d32f2f" : "var(--bzb-akelei)",
+                        color: isCancelled
+                          ? "#d32f2f"
+                          : arrPast
+                            ? PAST_COLOR
+                            : "var(--bzb-akelei)",
                         textDecoration: isCancelled ? "line-through" : "none",
                       }}
                     >
@@ -1258,7 +1389,6 @@ function ConnectionTimeline({
                       </Typography>
                     )}
                 </Box>
-
                 <Typography
                   sx={{
                     fontSize: "16px",
@@ -1299,8 +1429,10 @@ function ConnectionTimeline({
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                border: "2px solid var(--bzb-akelei)",
-                bgcolor: "var(--bzb-akelei)",
+                border: `2px solid ${isPast(lastEl.arrival_time) ? PAST_COLOR : "var(--bzb-akelei)"}`,
+                bgcolor: isPast(lastEl.arrival_time)
+                  ? PAST_COLOR
+                  : "var(--bzb-akelei)",
               }}
             />
           </Box>
@@ -1308,7 +1440,9 @@ function ConnectionTimeline({
             sx={{
               fontSize: "16px",
               fontWeight: 700,
-              color: "var(--bzb-akelei)",
+              color: isPast(lastEl.arrival_time)
+                ? PAST_COLOR
+                : "var(--bzb-akelei)",
               minWidth: "50px",
               mr: "12px",
             }}
@@ -1627,6 +1761,38 @@ export default function ConnectionResults({
   const toConflictThreshold = departureFromActivity; // Hinfahrt: conn_end > from.start = conflict
   const fromConflictThreshold = arrivalAtActivity; // Rückfahrt: conn_start < to.end = conflict
 
+  const isToday = getIsToday(
+    searchDate,
+    connections.to_activity[0]?.connection_start_timestamp ||
+      connections.from_activity[0]?.connection_start_timestamp,
+  );
+
+  const isSelectedToPast = isPastTime(
+    selectedTo?.connection_start_timestamp,
+    isToday,
+  );
+  const isSelectedToStartPast = isPastTime(
+    selectedTo?.connection_start_timestamp,
+    isToday,
+  );
+  const isSelectedToEndPast = isPastTime(
+    selectedTo?.connection_end_timestamp,
+    isToday,
+  );
+
+  const isSelectedFromPast = isPastTime(
+    selectedFrom?.connection_start_timestamp,
+    isToday,
+  );
+  const isSelectedFromStartPast = isPastTime(
+    selectedFrom?.connection_start_timestamp,
+    isToday,
+  );
+  const isSelectedFromEndPast = isPastTime(
+    selectedFrom?.connection_end_timestamp,
+    isToday,
+  );
+
   // Buttons disabled when conflict or no selection
   const actionsDisabled = hasConflict || !selectedTo || !selectedFrom;
 
@@ -1727,13 +1893,20 @@ export default function ConnectionResults({
             overflow: "hidden",
             "&::before": { display: "none" },
             bgcolor: "#fff",
+            border: isSelectedToPast
+              ? `1.5px dashed ${PAST_BORDER}`
+              : "1px solid transparent",
           }}
         >
           <AccordionSummary
             id="anreise-header"
             aria-controls="anreise-content"
             expandIcon={
-              <ExpandMoreIcon sx={{ color: "var(--bzb-bahnblau)" }} />
+              <ExpandMoreIcon
+                sx={{
+                  color: isSelectedToPast ? PAST_COLOR : "var(--bzb-bahnblau)",
+                }}
+              />
             }
             sx={{
               fontFamily: "inherit",
@@ -1760,13 +1933,32 @@ export default function ConnectionResults({
                   sx={{
                     fontSize: "16px",
                     fontWeight: 700,
-                    color: "var(--bzb-akelei)",
+                    color: isSelectedToPast ? PAST_COLOR : "var(--bzb-akelei)",
                     whiteSpace: "nowrap",
                   }}
                 >
                   {t("details.anreise")}{" "}
-                  {formatTime(selectedTo.connection_start_timestamp)} -{" "}
-                  {formatTime(selectedTo.connection_end_timestamp)}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: isSelectedToStartPast
+                        ? PAST_COLOR
+                        : "var(--bzb-akelei)",
+                    }}
+                  >
+                    {formatTime(selectedTo.connection_start_timestamp)}
+                  </Box>
+                  {" - "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: isSelectedToEndPast
+                        ? PAST_COLOR
+                        : "var(--bzb-akelei)",
+                    }}
+                  >
+                    {formatTime(selectedTo.connection_end_timestamp)}
+                  </Box>
                 </Typography>
                 {/* Live badge */}
                 {selectedTo.connection_elements?.some(
@@ -1830,6 +2022,7 @@ export default function ConnectionResults({
                 recommendedId={connections.recommended_to_activity_connection}
                 onSelect={handleToSelect}
                 conflictThreshold={toConflictThreshold}
+                isToday={isToday}
                 hasMoreBefore={connections.has_more_before_to_activity}
                 hasMoreAfter={connections.has_more_after_to_activity}
                 onScrollBefore={() => onScroll?.("to", "before")}
@@ -1847,6 +2040,7 @@ export default function ConnectionResults({
               lang={i18n.language}
               t={t}
               onStopHover={onStopHover}
+              isToday={isToday}
             />
           </AccordionDetails>
         </Accordion>
@@ -2003,13 +2197,22 @@ export default function ConnectionResults({
             overflow: "hidden",
             "&::before": { display: "none" },
             bgcolor: "#fff",
+            border: isSelectedFromPast
+              ? `1.5px dashed ${PAST_BORDER}`
+              : "1px solid transparent",
           }}
         >
           <AccordionSummary
             id="rueckreise-header"
             aria-controls="rueckreise-content"
             expandIcon={
-              <ExpandMoreIcon sx={{ color: "var(--bzb-bahnblau)" }} />
+              <ExpandMoreIcon
+                sx={{
+                  color: isSelectedFromPast
+                    ? PAST_COLOR
+                    : "var(--bzb-bahnblau)",
+                }}
+              />
             }
             sx={{
               fontFamily: "inherit",
@@ -2036,13 +2239,34 @@ export default function ConnectionResults({
                   sx={{
                     fontSize: "16px",
                     fontWeight: 700,
-                    color: "var(--bzb-akelei)",
+                    color: isSelectedFromPast
+                      ? PAST_COLOR
+                      : "var(--bzb-akelei)",
                     whiteSpace: "nowrap",
                   }}
                 >
                   {t("details.rueckreise")}{" "}
-                  {formatTime(selectedFrom.connection_start_timestamp)} -{" "}
-                  {formatTime(selectedFrom.connection_end_timestamp)}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: isSelectedFromStartPast
+                        ? PAST_COLOR
+                        : "var(--bzb-akelei)",
+                    }}
+                  >
+                    {formatTime(selectedFrom.connection_start_timestamp)}
+                  </Box>
+                  {" - "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: isSelectedFromEndPast
+                        ? PAST_COLOR
+                        : "var(--bzb-akelei)",
+                    }}
+                  >
+                    {formatTime(selectedFrom.connection_end_timestamp)}
+                  </Box>
                 </Typography>
                 {/* Live badge */}
                 {selectedFrom.connection_elements?.some(
@@ -2105,6 +2329,7 @@ export default function ConnectionResults({
               lang={i18n.language}
               t={t}
               onStopHover={onStopHover}
+              isToday={isToday}
             />
 
             {/* Horizontale Rückreisenavigation */}
@@ -2116,6 +2341,7 @@ export default function ConnectionResults({
                 onSelect={handleFromSelect}
                 conflictThreshold={fromConflictThreshold}
                 conflictCheckStart={true}
+                isToday={isToday}
                 hasMoreBefore={connections.has_more_before_from_activity}
                 hasMoreAfter={connections.has_more_after_from_activity}
                 onScrollBefore={() => onScroll?.("from", "before")}

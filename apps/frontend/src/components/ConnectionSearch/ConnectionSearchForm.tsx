@@ -141,6 +141,29 @@ export default function ConnectionSearchForm({
     fromEnd?: string;
   } | null>(null);
   const shareRestored = useRef(false);
+  const lastCheckedKeyRef = useRef<string | null>(null);
+
+  const getCurrentKey = useCallback(() => {
+    if (!departureLocation) return "";
+    const locPart =
+      departureLat && departureLon
+        ? `${departureLat},${departureLon}`
+        : departureLocation.displayName;
+    const datePart = isMultiDay
+      ? `${departureDate?.format("YYYY-MM-DD") || ""}:${returnDate?.format("YYYY-MM-DD") || ""}`
+      : selectedDate.format("YYYY-MM-DD");
+    return `${locPart}:${datePart}:${useFlex ? "1" : "0"}:${tour.id}`;
+  }, [
+    departureLocation,
+    departureLat,
+    departureLon,
+    isMultiDay,
+    departureDate,
+    returnDate,
+    selectedDate,
+    useFlex,
+    tour.id,
+  ]);
 
   const getSelectedDate = (): string => {
     if (isMultiDay) {
@@ -149,6 +172,66 @@ export default function ConnectionSearchForm({
       );
     }
     return selectedDate.format("YYYY-MM-DD");
+  };
+
+  const getNoConnectionsMessage = (dateStr: string): string => {
+    const todayStr = dayjs().format("YYYY-MM-DD");
+    return dateStr === todayStr
+      ? t("details.keine_verbindungen_heute")
+      : t("details.keine_verbindungen");
+  };
+
+  const getErrorMessage = (
+    code: string | undefined,
+    dateStr: string,
+  ): string => {
+    const c = String(code ?? "").trim();
+    if (c === "6001" || c === "6002") {
+      return t("details.kontingent_erschoepft");
+    }
+    if (c === "2024") {
+      return t("details.error_2024");
+    }
+    if (c === "2017-1") {
+      return t("details.error_2017_1");
+    }
+    if (c === "2017-2") {
+      return t("details.error_2017_2");
+    }
+    if (c.startsWith("2017")) {
+      return t("details.error_2017_fallback");
+    }
+    if (c === "2022-1" || c === "2022") {
+      return t("details.error_2022_1");
+    }
+    if (c === "2021-1") {
+      return t("details.error_2021_1");
+    }
+    if (c === "2021-2") {
+      return t("details.error_2021_2");
+    }
+    if (c === "2023-1") {
+      return t("details.error_2023_1");
+    }
+    if (c === "2023-2") {
+      return t("details.error_2023_2");
+    }
+    if (c.startsWith("2018")) {
+      return t("details.error_2018");
+    }
+    if (c === "2001" || c === "error_user_start") {
+      return t("details.error_user_start");
+    }
+    if (c === "2002" || c === "error_activity_start") {
+      return t("details.error_activity_start");
+    }
+    if (c === "2003" || c === "error_activity_end") {
+      return t("details.error_activity_end");
+    }
+    if (c.startsWith("3") || c.startsWith("2025")) {
+      return t("details.verbindungssuche_fehlgeschlagen");
+    }
+    return getNoConnectionsMessage(dateStr);
   };
 
   const currentActivityDate = getSelectedDate();
@@ -277,7 +360,9 @@ export default function ConnectionSearchForm({
         const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
 
         if (!resp.ok) {
-          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+          const errData = await resp.json().catch(() => null);
+          const code = String(errData?.code ?? "");
+          setSearchError(getErrorMessage(code, date));
           return;
         }
 
@@ -285,18 +370,29 @@ export default function ConnectionSearchForm({
         const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
         const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
         if (!hasTo && !hasFrom) {
-          setSearchError(t("details.keine_verbindungen"));
+          const code = String(data?.code ?? "");
+          setSearchError(getErrorMessage(code, date));
           return;
         }
 
         setConnectionsResult(data);
+        lastCheckedKeyRef.current = `${lat},${lon}:${date}:${useFlex ? "1" : "0"}:${tour.id}`;
       } catch {
         setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
       } finally {
         setIsSearching(false);
       }
     },
-    [tour, lang, t, activityDurationMinutes, setDepartureLocation, useFlex],
+    [
+      tour,
+      lang,
+      t,
+      activityDurationMinutes,
+      today,
+      setDepartureLocation,
+      getErrorMessage,
+      useFlex,
+    ],
   );
 
   useEffect(() => {
@@ -568,6 +664,8 @@ export default function ConnectionSearchForm({
     setConnectionsResult(null);
     setSearchError(null);
 
+    const currentKey = getCurrentKey();
+
     try {
       const selectedDate = getSelectedDate();
       const params = buildSearchParams(selectedDate);
@@ -577,31 +675,8 @@ export default function ConnectionSearchForm({
       if (!resp.ok) {
         const errData = await resp.json().catch(() => null);
         const code = String(errData?.code ?? "");
-
-        if (code === "6001" || code === "6002") {
-          // Quota exceeded — point user to fallback
-          setSearchError(t("details.kontingent_erschoepft"));
-        } else if (
-          // Partial "no connections in one direction" — e.g. 2017-1, 2017-2
-          // These always mean the entire search failed; show friendly message.
-          code.startsWith("2017") ||
-          code.startsWith("2018") ||
-          code.startsWith("2019") ||
-          code.startsWith("2020") ||
-          code.startsWith("2021") ||
-          code.startsWith("2022") ||
-          code.startsWith("2023") ||
-          code === "2024" ||
-          code === "2027" ||
-          code === "2002"
-        ) {
-          setSearchError(t("details.keine_verbindungen"));
-        } else if (code.startsWith("3") || code.startsWith("2025")) {
-          // Routing provider temporarily unavailable — retryable
-          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
-        } else {
-          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
-        }
+        setSearchError(getErrorMessage(code, selectedDate));
+        lastCheckedKeyRef.current = currentKey;
         return;
       }
 
@@ -611,11 +686,14 @@ export default function ConnectionSearchForm({
       const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
       const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
       if (!hasTo && !hasFrom) {
-        setSearchError(t("details.keine_verbindungen"));
+        const code = String(data?.code ?? "");
+        setSearchError(getErrorMessage(code, selectedDate));
+        lastCheckedKeyRef.current = currentKey;
         return;
       }
 
       setConnectionsResult(data);
+      lastCheckedKeyRef.current = currentKey;
 
       // Update city in Redux and URL when GeoJSON lookup found a city
       if (departureLocation?.citySlug && departureLocation?.cityName) {
@@ -648,18 +726,93 @@ export default function ConnectionSearchForm({
     }
   };
 
-  // ── Auto-search: trigger immediately if a departure location is already
-  //    stored in localStorage (and this is not a share-restore scenario) ──
-  const autoSearchTriggered = useRef(false);
+  // ── Valkey cache lookup: automatically check if cached connections exist
+  //    for the current departure location, date and options. If found, display
+  //    them immediately without requiring the user to press "Suchen".
+  //    If not cached, clear connections and wait for explicit user search. ──
   useEffect(() => {
-    if (autoSearchTriggered.current) return;
     if (shareId) return; // Share restore handles its own search
-    if (!departureLocation || (!departureLat && !departureLon)) return;
+    if (!departureLocation || (!departureLat && !departureLon)) {
+      setConnectionsResult(null);
+      setSearchError(null);
+      lastCheckedKeyRef.current = null;
+      return;
+    }
 
-    autoSearchTriggered.current = true;
-    handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [departureLocation, departureLat, departureLon, shareId]);
+    const currentKey = getCurrentKey();
+    if (!currentKey) {
+      setConnectionsResult(null);
+      setSearchError(null);
+      lastCheckedKeyRef.current = null;
+      return;
+    }
+
+    // Skip if key hasn't changed (avoids redundant cache checks on unrelated re-renders)
+    if (currentKey === lastCheckedKeyRef.current) {
+      return;
+    }
+
+    lastCheckedKeyRef.current = currentKey;
+    setConnectionsResult(null);
+    setSearchError(null);
+
+    let isCancelled = false;
+
+    const checkCache = async () => {
+      try {
+        const selectedDateStr = getSelectedDate();
+        const params = buildSearchParams(selectedDateStr);
+        params.set("cache_only", "true");
+
+        const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
+        if (isCancelled) return;
+
+        if (!resp.ok) {
+          setConnectionsResult(null);
+          return;
+        }
+
+        const data = await resp.json();
+        if (isCancelled) return;
+
+        // If backend returned { cached: false } or no connections:
+        if (data?.cached === false || !data?.connections) {
+          setConnectionsResult(null);
+          setSearchError(null);
+        } else {
+          // Valkey cache hit!
+          const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
+          const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
+          if (hasTo || hasFrom) {
+            setConnectionsResult(data);
+            setSearchError(null);
+          } else {
+            setConnectionsResult(null);
+          }
+        }
+      } catch {
+        if (!isCancelled) {
+          setConnectionsResult(null);
+        }
+      }
+    };
+
+    checkCache();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    departureLocation,
+    departureLat,
+    departureLon,
+    selectedDate,
+    departureDate,
+    returnDate,
+    useFlex,
+    shareId,
+    getCurrentKey,
+  ]);
 
   const handleDepartureDateChange = (date: Dayjs | null) => {
     setDepartureDate(date);

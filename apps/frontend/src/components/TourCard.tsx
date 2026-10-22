@@ -35,6 +35,7 @@ export default function TourCard({
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
+  const openInSameTab = isMobile && !externalLinks;
   // Uniform tile size for every card; a no-op off PROD, see sizedImageUrl().
   const image = tour.image_url
     ? sizedImageUrl(tour.image_url, { width: 600, height: 400 })
@@ -79,10 +80,10 @@ export default function TourCard({
           textDecoration: "none",
           display: "contents",
         }}
-        target={isMobile ? undefined : "_blank"}
+        target={openInSameTab ? undefined : "_blank"}
         // Keep our own detail tab as opener so it can detect this search tab is
         // still open; external (cross-origin) links stay noopener for safety.
-        rel={isMobile ? undefined : externalLinks ? "noopener" : "opener"}
+        rel={openInSameTab ? undefined : externalLinks ? "noopener" : "opener"}
       >
         <Box sx={{ position: "relative" }}>
           <CardMedia
