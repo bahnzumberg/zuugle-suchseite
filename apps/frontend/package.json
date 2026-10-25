@@ -46,7 +46,7 @@
       "react": ">=17.0.0",
       "react-dom": ">=17.0.0"
     },
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.3"
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.1.0"
   },
   "scripts": {
     "dev": "vp dev",
