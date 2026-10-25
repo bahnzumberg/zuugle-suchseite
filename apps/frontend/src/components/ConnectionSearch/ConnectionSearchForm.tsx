@@ -234,6 +234,16 @@ export default function ConnectionSearchForm({
     return getNoConnectionsMessage(dateStr);
   };
 
+  /** `key` marks the search as checked so the cache lookup does not clear the error. */
+  const handleFailedResponse = (
+    code: string | number | null | undefined,
+    dateStr: string,
+    key?: string,
+  ) => {
+    setSearchError(getErrorMessage(String(code ?? ""), dateStr));
+    if (key !== undefined) lastCheckedKeyRef.current = key;
+  };
+
   const currentActivityDate = getSelectedDate();
   useEffect(() => {
     onDateChange?.(currentActivityDate);
@@ -252,11 +262,21 @@ export default function ConnectionSearchForm({
    * Used for both initial search and scroll (before/after) requests.
    */
   const buildSearchParams = useCallback(
-    (targetDate: string): URLSearchParams => {
+    (
+      targetDate: string,
+      // Overrides the stored departure location, whose state update is not
+      // visible yet when a share restore searches right after setting it.
+      origin?: { lat: number; lon: number; displayName: string },
+    ): URLSearchParams => {
+      const lat = origin ? origin.lat : departureLat;
+      const lon = origin ? origin.lon : departureLon;
+      const displayName = origin
+        ? origin.displayName
+        : departureLocation?.displayName;
       let userStartLocation: string;
       let userStartLocationType: string;
-      if (departureLat && departureLon) {
-        userStartLocation = `${departureLat},${departureLon}`;
+      if (lat && lon) {
+        userStartLocation = `${lat},${lon}`;
         userStartLocationType = "coordinates";
       } else {
         userStartLocation = departureLocation!.displayName;
@@ -278,11 +298,8 @@ export default function ConnectionSearchForm({
         timezone: "Europe/Vienna",
       });
 
-      if (departureLocation?.displayName) {
-        params.set(
-          "user_start_location_display_name",
-          departureLocation.displayName,
-        );
+      if (displayName) {
+        params.set("user_start_location_display_name", displayName);
       }
 
       if (dayjs(targetDate).isSame(dayjs(), "day")) {
@@ -334,35 +351,13 @@ export default function ConnectionSearchForm({
       setSearchError(null);
 
       try {
-        const params = new URLSearchParams({
-          user_start_location: `${lat},${lon}`,
-          user_start_location_type: "coordinates",
-          activity_name: tour.title,
-          activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
-          activity_start_location_type: "coordinates",
-          activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
-          activity_end_location_type: "coordinates",
-          activity_duration_minutes: String(activityDurationMinutes),
-          date,
-          lang: lang,
-          use_flex: useFlex ? "true" : "false",
-          timezone: "Europe/Vienna",
-        });
-
-        if (displayName) {
-          params.set("user_start_location_display_name", displayName);
-        }
-
-        if (dayjs(date).isSame(dayjs(), "day")) {
-          params.set("include_past", "true");
-        }
+        const params = buildSearchParams(date, { lat, lon, displayName });
 
         const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
 
         if (!resp.ok) {
           const errData = await resp.json().catch(() => null);
-          const code = String(errData?.code ?? "");
-          setSearchError(getErrorMessage(code, date));
+          handleFailedResponse(errData?.code, date);
           return;
         }
 
@@ -370,8 +365,7 @@ export default function ConnectionSearchForm({
         const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
         const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
         if (!hasTo && !hasFrom) {
-          const code = String(data?.code ?? "");
-          setSearchError(getErrorMessage(code, date));
+          handleFailedResponse(data?.code, date);
           return;
         }
 
@@ -385,12 +379,10 @@ export default function ConnectionSearchForm({
     },
     [
       tour,
-      lang,
       t,
-      activityDurationMinutes,
-      today,
       setDepartureLocation,
-      getErrorMessage,
+      buildSearchParams,
+      handleFailedResponse,
       useFlex,
     ],
   );
@@ -458,7 +450,10 @@ export default function ConnectionSearchForm({
           const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
           const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
           if (!hasTo && !hasFrom) {
-            setSearchError(t("details.keine_verbindungen"));
+            handleFailedResponse(
+              data?.code,
+              data?.shared_journey?.date || getSelectedDate(),
+            );
           } else {
             setConnectionsResult(data);
           }
@@ -674,9 +669,7 @@ export default function ConnectionSearchForm({
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => null);
-        const code = String(errData?.code ?? "");
-        setSearchError(getErrorMessage(code, selectedDate));
-        lastCheckedKeyRef.current = currentKey;
+        handleFailedResponse(errData?.code, selectedDate, currentKey);
         return;
       }
 
@@ -686,9 +679,7 @@ export default function ConnectionSearchForm({
       const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
       const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
       if (!hasTo && !hasFrom) {
-        const code = String(data?.code ?? "");
-        setSearchError(getErrorMessage(code, selectedDate));
-        lastCheckedKeyRef.current = currentKey;
+        handleFailedResponse(data?.code, selectedDate, currentKey);
         return;
       }
 
