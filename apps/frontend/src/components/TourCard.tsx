@@ -2,7 +2,11 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime, getTourLink } from "../utils/globals";
+import {
+  convertNumToTime,
+  getTourLink,
+  getTourLinkTarget,
+} from "../utils/globals";
 import { tourTypes } from "../utils/language_Utils";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
@@ -35,7 +39,6 @@ export default function TourCard({
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
-  const openInSameTab = isMobile && !externalLinks;
   // Uniform tile size for every card; a no-op off PROD, see sizedImageUrl().
   const image = tour.image_url
     ? sizedImageUrl(tour.image_url, { width: 600, height: 400 })
@@ -80,10 +83,7 @@ export default function TourCard({
           textDecoration: "none",
           display: "contents",
         }}
-        target={openInSameTab ? undefined : "_blank"}
-        // Keep our own detail tab as opener so it can detect this search tab is
-        // still open; external (cross-origin) links stay noopener for safety.
-        rel={openInSameTab ? undefined : externalLinks ? "noopener" : "opener"}
+        {...getTourLinkTarget(isMobile, externalLinks)}
       >
         <Box sx={{ position: "relative" }}>
           <CardMedia

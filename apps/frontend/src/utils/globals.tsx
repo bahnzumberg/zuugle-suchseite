@@ -34,6 +34,20 @@ export function getTourLink(
   }
 }
 
+/**
+ * `target`/`rel` for a link to a tour. On mobile our own detail page opens in
+ * the same tab so native Back returns to the results. Otherwise it opens in a
+ * new tab that keeps this search tab as opener, so the detail tab can detect
+ * it is still open; external (cross-origin) links stay noopener for safety.
+ */
+export function getTourLinkTarget(
+  isMobile: boolean,
+  externalLinks: boolean,
+): { target?: "_blank"; rel?: "opener" | "noopener" } {
+  if (isMobile && !externalLinks) return {};
+  return { target: "_blank", rel: externalLinks ? "noopener" : "opener" };
+}
+
 export function convertNumToTime(number: number, nonseparate = false) {
   // Check sign of given number
   const sign = number >= 0 ? 1 : -1;
