@@ -1,7 +1,11 @@
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime, getTourLink } from "../../utils/globals";
+import {
+  convertNumToTime,
+  getTourLink,
+  getTourLinkTarget,
+} from "../../utils/globals";
 import Box from "@mui/material/Box";
 import { Tour } from "../../models/Tour";
 import React from "react";
@@ -83,12 +87,7 @@ function PopupCard({
             >
               <a
                 href={getTourLink(tour, city, externalLinks)}
-                target={isMobile ? undefined : "_blank"}
-                // Keep our own detail tab as opener so it can detect this
-                // search tab is still open; external links stay noopener.
-                rel={
-                  isMobile ? undefined : externalLinks ? "noopener" : "opener"
-                }
+                {...getTourLinkTarget(isMobile, externalLinks)}
                 className="updated-title curser-link"
               >
                 {tour.title}
