@@ -141,6 +141,8 @@ export default function ConnectionSearchForm({
     fromEnd?: string;
   } | null>(null);
   const shareRestored = useRef(false);
+  const [shareRestoreDone, setShareRestoreDone] = useState(false);
+  const shareKeyRecorded = useRef(false);
   const lastCheckedKeyRef = useRef<string | null>(null);
 
   const getCurrentKey = useCallback(() => {
@@ -370,21 +372,13 @@ export default function ConnectionSearchForm({
         }
 
         setConnectionsResult(data);
-        lastCheckedKeyRef.current = `${lat},${lon}:${date}:${useFlex ? "1" : "0"}:${tour.id}`;
       } catch {
         setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
       } finally {
         setIsSearching(false);
       }
     },
-    [
-      tour,
-      t,
-      setDepartureLocation,
-      buildSearchParams,
-      handleFailedResponse,
-      useFlex,
-    ],
+    [t, setDepartureLocation, buildSearchParams, handleFailedResponse],
   );
 
   useEffect(() => {
@@ -501,7 +495,7 @@ export default function ConnectionSearchForm({
       }
     };
 
-    restoreShare();
+    restoreShare().finally(() => setShareRestoreDone(true));
   }, [
     shareId,
     searchParams,
@@ -722,7 +716,13 @@ export default function ConnectionSearchForm({
   //    them immediately without requiring the user to press "Suchen".
   //    If not cached, clear connections and wait for explicit user search. ──
   useEffect(() => {
-    if (shareId) return; // Share restore handles its own search
+    if (shareId && !shareRestoreDone) return; // Share restore handles its own search
+    // Keep the restored results; only later changes should trigger a lookup.
+    if (shareId && !shareKeyRecorded.current) {
+      shareKeyRecorded.current = true;
+      lastCheckedKeyRef.current = getCurrentKey();
+      return;
+    }
     if (!departureLocation || (!departureLat && !departureLon)) {
       setConnectionsResult(null);
       setSearchError(null);
@@ -802,6 +802,7 @@ export default function ConnectionSearchForm({
     returnDate,
     useFlex,
     shareId,
+    shareRestoreDone,
     getCurrentKey,
   ]);
 
