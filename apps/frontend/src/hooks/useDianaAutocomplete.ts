@@ -8,6 +8,7 @@ export interface AutocompleteOption {
   lon: number;
   citySlug?: string;
   cityName?: string;
+  countryCode?: string;
 }
 
 /**
@@ -80,6 +81,12 @@ export function useDianaAutocomplete(lang: string) {
               lon: feature.geometry?.coordinates?.[0] ?? 0,
               citySlug: feature.zuugle_properties?.city_slug ?? undefined,
               cityName: feature.zuugle_properties?.city_name ?? undefined,
+              countryCode:
+                (
+                  feature.zuugle_properties?.country_code ||
+                  feature.properties?.countrycode ||
+                  ""
+                ).toUpperCase() || undefined,
             }),
           );
 

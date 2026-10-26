@@ -27,8 +27,20 @@ import {
   useDepartureLocation,
   DepartureLocation,
 } from "../../hooks/useDepartureLocation";
-import { useDianaAutocomplete } from "../../hooks/useDianaAutocomplete";
+import {
+  useDianaAutocomplete,
+  AutocompleteOption,
+} from "../../hooks/useDianaAutocomplete";
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
+import { getTLD, get_currLanguage } from "../../utils/globals";
+import {
+  SUPPORTED_COUNTRY_TLDS,
+  getTargetDomainInfo,
+  buildDomainSwitchUrl,
+  parseDepartureFromHash,
+  clearDepartureHashFromUrl,
+} from "../../utils/domainSwitch";
+import DomainSwitchDialog from "./DomainSwitchDialog";
 import ConnectionResults, {
   ConnectionsResultData,
   Connection,
@@ -131,6 +143,14 @@ export default function ConnectionSearchForm({
   const [searchError, setSearchError] = useState<string | null>(null);
   const [useFlex, setUseFlex] = useState(false);
 
+  // Cross-country domain switch dialog state
+  const [pendingDomainSwitch, setPendingDomainSwitch] = useState<{
+    option: AutocompleteOption;
+    targetCountry: string;
+    targetHost: string;
+    targetUrl: string;
+  } | null>(null);
+
   // Share restore state
   const [searchParams] = useSearchParams();
   const shareId = searchParams.get("diana-share");
@@ -142,7 +162,7 @@ export default function ConnectionSearchForm({
   } | null>(null);
   const shareRestored = useRef(false);
   const [shareRestoreDone, setShareRestoreDone] = useState(false);
-  const shareKeyRecorded = useRef(false);
+  const restoreKeyRecorded = useRef(false);
   const lastCheckedKeyRef = useRef<string | null>(null);
 
   const getCurrentKey = useCallback(() => {
@@ -334,14 +354,31 @@ export default function ConnectionSearchForm({
 
   // ── Share restore: fetch shared journey and auto-search ──
   const triggerSearchWithParams = useCallback(
-    async (lat: number, lon: number, displayName: string, date: string) => {
+    async (
+      lat: number,
+      lon: number,
+      displayName: string,
+      date: string,
+      cityInfo?: { citySlug?: string; cityName?: string },
+    ) => {
       // Set departure location
       const loc: DepartureLocation = {
         displayName,
         locationType: "address",
+        citySlug: cityInfo?.citySlug,
+        cityName: cityInfo?.cityName,
       };
       setDepartureLocation(loc, lat, lon);
       setInputValue(displayName);
+
+      if (cityInfo?.citySlug && cityInfo?.cityName) {
+        const cityObj = {
+          value: cityInfo.citySlug,
+          label: cityInfo.cityName,
+        };
+        dispatch(cityUpdated(cityObj));
+        dispatch(citySlugUpdated(cityInfo.citySlug));
+      }
 
       // Set date
       const d = dayjs(date);
@@ -378,7 +415,13 @@ export default function ConnectionSearchForm({
         setIsSearching(false);
       }
     },
-    [t, setDepartureLocation, buildSearchParams, handleFailedResponse],
+    [
+      t,
+      setDepartureLocation,
+      buildSearchParams,
+      handleFailedResponse,
+      dispatch,
+    ],
   );
 
   useEffect(() => {
@@ -504,6 +547,42 @@ export default function ConnectionSearchForm({
     setDepartureLocation,
     triggerSearchWithParams,
   ]);
+
+  // ── Hash restore: restore cross-domain departure location from URL hash ──
+  const hashRestored = useRef(false);
+  const [hashRestoreDone, setHashRestoreDone] = useState(false);
+  useEffect(() => {
+    if (hashRestored.current) return;
+    const parsed = parseDepartureFromHash();
+    if (!parsed) return;
+    hashRestored.current = true;
+
+    clearDepartureHashFromUrl();
+
+    let dateToUse = getSelectedDate();
+    if (parsed.date) {
+      const d = dayjs(parsed.date);
+      if (d.isValid() && !d.isBefore(today, "day")) {
+        dateToUse = parsed.date;
+        setSelectedDate(d);
+        if (isMultiDay) {
+          setDepartureDate(d);
+          setReturnDate(d.add(tour.number_of_days - 1, "day"));
+        }
+      }
+    }
+
+    triggerSearchWithParams(
+      parsed.lat,
+      parsed.lon,
+      parsed.displayName,
+      dateToUse,
+      {
+        citySlug: parsed.citySlug,
+        cityName: parsed.cityName,
+      },
+    ).finally(() => setHashRestoreDone(true));
+  }, [isMultiDay, today, tour.number_of_days, triggerSearchWithParams]);
 
   // ── Scroll handler: fetch earlier or later connections ──
   const [scrollLoading, setScrollLoading] = useState<string | null>(null);
@@ -717,9 +796,10 @@ export default function ConnectionSearchForm({
   //    If not cached, clear connections and wait for explicit user search. ──
   useEffect(() => {
     if (shareId && !shareRestoreDone) return; // Share restore handles its own search
+    if (hashRestored.current && !hashRestoreDone) return; // Hash restore handles its own search
     // Keep the restored results; only later changes should trigger a lookup.
-    if (shareId && !shareKeyRecorded.current) {
-      shareKeyRecorded.current = true;
+    if ((shareId || hashRestored.current) && !restoreKeyRecorded.current) {
+      restoreKeyRecorded.current = true;
       lastCheckedKeyRef.current = getCurrentKey();
       return;
     }
@@ -803,8 +883,80 @@ export default function ConnectionSearchForm({
     useFlex,
     shareId,
     shareRestoreDone,
+    hashRestoreDone,
     getCurrentKey,
   ]);
+
+  const handleDepartureSelect = useCallback(
+    (value: AutocompleteOption | string | null) => {
+      if (!value) {
+        clearDepartureLocation();
+        return;
+      }
+      if (typeof value === "string") return;
+
+      const currentCountry = getTLD().toUpperCase();
+      const targetCountry = value.countryCode;
+
+      if (
+        targetCountry &&
+        targetCountry !== currentCountry &&
+        SUPPORTED_COUNTRY_TLDS[targetCountry]
+      ) {
+        const domainInfo = getTargetDomainInfo(targetCountry);
+        if (domainInfo) {
+          setInputValue(value.displayName);
+          setPendingDomainSwitch({
+            option: value,
+            targetCountry,
+            targetHost: domainInfo.host,
+            targetUrl: domainInfo.url,
+          });
+          return;
+        }
+      }
+
+      const loc: DepartureLocation = {
+        displayName: value.displayName,
+        locationType: value.locationType,
+        citySlug: value.citySlug,
+        cityName: value.cityName,
+      };
+      setDepartureLocation(loc, value.lat, value.lon);
+      setInputValue(value.displayName);
+    },
+    [clearDepartureLocation, setDepartureLocation],
+  );
+
+  const handleConfirmDomainSwitch = () => {
+    if (!pendingDomainSwitch) return;
+    const { option, targetUrl } = pendingDomainSwitch;
+
+    const currLang = get_currLanguage(i18n);
+    const redirectUrl = buildDomainSwitchUrl({
+      targetUrl,
+      tourId: routeParams.idOne || tour.id,
+      citySlug: option.citySlug,
+      lang: currLang,
+      useFlex,
+      selectedDate: getSelectedDate(),
+      departure: {
+        displayName: option.displayName,
+        lat: option.lat,
+        lon: option.lon,
+        locationType: option.locationType,
+        citySlug: option.citySlug,
+        cityName: option.cityName,
+      },
+    });
+
+    window.location.href = redirectUrl;
+  };
+
+  const handleCancelDomainSwitch = () => {
+    setPendingDomainSwitch(null);
+    setInputValue(departureLocation?.displayName || "");
+  };
 
   const handleDepartureDateChange = (date: Dayjs | null) => {
     setDepartureDate(date);
@@ -870,18 +1022,7 @@ export default function ConnectionSearchForm({
                   }
                 }}
                 onChange={(_e, value) => {
-                  if (value && typeof value !== "string") {
-                    const loc: DepartureLocation = {
-                      displayName: value.displayName,
-                      locationType: value.locationType,
-                      citySlug: value.citySlug,
-                      cityName: value.cityName,
-                    };
-                    setDepartureLocation(loc, value.lat, value.lon);
-                    setInputValue(value.displayName);
-                  } else if (!value) {
-                    clearDepartureLocation();
-                  }
+                  handleDepartureSelect(value);
                 }}
                 loading={autocompleteLoading}
                 renderOption={(props, option) => (
@@ -1126,18 +1267,7 @@ export default function ConnectionSearchForm({
                   }
                 }}
                 onChange={(_e, value) => {
-                  if (value && typeof value !== "string") {
-                    const loc: DepartureLocation = {
-                      displayName: value.displayName,
-                      locationType: value.locationType,
-                      citySlug: value.citySlug,
-                      cityName: value.cityName,
-                    };
-                    setDepartureLocation(loc, value.lat, value.lon);
-                    setInputValue(value.displayName);
-                  } else if (!value) {
-                    clearDepartureLocation();
-                  }
+                  handleDepartureSelect(value);
                 }}
                 loading={autocompleteLoading}
                 renderOption={(props, option) => (
@@ -1419,6 +1549,16 @@ export default function ConnectionSearchForm({
             useFlex={useFlex}
             onScroll={handleScroll}
             scrollLoading={scrollLoading}
+          />
+        )}
+
+        {pendingDomainSwitch && (
+          <DomainSwitchDialog
+            open={!!pendingDomainSwitch}
+            targetCountryCode={pendingDomainSwitch.targetCountry}
+            targetDomainHost={pendingDomainSwitch.targetHost}
+            onConfirm={handleConfirmDomainSwitch}
+            onCancel={handleCancelDomainSwitch}
           />
         )}
       </Box>
