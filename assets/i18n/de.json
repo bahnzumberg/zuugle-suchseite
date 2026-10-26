@@ -392,7 +392,12 @@
     "fruehere_verbindungen": "Frühere Verbindungen",
     "spaetere_verbindungen": "Spätere Verbindungen",
     "meldungen": "Meldungen",
-    "rufbus_hinweis": "Bedarfsverkehr"
+    "rufbus_hinweis": "Bedarfsverkehr",
+    "domain_switch_title": "Länderwechsel",
+    "domain_switch_message": "Die ausgewählte Adresse befindet sich in {{country}}.",
+    "domain_switch_subtext": "Möchtest du zu {{domain}} wechseln, um Touren und Verbindungen für diesen Startort anzuzeigen?",
+    "domain_switch_action": "Zu {{domain}} wechseln",
+    "domain_switch_cancel": "Abbrechen"
   },
   "search": {
     "go": "Los!",

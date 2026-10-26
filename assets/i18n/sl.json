@@ -394,7 +394,12 @@
     "fruehere_verbindungen": "Prejšnje povezave",
     "spaetere_verbindungen": "Naslednje povezave",
     "meldungen": "Obvestila",
-    "rufbus_hinweis": "Prevoz na klic"
+    "rufbus_hinweis": "Prevoz na klic",
+    "domain_switch_title": "Sprememba države",
+    "domain_switch_message": "Izbrani naslov se nahaja v državi: {{country}}.",
+    "domain_switch_subtext": "Ali želite preklopiti na {{domain}} za ogled tur in povezav za to izhodišče?",
+    "domain_switch_action": "Preklopi na {{domain}}",
+    "domain_switch_cancel": "Prekliči"
   },
   "search": {
     "go": "Naprej!",

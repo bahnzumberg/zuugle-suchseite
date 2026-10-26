@@ -392,7 +392,12 @@
     "fruehere_verbindungen": "Trajets plus tôt",
     "spaetere_verbindungen": "Trajets plus tard",
     "meldungen": "Avis",
-    "rufbus_hinweis": "Transport à la demande"
+    "rufbus_hinweis": "Transport à la demande",
+    "domain_switch_title": "Changement de pays",
+    "domain_switch_message": "L'adresse sélectionnée se trouve en {{country}}.",
+    "domain_switch_subtext": "Souhaitez-vous passer à {{domain}} pour afficher les randonnées et les correspondances pour ce point de départ ?",
+    "domain_switch_action": "Passer à {{domain}}",
+    "domain_switch_cancel": "Annuler"
   },
   "search": {
     "go": "Allez!",

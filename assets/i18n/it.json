@@ -391,7 +391,12 @@
     "fruehere_verbindungen": "Collegamenti precedenti",
     "spaetere_verbindungen": "Collegamenti successivi",
     "meldungen": "Avvisi",
-    "rufbus_hinweis": "Servizio a chiamata"
+    "rufbus_hinweis": "Servizio a chiamata",
+    "domain_switch_title": "Cambio di paese",
+    "domain_switch_message": "L'indirizzo selezionato si trova in {{country}}.",
+    "domain_switch_subtext": "Vuoi passare a {{domain}} per visualizzare gli itinerari e i collegamenti per questo punto di partenza?",
+    "domain_switch_action": "Passa a {{domain}}",
+    "domain_switch_cancel": "Annulla"
   },
   "search": {
     "go": "Vai!",
