@@ -7,7 +7,7 @@ import { SxProps, Theme, useTheme } from "@mui/material/styles";
 interface SearchBarButtonProps {
   icon?: ReactNode;
   label: string;
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: ButtonProps["variant"];
   // Set for toggle buttons so assistive tech announces the pressed state.
   ariaPressed?: boolean;
