@@ -34,7 +34,6 @@ import {
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
 import { getTLD, get_currLanguage } from "../../utils/globals";
 import {
-  SUPPORTED_COUNTRY_TLDS,
   getTargetDomainInfo,
   buildDomainSwitchUrl,
   parseDepartureFromHash,
@@ -898,11 +897,7 @@ export default function ConnectionSearchForm({
       const currentCountry = getTLD().toUpperCase();
       const targetCountry = value.countryCode;
 
-      if (
-        targetCountry &&
-        targetCountry !== currentCountry &&
-        SUPPORTED_COUNTRY_TLDS[targetCountry]
-      ) {
+      if (targetCountry && targetCountry !== currentCountry) {
         const domainInfo = getTargetDomainInfo(targetCountry);
         if (domainInfo) {
           setInputValue(value.displayName);

@@ -1,30 +1,5 @@
 import { getApiDomain } from "./apiBase";
-
-/**
- * Mapping from 2-letter uppercase ISO country code to Zuugle TLD.
- */
-export const SUPPORTED_COUNTRY_TLDS: Record<string, string> = {
-  AT: "at",
-  DE: "de",
-  CH: "ch",
-  IT: "it",
-  SI: "si",
-  FR: "fr",
-  LI: "li",
-};
-
-/**
- * Mapping from 2-letter uppercase ISO country code to i18n key in section "main".
- */
-export const COUNTRY_NAME_KEYS: Record<string, string> = {
-  AT: "main.country_oesterreich",
-  DE: "main.country_deutschland",
-  CH: "main.country_schweiz",
-  IT: "main.country_italien",
-  SI: "main.country_slowenien",
-  FR: "main.country_frankreich",
-  LI: "main.country_liechtenstein",
-};
+import { getCountryByCode, getCountryHost, isUatHost } from "./domains";
 
 /**
  * Determines the target domain host and full URL for a target country code,
@@ -33,18 +8,11 @@ export const COUNTRY_NAME_KEYS: Record<string, string> = {
 export function getTargetDomainInfo(
   targetCountryCode: string,
 ): { host: string; url: string } | null {
-  const code = targetCountryCode.toUpperCase();
-  const tld = SUPPORTED_COUNTRY_TLDS[code];
-  if (!tld) return null;
+  const country = getCountryByCode(targetCountryCode);
+  if (!country) return null;
 
-  const currentDomain = getApiDomain();
-  const isUat = currentDomain.includes("www2.");
-
-  // Liechtenstein does not have a www2 domain on UAT
-  const host =
-    isUat && tld !== "li" ? `www2.zuugle.${tld}` : `www.zuugle.${tld}`;
-  const url = `https://${host}`;
-  return { host, url };
+  const host = getCountryHost(country, isUatHost(getApiDomain()));
+  return { host, url: `https://${host}` };
 }
 
 /**
@@ -56,14 +24,12 @@ export function getLocalizedCountryInText(
   t: (key: string) => string,
   lang: string,
 ): string {
-  const code = countryCode.toUpperCase();
-  const key = COUNTRY_NAME_KEYS[code];
-  const name = key ? t(key) : code;
+  const country = getCountryByCode(countryCode);
 
-  if (lang.startsWith("de") && code === "CH") {
+  if (lang.startsWith("de") && country?.code === "CH") {
     return "der Schweiz";
   }
-  return name;
+  return country ? t(country.nameKey) : countryCode.toUpperCase();
 }
 
 export interface DomainSwitchParams {
