@@ -43,7 +43,8 @@ export default function GeolocationSearch({
       <Grid container spacing={"10px"} sx={{ width: "100%" }}>
         <Grid size={{ xs: 12, sm: 4.5 }}>
           <TextField
-            label="lat"
+            label={t("filter.geolocation_lat")}
+            placeholder="47.2692"
             fullWidth
             value={tempGeolocation?.lat ?? ""}
             onChange={(e) => updateGeolocation(e.target.value, "lat")}
@@ -52,7 +53,8 @@ export default function GeolocationSearch({
         </Grid>
         <Grid size={{ xs: 12, sm: 4.5 }}>
           <TextField
-            label="lon"
+            label={t("filter.geolocation_lng")}
+            placeholder="11.4041"
             fullWidth
             value={tempGeolocation?.lng ?? ""}
             onChange={(e) => updateGeolocation(e.target.value, "lng")}
@@ -61,7 +63,7 @@ export default function GeolocationSearch({
         </Grid>
         <Grid size={{ xs: 12, sm: 3 }}>
           <TextField
-            label="Radius (m)"
+            label={t("filter.geolocation_radius")}
             fullWidth
             value={tempGeolocation?.radius ?? ""}
             onChange={(e) => updateGeolocation(e.target.value, "radius")}

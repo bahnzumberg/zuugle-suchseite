@@ -31,7 +31,6 @@ import {
   useGetGPXQuery,
   useGetProviderGpxOkQuery,
   useGetTourQuery,
-  useGetTourWeatherQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
@@ -95,7 +94,7 @@ export default function DetailReworked() {
     lon: number;
   } | null>(null);
 
-  // "YYYY-MM-DD" chosen in the connection search or weather; persisted in localStorage
+  // "YYYY-MM-DD" chosen in the connection search; persisted in localStorage
   const [activityDate, setActivityDate] = useState<string>(() => {
     const stored = getStoredTourDate();
     if (stored) return stored;
@@ -104,55 +103,12 @@ export default function DetailReworked() {
     return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
   });
 
-  const { data: tour, isLoading: isTourLoading } = useGetTourQuery({
-    id: idOne || "",
-    city: cityOne,
-  });
+  // The day the weather panel and the map show. Starts on the tour date, but
+  // afterwards is independent of it: picking a weather day does not change
+  // the connection search and vice versa.
+  const [weatherDate, setWeatherDate] = useState<string | null>(activityDate);
 
-  const { data: weatherDays = [] } = useGetTourWeatherQuery(idOne || "", {
-    skip: !idOne,
-  });
-
-  // Resolve which date the weather panel and map should show given an activityDate
-  const resolveWeatherDate = useCallback(
-    (targetDate: string, days: Array<{ date: string }>) => {
-      if (days.length === 0) return targetDate;
-      const exists = days.some((d) => d.date === targetDate);
-      if (exists) return targetDate;
-      const latest = days[days.length - 1].date;
-      if (targetDate > latest) return latest;
-      if (targetDate < days[0].date) return days[0].date;
-      return targetDate;
-    },
-    [],
-  );
-
-  // The day the weather panel and the map show.
-  const [weatherDate, setWeatherDate] = useState(activityDate);
-
-  // Sync weatherDate whenever activityDate or weatherDays change
-  useEffect(() => {
-    if (weatherDays.length > 0) {
-      setWeatherDate(resolveWeatherDate(activityDate, weatherDays));
-    }
-  }, [activityDate, weatherDays, resolveWeatherDate]);
-
-  // Called when date changes in Diana Widget
-  const handleDianaDateChange = useCallback(
-    (newDate: string) => {
-      setActivityDate(newDate);
-      setStoredTourDate(newDate);
-      if (weatherDays.length > 0) {
-        setWeatherDate(resolveWeatherDate(newDate, weatherDays));
-      }
-    },
-    [weatherDays, resolveWeatherDate],
-  );
-
-  // Called when a day is clicked in Wetterbox or Wetterkarte:
-  // Jumps on both weather boxes and Diana widget as well.
-  const handleWeatherDateSelect = useCallback((newDate: string) => {
-    setWeatherDate(newDate);
+  const handleDateChange = useCallback((newDate: string) => {
     setActivityDate(newDate);
     setStoredTourDate(newDate);
   }, []);
@@ -161,6 +117,11 @@ export default function DetailReworked() {
   const [gpxDownloadFailed, setGpxDownloadFailed] = useState(false);
 
   const { i18n } = useTranslation();
+
+  const { data: tour, isLoading: isTourLoading } = useGetTourQuery({
+    id: idOne || "",
+    city: cityOne,
+  });
 
   // SVG365 availability: one SVG per tour showing 365-day reachability.
   // These files are generated daily on an external server and copied to the
@@ -209,12 +170,16 @@ export default function DetailReworked() {
 
   const { data: providerPermit } = useGetProviderGpxOkQuery(
     tour?.provider ?? "",
-    { skip: !tour?.provider },
+    {
+      skip: !tour?.provider,
+    },
   );
 
   const { data: track, isLoading: isGpxLoading } = useGetGPXQuery(
     tour?.gpx_file ?? "",
-    { skip: !tour?.gpx_file },
+    {
+      skip: !tour?.gpx_file,
+    },
   );
 
   const [
@@ -828,7 +793,7 @@ export default function DetailReworked() {
                       tour={tour}
                       tourId={idOne}
                       onStopHover={setHoveredStop}
-                      onDateChange={handleDianaDateChange}
+                      onDateChange={handleDateChange}
                       activityDate={activityDate}
                     />
                   </Box>
@@ -845,7 +810,7 @@ export default function DetailReworked() {
                         activityDate={activityDate}
                         maxEle={tour?.max_ele}
                         selectedDate={weatherDate}
-                        onSelectDate={handleWeatherDateSelect}
+                        onSelectDate={setWeatherDate}
                       />
                     </Box>
                   )}
@@ -889,7 +854,7 @@ export default function DetailReworked() {
                         scrollWheelZoom={true}
                         hoveredStop={hoveredStop}
                         selectedWeatherDate={weatherDate}
-                        onSelectWeatherDate={handleWeatherDateSelect}
+                        onSelectWeatherDate={setWeatherDate}
                       />
                     </Box>
                   )}
