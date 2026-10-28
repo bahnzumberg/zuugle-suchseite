@@ -327,6 +327,8 @@ export default function TourWeatherTable({
       >
         <Box
           component="table"
+          className="notranslate"
+          translate="no"
           sx={{
             borderCollapse: "separate",
             borderSpacing: 0,

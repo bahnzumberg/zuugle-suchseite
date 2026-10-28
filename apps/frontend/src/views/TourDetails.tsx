@@ -94,7 +94,7 @@ export default function DetailReworked() {
     lon: number;
   } | null>(null);
 
-  // "YYYY-MM-DD" chosen in the connection search or weather; persisted in localStorage
+  // "YYYY-MM-DD" chosen in the connection search; persisted in localStorage
   const [activityDate, setActivityDate] = useState<string>(() => {
     const stored = getStoredTourDate();
     if (stored) return stored;
@@ -103,11 +103,10 @@ export default function DetailReworked() {
     return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
   });
 
-  // The day the weather panel and the map show. It follows the tour date, but
-  // picking a day there must not change the tour date or the connection search.
-  // If the forecast does not have that day, neither shows one.
-  const [weatherDate, setWeatherDate] = useState(activityDate);
-  useEffect(() => setWeatherDate(activityDate), [activityDate]);
+  // The day the weather panel and the map show. Starts on the tour date, but
+  // afterwards is independent of it: picking a weather day does not change
+  // the connection search and vice versa.
+  const [weatherDate, setWeatherDate] = useState<string | null>(activityDate);
 
   const handleDateChange = useCallback((newDate: string) => {
     setActivityDate(newDate);
@@ -171,12 +170,16 @@ export default function DetailReworked() {
 
   const { data: providerPermit } = useGetProviderGpxOkQuery(
     tour?.provider ?? "",
-    { skip: !tour?.provider },
+    {
+      skip: !tour?.provider,
+    },
   );
 
   const { data: track, isLoading: isGpxLoading } = useGetGPXQuery(
     tour?.gpx_file ?? "",
-    { skip: !tour?.gpx_file },
+    {
+      skip: !tour?.gpx_file,
+    },
   );
 
   const [
@@ -232,20 +235,22 @@ export default function DetailReworked() {
     }
     // window.close() may be ignored by the browser; always fall through
     if (!window.closed) {
-      goToSearchPage(options);
+      if (cameFromOwnSite && !hasOpenSearchTab() && window.history.length > 1) {
+        navigate(-1);
+      } else {
+        goToSearchPage(options);
+      }
     }
   };
 
-  // This tab usually opens with an empty history, so Back would close it
-  // without firing popstate. Push a sentinel entry for Back to consume, so
-  // the listener below can intercept it instead.
+  // When opened in a new tab via target="_blank" with opener (desktop),
+  // this tab opens with an empty history, so Back would close it without
+  // firing popstate. Push a sentinel entry so Back intercepts and closes the tab.
+  // In the same tab (e.g. on mobile), we rely on native browser history so Back
+  // returns to the previous search results.
   useEffect(() => {
+    if (!hasOpenSearchTab()) return;
     window.history.pushState(null, "", window.location.href);
-  }, []);
-
-  // Intercept the back button/gesture and apply the same close-or-redirect
-  // logic as the in-app back arrow.
-  useEffect(() => {
     const handlePopState = () => handleCloseTab({ replace: true });
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -449,7 +454,7 @@ export default function DetailReworked() {
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
-                sx={{ ml: "-13px", mr: "4px", cursor: "pointer" }}
+                sx={{ ml: "-3px", mr: "9px", cursor: "pointer" }}
                 onClick={() => handleCloseTab()}
               >
                 <CustomIcon
@@ -726,7 +731,7 @@ export default function DetailReworked() {
                   display: "flex",
                   flexDirection: { xs: "column", md: "row" },
                   alignItems: { md: "flex-start" },
-                  rowGap: "50px",
+                  rowGap: { xs: "100px", md: "50px" },
                   columnGap: "16px",
                   /* Make these panels fill most of the viewport */
                   minHeight: { md: "calc(100vh - 320px)" },
@@ -735,9 +740,10 @@ export default function DetailReworked() {
                 {/* ─── LEFT: Fahrplan (on desktop) / 1st on mobile ─── */}
                 <Box
                   sx={{
-                    flex: { md: "1 1 50%" },
+                    flex: { md: "1 1 0%" },
+                    width: { xs: "100%", md: "calc(50% - 8px)" },
+                    maxWidth: { md: "calc(50% - 8px)" },
                     minWidth: 0,
-                    minHeight: { xs: "400px", md: "unset" },
                     order: { xs: 1, md: 1 },
                     display: "flex",
                     flexDirection: "column",
@@ -751,9 +757,7 @@ export default function DetailReworked() {
                       bgcolor: "rgba(170, 181, 215, 0.25)",
                       borderRadius: "12px",
                       p: { xs: "10px 8px 8px", sm: "14px 14px 12px" },
-                      flex: 1,
                       minWidth: 0,
-                      minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                     }}
                   >
                     <Box
@@ -796,7 +800,7 @@ export default function DetailReworked() {
                   {idOne && (
                     <Box
                       sx={{
-                        mt: "50px",
+                        mt: { xs: "100px", md: "50px" },
                         minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                       }}
                       className="tour-weather-panel"
@@ -815,7 +819,10 @@ export default function DetailReworked() {
                 {/* ─── RIGHT: Map + GPX (on desktop) / 2nd on mobile ─── */}
                 <Box
                   sx={{
-                    flex: { md: "1 1 50%" },
+                    flex: { md: "1 1 0%" },
+                    width: { xs: "100%", md: "calc(50% - 8px)" },
+                    maxWidth: { md: "calc(50% - 8px)" },
+                    minWidth: 0,
                     order: { xs: 2, md: 2 },
                     display: "flex",
                     flexDirection: "column",
@@ -823,7 +830,6 @@ export default function DetailReworked() {
                     position: { md: "sticky" },
                     top: { md: "72px" },
                     alignSelf: { md: "flex-start" },
-                    width: { xs: "100%", md: "auto" },
                     minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                   }}
                 >
@@ -838,6 +844,8 @@ export default function DetailReworked() {
                         overflow: "hidden",
                         position: "relative",
                         isolation: "isolate",
+                        minWidth: 0,
+                        maxWidth: "100%",
                       }}
                       className="tour-detail-map-container"
                     >
