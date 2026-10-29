@@ -409,7 +409,12 @@
     "fruehere_verbindungen": "Earlier connections",
     "spaetere_verbindungen": "Later connections",
     "meldungen": "Alerts",
-    "rufbus_hinweis": "On-demand service"
+    "rufbus_hinweis": "On-demand service",
+    "domain_switch_title": "Country change",
+    "domain_switch_message": "The selected address is located in {{country}}.",
+    "domain_switch_subtext": "Would you like to switch to {{domain}} to view tours and connections for this departure location?",
+    "domain_switch_action": "Switch to {{domain}}",
+    "domain_switch_cancel": "Cancel"
   },
   "search": {
     "go": "Go!",
