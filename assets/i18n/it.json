@@ -37,6 +37,17 @@
       "merged_one": "I dispositivi sono collegati. È stato aggiunto un itinerario.",
       "merged_other": "I dispositivi sono collegati. Sono stati aggiunti {{count}} itinerari.",
       "reset": "I preferiti su questo dispositivo sono stati reimpostati."
+    },
+    "tour": {
+      "step_favorites_title": "I tuoi preferiti",
+      "step_favorites_desc": "Tieni traccia dei tuoi itinerari preferiti qui. Clicca sull'icona del cuore su qualsiasi itinerario per salvarlo o rimuoverlo.",
+      "step_sync_title": "Sincronizza dispositivi",
+      "step_sync_desc": "Porta con te i tuoi itinerari preferiti sullo smartphone o trasferiscili dal telefono a questo computer. Senza registrazione né login!",
+      "next": "Avanti",
+      "prev": "Indietro",
+      "done": "Fatto",
+      "open_sync": "Connetti ora",
+      "help_button": "Mostra suggerimenti e sincronizzazione"
     }
   },
   "about": {
@@ -408,7 +419,12 @@
     "fruehere_verbindungen": "Collegamenti precedenti",
     "spaetere_verbindungen": "Collegamenti successivi",
     "meldungen": "Avvisi",
-    "rufbus_hinweis": "Servizio a chiamata"
+    "rufbus_hinweis": "Servizio a chiamata",
+    "domain_switch_title": "Cambio di paese",
+    "domain_switch_message": "L'indirizzo selezionato si trova in {{country}}.",
+    "domain_switch_subtext": "Vuoi passare a {{domain}} per visualizzare gli itinerari e i collegamenti per questo punto di partenza?",
+    "domain_switch_action": "Passa a {{domain}}",
+    "domain_switch_cancel": "Annulla"
   },
   "search": {
     "go": "Vai!",
@@ -525,6 +541,42 @@
         "w": "O",
         "nw": "NO"
       }
+    }
+  },
+  "tours": {
+    "next": "Avanti",
+    "prev": "Indietro",
+    "done": "Fatto",
+    "open_sync": "Connetti ora",
+    "search": {
+      "step_input_title": "Punto di partenza e ricerca",
+      "step_input_desc": "Inserisci la tua stazione di partenza o una regione. Puoi cercare per località, gruppo montuoso, sport o parole chiave.",
+      "step_filter_title": "Filtra la ricerca",
+      "step_filter_desc": "Personalizza i risultati filtrando per tempo di viaggio, durata dell'escursione, dislivello o difficoltà.",
+      "step_cards_title": "In sintesi: Viaggio ed Escursione",
+      "step_cards_desc": "<b>Blu:</b> Durata del viaggio con i mezzi pubblici e cambi per raggiungere la partenza.<br><b>Nero:</b> Tempo di cammino e dislivello positivo.<br><b>Sotto:</b> Previsioni meteo per i prossimi giorni.",
+      "step_favorites_title": "I tuoi preferiti",
+      "step_favorites_desc": "Accedi a tutti gli itinerari salvati e sincronizzali sullo smartphone senza registrazione."
+    },
+    "search_map": {
+      "step_map_title": "Scopri gli itinerari sulla mappa",
+      "step_map_desc": "Ogni indicatore rappresenta la partenza di un itinerario. Lo zoom e lo spostamento filtrano gli itinerari nell'area visibile!",
+      "step_weather_title": "Mappa meteo",
+      "step_weather_desc": "Passa dalla mappa topografica a quella meteo per vedere le previsioni di oggi e dei prossimi 3 giorni nella regione."
+    },
+    "tour_detail": {
+      "step_itinerary_title": "Orario personalizzato",
+      "step_itinerary_desc": "Pianifica il tuo collegamento da qualsiasi fermata o indirizzo! Le fermate di partenza e arrivo dell'itinerario sono già impostate: basta indicare da dove parti.",
+      "step_map_title": "Tracciato e meteo",
+      "step_map_desc": "Guarda il percorso sulla mappa topografica con profilo altimetrico. Usa il pulsante in alto a sinistra per visualizzare la mappa meteo.",
+      "step_weather_title": "Meteo orario in montagna",
+      "step_weather_desc": "Consulta il meteo dettagliato per ora e quota. Clicca sull'icona ℹ️ per leggere le spiegazioni dei singoli valori."
+    },
+    "favorites": {
+      "step_favorites_title": "I tuoi preferiti",
+      "step_favorites_desc": "Tieni traccia dei tuoi itinerari preferiti qui. Clicca sull'icona del cuore per salvarli o rimuoverli.",
+      "step_sync_title": "Sincronizza dispositivi",
+      "step_sync_desc": "Porta con te i tuoi itinerari preferiti sullo smartphone senza registrazione né login!"
     }
   }
 }

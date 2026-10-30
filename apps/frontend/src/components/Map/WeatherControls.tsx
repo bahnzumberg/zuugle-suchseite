@@ -86,6 +86,7 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
       >
         {/* Wanderwetter Button */}
         <button
+          id="map-weather-control-btn"
           type="button"
           onClick={() => onToggleActive()}
           style={{

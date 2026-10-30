@@ -1,6 +1,7 @@
 import { useHead } from "@unhead/react";
 import { CityObject } from "../features/searchSlice";
 import { useEmbed } from "./embedContext";
+import { getCountryForHost } from "./domains";
 
 export interface DirectLink {
   header: string;
@@ -72,22 +73,5 @@ export const extractCityFromLocation = (
   return null; // Return null if city param is not search or if the path doesn't match the pattern
 };
 
-export const getTranslatedCountryName = () => {
-  const host = window.location.host;
-
-  if (host.indexOf("zuugle.ch") >= 0) {
-    return "start.schweiz";
-  } else if (host.indexOf("zuugle.de") >= 0) {
-    return "start.deutschland";
-  } else if (host.indexOf("zuugle.it") >= 0) {
-    return "start.italien";
-  } else if (host.indexOf("zuugle.li") >= 0) {
-    return "start.liechtenstein";
-  } else if (host.indexOf("zuugle.fr") >= 0) {
-    return "start.frankreich";
-  } else if (host.indexOf("zuugle.si") >= 0) {
-    return "start.slowenien";
-  } else {
-    return "start.oesterreich";
-  }
-};
+export const getTranslatedCountryName = () =>
+  getCountryForHost(window.location.host).nameKey;

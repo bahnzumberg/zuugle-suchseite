@@ -5,9 +5,10 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
 
 interface SearchBarButtonProps {
+  id?: string;
   icon?: ReactNode;
   label: string;
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: ButtonProps["variant"];
   // Set for toggle buttons so assistive tech announces the pressed state.
   ariaPressed?: boolean;
@@ -22,6 +23,7 @@ const TRANSITION =
  * icon-only button on xs screens. Callers supply their own colours via `sx`.
  */
 export default function SearchBarButton({
+  id,
   icon,
   label,
   onClick,
@@ -36,6 +38,7 @@ export default function SearchBarButton({
   if (isXsScreen && icon) {
     return (
       <IconButton
+        id={id}
         onClick={onClick}
         aria-label={label}
         aria-pressed={ariaPressed}
@@ -48,6 +51,7 @@ export default function SearchBarButton({
 
   return (
     <Button
+      id={id}
       onClick={onClick}
       aria-label={label}
       aria-pressed={ariaPressed}

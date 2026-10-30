@@ -31,6 +31,7 @@ import {
   useGetGPXQuery,
   useGetProviderGpxOkQuery,
   useGetTourQuery,
+  useGetTourWeatherQuery,
   useLazyGetToursQuery,
 } from "../features/apiSlice";
 import { getStoredTourDate, setStoredTourDate } from "../utils/tourDateStorage";
@@ -42,6 +43,7 @@ import MobileQuickNav, {
 import DirectionsTransitRoundedIcon from "@mui/icons-material/DirectionsTransitRounded";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import { usePageTour } from "../tours/usePageTour";
 
 /** Sections the mobile quick-nav scrolls to on the tour detail page. */
 const DETAIL_SECTIONS: QuickNavSection[] = [
@@ -94,7 +96,7 @@ export default function DetailReworked() {
     lon: number;
   } | null>(null);
 
-  // "YYYY-MM-DD" chosen in the connection search; persisted in localStorage
+  // "YYYY-MM-DD" chosen in the connection search or weather; persisted in localStorage
   const [activityDate, setActivityDate] = useState<string>(() => {
     const stored = getStoredTourDate();
     if (stored) return stored;
@@ -103,12 +105,60 @@ export default function DetailReworked() {
     return tomorrow.toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
   });
 
-  // The day the weather panel and the map show. Starts on the tour date, but
-  // afterwards is independent of it: picking a weather day does not change
-  // the connection search and vice versa.
-  const [weatherDate, setWeatherDate] = useState<string | null>(activityDate);
+  const { data: tour, isLoading: isTourLoading } = useGetTourQuery({
+    id: idOne || "",
+    city: cityOne,
+  });
 
-  const handleDateChange = useCallback((newDate: string) => {
+  const { data: weatherDays = [] } = useGetTourWeatherQuery(idOne || "", {
+    skip: !idOne,
+  });
+
+  // Resolve which date the weather panel and map should show given an activityDate
+  const resolveWeatherDate = useCallback(
+    (targetDate: string, days: Array<{ date: string }>) => {
+      if (days.length === 0) return targetDate;
+      const exists = days.some((d) => d.date === targetDate);
+      if (exists) return targetDate;
+      const latest = days[days.length - 1].date;
+      if (targetDate > latest) return latest;
+      if (targetDate < days[0].date) return days[0].date;
+      return targetDate;
+    },
+    [],
+  );
+
+  // The day the weather panel and the map show.
+  const [weatherDate, setWeatherDate] = useState(activityDate);
+
+  usePageTour({
+    tourId: "tour_detail",
+    enabled: Boolean(tour),
+  });
+
+  // Sync weatherDate whenever activityDate or weatherDays change
+  useEffect(() => {
+    if (weatherDays.length > 0) {
+      setWeatherDate(resolveWeatherDate(activityDate, weatherDays));
+    }
+  }, [activityDate, weatherDays, resolveWeatherDate]);
+
+  // Called when date changes in Diana Widget
+  const handleDianaDateChange = useCallback(
+    (newDate: string) => {
+      setActivityDate(newDate);
+      setStoredTourDate(newDate);
+      if (weatherDays.length > 0) {
+        setWeatherDate(resolveWeatherDate(newDate, weatherDays));
+      }
+    },
+    [weatherDays, resolveWeatherDate],
+  );
+
+  // Called when a day is clicked in Wetterbox or Wetterkarte:
+  // Jumps on both weather boxes and Diana widget as well.
+  const handleWeatherDateSelect = useCallback((newDate: string) => {
+    setWeatherDate(newDate);
     setActivityDate(newDate);
     setStoredTourDate(newDate);
   }, []);
@@ -117,11 +167,6 @@ export default function DetailReworked() {
   const [gpxDownloadFailed, setGpxDownloadFailed] = useState(false);
 
   const { i18n } = useTranslation();
-
-  const { data: tour, isLoading: isTourLoading } = useGetTourQuery({
-    id: idOne || "",
-    city: cityOne,
-  });
 
   // SVG365 availability: one SVG per tour showing 365-day reachability.
   // These files are generated daily on an external server and copied to the
@@ -170,16 +215,12 @@ export default function DetailReworked() {
 
   const { data: providerPermit } = useGetProviderGpxOkQuery(
     tour?.provider ?? "",
-    {
-      skip: !tour?.provider,
-    },
+    { skip: !tour?.provider },
   );
 
   const { data: track, isLoading: isGpxLoading } = useGetGPXQuery(
     tour?.gpx_file ?? "",
-    {
-      skip: !tour?.gpx_file,
-    },
+    { skip: !tour?.gpx_file },
   );
 
   const [
@@ -750,6 +791,7 @@ export default function DetailReworked() {
                   }}
                 >
                   <Box
+                    id="tour-itinerary-section"
                     component="section"
                     aria-labelledby="tour-fahrplan-title"
                     className="tour-fahrplan-panel"
@@ -793,7 +835,7 @@ export default function DetailReworked() {
                       tour={tour}
                       tourId={idOne}
                       onStopHover={setHoveredStop}
-                      onDateChange={handleDateChange}
+                      onDateChange={handleDianaDateChange}
                       activityDate={activityDate}
                     />
                   </Box>
@@ -810,7 +852,7 @@ export default function DetailReworked() {
                         activityDate={activityDate}
                         maxEle={tour?.max_ele}
                         selectedDate={weatherDate}
-                        onSelectDate={setWeatherDate}
+                        onSelectDate={handleWeatherDateSelect}
                       />
                     </Box>
                   )}
@@ -835,6 +877,7 @@ export default function DetailReworked() {
                 >
                   {track && (
                     <Box
+                      id="tour-interactive-map"
                       sx={{
                         width: "100%",
                         aspectRatio: { sm: "1 / 1" },
@@ -854,7 +897,7 @@ export default function DetailReworked() {
                         scrollWheelZoom={true}
                         hoveredStop={hoveredStop}
                         selectedWeatherDate={weatherDate}
-                        onSelectWeatherDate={setWeatherDate}
+                        onSelectWeatherDate={handleWeatherDateSelect}
                       />
                     </Box>
                   )}

@@ -13,6 +13,12 @@ import { languageUpdated } from "../../features/searchSlice";
 import { langChange } from "../../utils/language_Utils";
 import LegalDialog, { type LegalDialogType } from "../LegalDialog/LegalDialog";
 import { assetUrl } from "../../utils/assetUrl";
+import {
+  ZUUGLE_COUNTRIES,
+  type ZuugleCountry,
+  getCountryHost,
+  getDomainName,
+} from "../../utils/domains";
 
 const ALL_LANGUAGES = [
   { key: "de", nativeName: "Deutsch" },
@@ -22,50 +28,20 @@ const ALL_LANGUAGES = [
   { key: "sl", nativeName: "Slovenščina" },
 ];
 
-// All production domains
-const PROD_DOMAINS = [
-  { name: "Zuugle.at", url: "https://www.zuugle.at", key: "www.zuugle.at" },
-  { name: "Zuugle.ch", url: "https://www.zuugle.ch", key: "www.zuugle.ch" },
-  { name: "Zuugle.de", url: "https://www.zuugle.de", key: "www.zuugle.de" },
-  { name: "Zuugle.fr", url: "https://www.zuugle.fr", key: "www.zuugle.fr" },
-  { name: "Zuugle.it", url: "https://www.zuugle.it", key: "www.zuugle.it" },
-  { name: "Zuugle.li", url: "https://www.zuugle.li", key: "www.zuugle.li" },
-  { name: "Zuugle.si", url: "https://www.zuugle.si", key: "www.zuugle.si" },
-];
+const toDomainEntry = (country: ZuugleCountry, uat: boolean) => {
+  const host = getCountryHost(country, uat);
+  return {
+    name: getDomainName(country, uat),
+    url: `https://${host}`,
+    key: host,
+  };
+};
 
-// All UAT domains
-const UAT_DOMAINS = [
-  {
-    name: "UAT Zuugle.at",
-    url: "https://www2.zuugle.at",
-    key: "www2.zuugle.at",
-  },
-  {
-    name: "UAT Zuugle.ch",
-    url: "https://www2.zuugle.ch",
-    key: "www2.zuugle.ch",
-  },
-  {
-    name: "UAT Zuugle.de",
-    url: "https://www2.zuugle.de",
-    key: "www2.zuugle.de",
-  },
-  {
-    name: "UAT Zuugle.fr",
-    url: "https://www2.zuugle.fr",
-    key: "www2.zuugle.fr",
-  },
-  {
-    name: "UAT Zuugle.it",
-    url: "https://www2.zuugle.it",
-    key: "www2.zuugle.it",
-  },
-  {
-    name: "UAT Zuugle.si",
-    url: "https://www2.zuugle.si",
-    key: "www2.zuugle.si",
-  },
-];
+const PROD_DOMAINS = ZUUGLE_COUNTRIES.map((c) => toDomainEntry(c, false));
+
+const UAT_DOMAINS = ZUUGLE_COUNTRIES.filter((c) => c.hasUat).map((c) =>
+  toDomainEntry(c, true),
+);
 
 // Development domain
 const DEV_DOMAIN = {
