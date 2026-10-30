@@ -27,9 +27,23 @@ import {
   useDepartureLocation,
   DepartureLocation,
 } from "../../hooks/useDepartureLocation";
-import { useDianaAutocomplete } from "../../hooks/useDianaAutocomplete";
+import {
+  useDianaAutocomplete,
+  AutocompleteOption,
+} from "../../hooks/useDianaAutocomplete";
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
-import ConnectionResults, { ConnectionsResultData } from "./ConnectionResults";
+import { getTLD, get_currLanguage } from "../../utils/globals";
+import {
+  getTargetDomainInfo,
+  buildDomainSwitchUrl,
+  parseDepartureFromHash,
+  clearDepartureHashFromUrl,
+} from "../../utils/domainSwitch";
+import DomainSwitchDialog from "./DomainSwitchDialog";
+import ConnectionResults, {
+  ConnectionsResultData,
+  Connection,
+} from "./ConnectionResults";
 
 interface ConnectionSearchFormProps {
   tour: Tour;
@@ -128,6 +142,14 @@ export default function ConnectionSearchForm({
   const [searchError, setSearchError] = useState<string | null>(null);
   const [useFlex, setUseFlex] = useState(false);
 
+  // Cross-country domain switch dialog state
+  const [pendingDomainSwitch, setPendingDomainSwitch] = useState<{
+    option: AutocompleteOption;
+    targetCountry: string;
+    targetHost: string;
+    targetUrl: string;
+  } | null>(null);
+
   // Share restore state
   const [searchParams] = useSearchParams();
   const shareId = searchParams.get("diana-share");
@@ -138,6 +160,31 @@ export default function ConnectionSearchForm({
     fromEnd?: string;
   } | null>(null);
   const shareRestored = useRef(false);
+  const [shareRestoreDone, setShareRestoreDone] = useState(false);
+  const restoreKeyRecorded = useRef(false);
+  const lastCheckedKeyRef = useRef<string | null>(null);
+
+  const getCurrentKey = useCallback(() => {
+    if (!departureLocation) return "";
+    const locPart =
+      departureLat && departureLon
+        ? `${departureLat},${departureLon}`
+        : departureLocation.displayName;
+    const datePart = isMultiDay
+      ? `${departureDate?.format("YYYY-MM-DD") || ""}:${returnDate?.format("YYYY-MM-DD") || ""}`
+      : selectedDate.format("YYYY-MM-DD");
+    return `${locPart}:${datePart}:${useFlex ? "1" : "0"}:${tour.id}`;
+  }, [
+    departureLocation,
+    departureLat,
+    departureLon,
+    isMultiDay,
+    departureDate,
+    returnDate,
+    selectedDate,
+    useFlex,
+    tour.id,
+  ]);
 
   const getSelectedDate = (): string => {
     if (isMultiDay) {
@@ -146,6 +193,76 @@ export default function ConnectionSearchForm({
       );
     }
     return selectedDate.format("YYYY-MM-DD");
+  };
+
+  const getNoConnectionsMessage = (dateStr: string): string => {
+    const todayStr = dayjs().format("YYYY-MM-DD");
+    return dateStr === todayStr
+      ? t("details.keine_verbindungen_heute")
+      : t("details.keine_verbindungen");
+  };
+
+  const getErrorMessage = (
+    code: string | undefined,
+    dateStr: string,
+  ): string => {
+    const c = String(code ?? "").trim();
+    if (c === "6001" || c === "6002") {
+      return t("details.kontingent_erschoepft");
+    }
+    if (c === "2024") {
+      return t("details.error_2024");
+    }
+    if (c === "2017-1") {
+      return t("details.error_2017_1");
+    }
+    if (c === "2017-2") {
+      return t("details.error_2017_2");
+    }
+    if (c.startsWith("2017")) {
+      return t("details.error_2017_fallback");
+    }
+    if (c === "2022-1" || c === "2022") {
+      return t("details.error_2022_1");
+    }
+    if (c === "2021-1") {
+      return t("details.error_2021_1");
+    }
+    if (c === "2021-2") {
+      return t("details.error_2021_2");
+    }
+    if (c === "2023-1") {
+      return t("details.error_2023_1");
+    }
+    if (c === "2023-2") {
+      return t("details.error_2023_2");
+    }
+    if (c.startsWith("2018")) {
+      return t("details.error_2018");
+    }
+    if (c === "2001" || c === "error_user_start") {
+      return t("details.error_user_start");
+    }
+    if (c === "2002" || c === "error_activity_start") {
+      return t("details.error_activity_start");
+    }
+    if (c === "2003" || c === "error_activity_end") {
+      return t("details.error_activity_end");
+    }
+    if (c.startsWith("3") || c.startsWith("2025")) {
+      return t("details.verbindungssuche_fehlgeschlagen");
+    }
+    return getNoConnectionsMessage(dateStr);
+  };
+
+  /** `key` marks the search as checked so the cache lookup does not clear the error. */
+  const handleFailedResponse = (
+    code: string | number | null | undefined,
+    dateStr: string,
+    key?: string,
+  ) => {
+    setSearchError(getErrorMessage(String(code ?? ""), dateStr));
+    if (key !== undefined) lastCheckedKeyRef.current = key;
   };
 
   const currentActivityDate = getSelectedDate();
@@ -161,49 +278,106 @@ export default function ConnectionSearchForm({
    * Build the shared URLSearchParams for the connections API call.
    * Used for both initial search and scroll (before/after) requests.
    */
-  const buildSearchParams = (selectedDate: string): URLSearchParams => {
-    let userStartLocation: string;
-    let userStartLocationType: string;
-    if (departureLat && departureLon) {
-      userStartLocation = `${departureLat},${departureLon}`;
-      userStartLocationType = "coordinates";
-    } else {
-      userStartLocation = departureLocation!.displayName;
-      userStartLocationType = departureLocation!.locationType || "address";
-    }
+  /**
+   * Build the shared URLSearchParams for the connections API call.
+   * Used for both initial search and scroll (before/after) requests.
+   */
+  const buildSearchParams = useCallback(
+    (
+      targetDate: string,
+      // Overrides the stored departure location, whose state update is not
+      // visible yet when a share restore searches right after setting it.
+      origin?: { lat: number; lon: number; displayName: string },
+    ): URLSearchParams => {
+      const lat = origin ? origin.lat : departureLat;
+      const lon = origin ? origin.lon : departureLon;
+      const displayName = origin
+        ? origin.displayName
+        : departureLocation?.displayName;
+      let userStartLocation: string;
+      let userStartLocationType: string;
+      if (lat && lon) {
+        userStartLocation = `${lat},${lon}`;
+        userStartLocationType = "coordinates";
+      } else {
+        userStartLocation = departureLocation!.displayName;
+        userStartLocationType = departureLocation!.locationType || "address";
+      }
 
-    const params = new URLSearchParams({
-      user_start_location: userStartLocation,
-      user_start_location_type: userStartLocationType,
-      activity_name: tour.title,
-      activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
-      activity_start_location_type: "coordinates",
-      activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
-      activity_end_location_type: "coordinates",
-      activity_duration_minutes: String(activityDurationMinutes),
-      date: selectedDate,
-      lang: lang,
-      use_flex: useFlex ? "true" : "false",
-      timezone: "Europe/Vienna",
-    });
+      const params = new URLSearchParams({
+        user_start_location: userStartLocation,
+        user_start_location_type: userStartLocationType,
+        activity_name: tour.title,
+        activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
+        activity_start_location_type: "coordinates",
+        activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
+        activity_end_location_type: "coordinates",
+        activity_duration_minutes: String(activityDurationMinutes),
+        date: targetDate,
+        lang: lang,
+        use_flex: useFlex ? "true" : "false",
+        timezone: "Europe/Vienna",
+      });
 
-    if (isMultiDay) {
-      params.set("activity_duration_days", String(tour.number_of_days));
-    }
+      if (displayName) {
+        params.set("user_start_location_display_name", displayName);
+      }
 
-    return params;
-  };
+      if (dayjs(targetDate).isSame(dayjs(), "day")) {
+        params.set("include_past", "true");
+      }
+
+      if (isMultiDay) {
+        const diffDays =
+          departureDate && returnDate
+            ? returnDate.diff(departureDate, "day") + 1
+            : tour.number_of_days;
+        params.set("activity_duration_days", String(Math.max(diffDays, 1)));
+      }
+
+      return params;
+    },
+    [
+      departureLat,
+      departureLon,
+      departureLocation,
+      tour,
+      activityDurationMinutes,
+      lang,
+      useFlex,
+      isMultiDay,
+      departureDate,
+      returnDate,
+    ],
+  );
 
   // ── Share restore: fetch shared journey and auto-search ──
   const triggerSearchWithParams = useCallback(
-    async (lat: number, lon: number, displayName: string, date: string) => {
+    async (
+      lat: number,
+      lon: number,
+      displayName: string,
+      date: string,
+      cityInfo?: { citySlug?: string; cityName?: string },
+    ) => {
       // Set departure location
       const loc: DepartureLocation = {
         displayName,
         locationType: "address",
+        citySlug: cityInfo?.citySlug,
+        cityName: cityInfo?.cityName,
       };
       setDepartureLocation(loc, lat, lon);
       setInputValue(displayName);
+
+      if (cityInfo?.citySlug && cityInfo?.cityName) {
+        const cityObj = {
+          value: cityInfo.citySlug,
+          label: cityInfo.cityName,
+        };
+        dispatch(cityUpdated(cityObj));
+        dispatch(citySlugUpdated(cityInfo.citySlug));
+      }
 
       // Set date
       const d = dayjs(date);
@@ -215,25 +389,13 @@ export default function ConnectionSearchForm({
       setSearchError(null);
 
       try {
-        const params = new URLSearchParams({
-          user_start_location: `${lat},${lon}`,
-          user_start_location_type: "coordinates",
-          activity_name: tour.title,
-          activity_start_location: `${tour.start_stop_lat},${tour.start_stop_lon}`,
-          activity_start_location_type: "coordinates",
-          activity_end_location: `${tour.end_stop_lat},${tour.end_stop_lon}`,
-          activity_end_location_type: "coordinates",
-          activity_duration_minutes: String(activityDurationMinutes),
-          date,
-          lang: lang,
-          use_flex: useFlex ? "true" : "false",
-          timezone: "Europe/Vienna",
-        });
+        const params = buildSearchParams(date, { lat, lon, displayName });
 
         const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
 
         if (!resp.ok) {
-          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
+          const errData = await resp.json().catch(() => null);
+          handleFailedResponse(errData?.code, date);
           return;
         }
 
@@ -241,7 +403,7 @@ export default function ConnectionSearchForm({
         const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
         const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
         if (!hasTo && !hasFrom) {
-          setSearchError(t("details.keine_verbindungen"));
+          handleFailedResponse(data?.code, date);
           return;
         }
 
@@ -252,7 +414,13 @@ export default function ConnectionSearchForm({
         setIsSearching(false);
       }
     },
-    [tour, lang, t, activityDurationMinutes, today, setDepartureLocation],
+    [
+      t,
+      setDepartureLocation,
+      buildSearchParams,
+      handleFailedResponse,
+      dispatch,
+    ],
   );
 
   useEffect(() => {
@@ -266,11 +434,77 @@ export default function ConnectionSearchForm({
     }
 
     const restoreShare = async () => {
+      setIsSearching(true);
+      setConnectionsResult(null);
+      setSearchError(null);
+
       try {
+        // Try bundled connections endpoint first (single-request replay)
+        const bundledParams = new URLSearchParams({
+          share_id: shareId,
+          lang,
+        });
+        if (flexParam === "1") {
+          bundledParams.set("use_flex", "true");
+        }
+
+        const bundledResp = await fetch(
+          `${DIANA_PROXY_BASE}/connections?${bundledParams}`,
+        );
+
+        if (bundledResp.ok) {
+          const data = await bundledResp.json();
+          if (data?.shared_journey) {
+            const sj = data.shared_journey;
+            const lat = sj.origin_lat ? parseFloat(sj.origin_lat) : null;
+            const lon = sj.origin_lon ? parseFloat(sj.origin_lon) : null;
+            const displayName = sj.origin_display_name || sj.origin || "";
+
+            const loc: DepartureLocation = {
+              displayName,
+              locationType: lat && lon ? "address" : "station",
+            };
+            setDepartureLocation(loc, lat, lon);
+            setInputValue(displayName);
+
+            if (sj.date) {
+              const d = dayjs(sj.date);
+              setSelectedDate(d);
+            }
+            if (sj.use_flex !== undefined) {
+              setUseFlex(!!sj.use_flex);
+            }
+
+            setShareTimeHints({
+              toStart: sj.to_connection_start_time ?? undefined,
+              toEnd: sj.to_connection_end_time ?? undefined,
+              fromStart: sj.from_connection_start_time ?? undefined,
+              fromEnd: sj.from_connection_end_time ?? undefined,
+            });
+          }
+
+          const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
+          const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
+          if (!hasTo && !hasFrom) {
+            handleFailedResponse(
+              data?.code,
+              data?.shared_journey?.date || getSelectedDate(),
+            );
+          } else {
+            setConnectionsResult(data);
+          }
+          setIsSearching(false);
+          return;
+        }
+
+        // Fallback for older shares without activity object (e.g. code 5004): 2-step restore
         const resp = await fetch(
           `${DIANA_PROXY_BASE}/share/${encodeURIComponent(shareId)}`,
         );
-        if (!resp.ok) return;
+        if (!resp.ok) {
+          setIsSearching(false);
+          return;
+        }
 
         const shareData = await resp.json();
 
@@ -294,14 +528,192 @@ export default function ConnectionSearchForm({
 
         if (lat && lon) {
           await triggerSearchWithParams(lat, lon, displayName, date);
+        } else {
+          setIsSearching(false);
         }
       } catch (err) {
         console.error("Share restore error:", err);
+        setIsSearching(false);
       }
     };
 
-    restoreShare();
-  }, [shareId, triggerSearchWithParams]);
+    restoreShare().finally(() => setShareRestoreDone(true));
+  }, [
+    shareId,
+    searchParams,
+    lang,
+    t,
+    setDepartureLocation,
+    triggerSearchWithParams,
+  ]);
+
+  // ── Hash restore: restore cross-domain departure location from URL hash ──
+  const hashRestored = useRef(false);
+  const [hashRestoreDone, setHashRestoreDone] = useState(false);
+  useEffect(() => {
+    if (hashRestored.current) return;
+    const parsed = parseDepartureFromHash();
+    if (!parsed) return;
+    hashRestored.current = true;
+
+    clearDepartureHashFromUrl();
+
+    let dateToUse = getSelectedDate();
+    if (parsed.date) {
+      const d = dayjs(parsed.date);
+      if (d.isValid() && !d.isBefore(today, "day")) {
+        dateToUse = parsed.date;
+        setSelectedDate(d);
+        if (isMultiDay) {
+          setDepartureDate(d);
+          setReturnDate(d.add(tour.number_of_days - 1, "day"));
+        }
+      }
+    }
+
+    triggerSearchWithParams(
+      parsed.lat,
+      parsed.lon,
+      parsed.displayName,
+      dateToUse,
+      {
+        citySlug: parsed.citySlug,
+        cityName: parsed.cityName,
+      },
+    ).finally(() => setHashRestoreDone(true));
+  }, [isMultiDay, today, tour.number_of_days, triggerSearchWithParams]);
+
+  // ── Scroll handler: fetch earlier or later connections ──
+  const [scrollLoading, setScrollLoading] = useState<string | null>(null);
+
+  const handleScroll = useCallback(
+    async (direction: "to" | "from", edge: "before" | "after") => {
+      if (!connectionsResult) return;
+      const scrollKey = `${direction}_${edge}`;
+      setScrollLoading(scrollKey);
+
+      try {
+        const selectedDate = getSelectedDate();
+        const params = buildSearchParams(selectedDate);
+
+        if (direction === "to") {
+          const list = connectionsResult.connections.to_activity;
+          if (!list || list.length === 0) return;
+          if (edge === "before") {
+            params.set(
+              "to_connections_before",
+              list[0].connection_start_timestamp,
+            );
+          } else {
+            params.set(
+              "to_connections_after",
+              list[list.length - 1].connection_start_timestamp,
+            );
+          }
+        } else {
+          const list = connectionsResult.connections.from_activity;
+          if (!list || list.length === 0) return;
+          if (edge === "before") {
+            params.set(
+              "from_connections_before",
+              list[0].connection_start_timestamp,
+            );
+          } else {
+            params.set(
+              "from_connections_after",
+              list[list.length - 1].connection_start_timestamp,
+            );
+          }
+        }
+
+        const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
+        if (!resp.ok) return;
+
+        const newData = await resp.json();
+        if (!newData?.connections) return;
+
+        setConnectionsResult((prev) => {
+          if (!prev) return newData;
+
+          const updated = {
+            ...prev,
+            connections: {
+              ...prev.connections,
+            },
+          };
+
+          if (direction === "to") {
+            const newItems = newData.connections.to_activity || [];
+            if (newItems.length > 0) {
+              const existingIds = new Set(
+                prev.connections.to_activity.map((c) => c.connection_id),
+              );
+              const filteredNew = newItems.filter(
+                (c: Connection) => !existingIds.has(c.connection_id),
+              );
+
+              updated.connections.to_activity =
+                edge === "before"
+                  ? [...filteredNew, ...prev.connections.to_activity]
+                  : [...prev.connections.to_activity, ...filteredNew];
+            }
+
+            if (
+              newData.connections.has_more_before_to_activity !== null &&
+              newData.connections.has_more_before_to_activity !== undefined
+            ) {
+              updated.connections.has_more_before_to_activity =
+                newData.connections.has_more_before_to_activity;
+            }
+            if (
+              newData.connections.has_more_after_to_activity !== null &&
+              newData.connections.has_more_after_to_activity !== undefined
+            ) {
+              updated.connections.has_more_after_to_activity =
+                newData.connections.has_more_after_to_activity;
+            }
+          } else {
+            const newItems = newData.connections.from_activity || [];
+            if (newItems.length > 0) {
+              const existingIds = new Set(
+                prev.connections.from_activity.map((c) => c.connection_id),
+              );
+              const filteredNew = newItems.filter(
+                (c: Connection) => !existingIds.has(c.connection_id),
+              );
+
+              updated.connections.from_activity =
+                edge === "before"
+                  ? [...filteredNew, ...prev.connections.from_activity]
+                  : [...prev.connections.from_activity, ...filteredNew];
+            }
+
+            if (
+              newData.connections.has_more_before_from_activity !== null &&
+              newData.connections.has_more_before_from_activity !== undefined
+            ) {
+              updated.connections.has_more_before_from_activity =
+                newData.connections.has_more_before_from_activity;
+            }
+            if (
+              newData.connections.has_more_after_from_activity !== null &&
+              newData.connections.has_more_after_from_activity !== undefined
+            ) {
+              updated.connections.has_more_after_from_activity =
+                newData.connections.has_more_after_from_activity;
+            }
+          }
+
+          return updated;
+        });
+      } catch (err) {
+        console.error("Scroll error:", err);
+      } finally {
+        setScrollLoading(null);
+      }
+    },
+    [connectionsResult, buildSearchParams, getSelectedDate],
+  );
 
   const handleSearch = async () => {
     if (!departureLocation) return;
@@ -319,6 +731,8 @@ export default function ConnectionSearchForm({
     setConnectionsResult(null);
     setSearchError(null);
 
+    const currentKey = getCurrentKey();
+
     try {
       const selectedDate = getSelectedDate();
       const params = buildSearchParams(selectedDate);
@@ -327,32 +741,7 @@ export default function ConnectionSearchForm({
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => null);
-        const code = String(errData?.code ?? "");
-
-        if (code === "6001" || code === "6002") {
-          // Quota exceeded — point user to fallback
-          setSearchError(t("details.kontingent_erschoepft"));
-        } else if (
-          // Partial "no connections in one direction" — e.g. 2017-1, 2017-2
-          // These always mean the entire search failed; show friendly message.
-          code.startsWith("2017") ||
-          code.startsWith("2018") ||
-          code.startsWith("2019") ||
-          code.startsWith("2020") ||
-          code.startsWith("2021") ||
-          code.startsWith("2022") ||
-          code.startsWith("2023") ||
-          code === "2024" ||
-          code === "2027" ||
-          code === "2002"
-        ) {
-          setSearchError(t("details.keine_verbindungen"));
-        } else if (code.startsWith("3") || code.startsWith("2025")) {
-          // Routing provider temporarily unavailable — retryable
-          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
-        } else {
-          setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
-        }
+        handleFailedResponse(errData?.code, selectedDate, currentKey);
         return;
       }
 
@@ -362,11 +751,12 @@ export default function ConnectionSearchForm({
       const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
       const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
       if (!hasTo && !hasFrom) {
-        setSearchError(t("details.keine_verbindungen"));
+        handleFailedResponse(data?.code, selectedDate, currentKey);
         return;
       }
 
       setConnectionsResult(data);
+      lastCheckedKeyRef.current = currentKey;
 
       // Update city in Redux and URL when GeoJSON lookup found a city
       if (departureLocation?.citySlug && departureLocation?.cityName) {
@@ -399,18 +789,169 @@ export default function ConnectionSearchForm({
     }
   };
 
-  // ── Auto-search: trigger immediately if a departure location is already
-  //    stored in localStorage (and this is not a share-restore scenario) ──
-  const autoSearchTriggered = useRef(false);
+  // ── Valkey cache lookup: automatically check if cached connections exist
+  //    for the current departure location, date and options. If found, display
+  //    them immediately without requiring the user to press "Suchen".
+  //    If not cached, clear connections and wait for explicit user search. ──
   useEffect(() => {
-    if (autoSearchTriggered.current) return;
-    if (shareId) return; // Share restore handles its own search
-    if (!departureLocation || (!departureLat && !departureLon)) return;
+    if (shareId && !shareRestoreDone) return; // Share restore handles its own search
+    if (hashRestored.current && !hashRestoreDone) return; // Hash restore handles its own search
+    // Keep the restored results; only later changes should trigger a lookup.
+    if ((shareId || hashRestored.current) && !restoreKeyRecorded.current) {
+      restoreKeyRecorded.current = true;
+      lastCheckedKeyRef.current = getCurrentKey();
+      return;
+    }
+    if (!departureLocation || (!departureLat && !departureLon)) {
+      setConnectionsResult(null);
+      setSearchError(null);
+      lastCheckedKeyRef.current = null;
+      return;
+    }
 
-    autoSearchTriggered.current = true;
-    handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [departureLocation, departureLat, departureLon, shareId]);
+    const currentKey = getCurrentKey();
+    if (!currentKey) {
+      setConnectionsResult(null);
+      setSearchError(null);
+      lastCheckedKeyRef.current = null;
+      return;
+    }
+
+    // Skip if key hasn't changed (avoids redundant cache checks on unrelated re-renders)
+    if (currentKey === lastCheckedKeyRef.current) {
+      return;
+    }
+
+    lastCheckedKeyRef.current = currentKey;
+    setConnectionsResult(null);
+    setSearchError(null);
+
+    let isCancelled = false;
+
+    const checkCache = async () => {
+      try {
+        const selectedDateStr = getSelectedDate();
+        const params = buildSearchParams(selectedDateStr);
+        params.set("cache_only", "true");
+
+        const resp = await fetch(`${DIANA_PROXY_BASE}/connections?${params}`);
+        if (isCancelled) return;
+
+        if (!resp.ok) {
+          setConnectionsResult(null);
+          return;
+        }
+
+        const data = await resp.json();
+        if (isCancelled) return;
+
+        // If backend returned { cached: false } or no connections:
+        if (data?.cached === false || !data?.connections) {
+          setConnectionsResult(null);
+          setSearchError(null);
+        } else {
+          // Valkey cache hit!
+          const hasTo = (data?.connections?.to_activity?.length ?? 0) > 0;
+          const hasFrom = (data?.connections?.from_activity?.length ?? 0) > 0;
+          if (hasTo || hasFrom) {
+            setConnectionsResult(data);
+            setSearchError(null);
+          } else {
+            setConnectionsResult(null);
+          }
+        }
+      } catch {
+        if (!isCancelled) {
+          setConnectionsResult(null);
+        }
+      }
+    };
+
+    checkCache();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    departureLocation,
+    departureLat,
+    departureLon,
+    selectedDate,
+    departureDate,
+    returnDate,
+    useFlex,
+    shareId,
+    shareRestoreDone,
+    hashRestoreDone,
+    getCurrentKey,
+  ]);
+
+  const handleDepartureSelect = useCallback(
+    (value: AutocompleteOption | string | null) => {
+      if (!value) {
+        clearDepartureLocation();
+        return;
+      }
+      if (typeof value === "string") return;
+
+      const currentCountry = getTLD().toUpperCase();
+      const targetCountry = value.countryCode;
+
+      if (targetCountry && targetCountry !== currentCountry) {
+        const domainInfo = getTargetDomainInfo(targetCountry);
+        if (domainInfo) {
+          setInputValue(value.displayName);
+          setPendingDomainSwitch({
+            option: value,
+            targetCountry,
+            targetHost: domainInfo.host,
+            targetUrl: domainInfo.url,
+          });
+          return;
+        }
+      }
+
+      const loc: DepartureLocation = {
+        displayName: value.displayName,
+        locationType: value.locationType,
+        citySlug: value.citySlug,
+        cityName: value.cityName,
+      };
+      setDepartureLocation(loc, value.lat, value.lon);
+      setInputValue(value.displayName);
+    },
+    [clearDepartureLocation, setDepartureLocation],
+  );
+
+  const handleConfirmDomainSwitch = () => {
+    if (!pendingDomainSwitch) return;
+    const { option, targetUrl } = pendingDomainSwitch;
+
+    const currLang = get_currLanguage(i18n);
+    const redirectUrl = buildDomainSwitchUrl({
+      targetUrl,
+      tourId: routeParams.idOne || tour.id,
+      citySlug: option.citySlug,
+      lang: currLang,
+      useFlex,
+      selectedDate: getSelectedDate(),
+      departure: {
+        displayName: option.displayName,
+        lat: option.lat,
+        lon: option.lon,
+        locationType: option.locationType,
+        citySlug: option.citySlug,
+        cityName: option.cityName,
+      },
+    });
+
+    window.location.href = redirectUrl;
+  };
+
+  const handleCancelDomainSwitch = () => {
+    setPendingDomainSwitch(null);
+    setInputValue(departureLocation?.displayName || "");
+  };
 
   const handleDepartureDateChange = (date: Dayjs | null) => {
     setDepartureDate(date);
@@ -476,18 +1017,7 @@ export default function ConnectionSearchForm({
                   }
                 }}
                 onChange={(_e, value) => {
-                  if (value && typeof value !== "string") {
-                    const loc: DepartureLocation = {
-                      displayName: value.displayName,
-                      locationType: value.locationType,
-                      citySlug: value.citySlug,
-                      cityName: value.cityName,
-                    };
-                    setDepartureLocation(loc, value.lat, value.lon);
-                    setInputValue(value.displayName);
-                  } else if (!value) {
-                    clearDepartureLocation();
-                  }
+                  handleDepartureSelect(value);
                 }}
                 loading={autocompleteLoading}
                 renderOption={(props, option) => (
@@ -732,18 +1262,7 @@ export default function ConnectionSearchForm({
                   }
                 }}
                 onChange={(_e, value) => {
-                  if (value && typeof value !== "string") {
-                    const loc: DepartureLocation = {
-                      displayName: value.displayName,
-                      locationType: value.locationType,
-                      citySlug: value.citySlug,
-                      cityName: value.cityName,
-                    };
-                    setDepartureLocation(loc, value.lat, value.lon);
-                    setInputValue(value.displayName);
-                  } else if (!value) {
-                    clearDepartureLocation();
-                  }
+                  handleDepartureSelect(value);
                 }}
                 loading={autocompleteLoading}
                 renderOption={(props, option) => (
@@ -1023,6 +1542,18 @@ export default function ConnectionSearchForm({
             shareTimeHints={shareTimeHints}
             onStopHover={onStopHover}
             useFlex={useFlex}
+            onScroll={handleScroll}
+            scrollLoading={scrollLoading}
+          />
+        )}
+
+        {pendingDomainSwitch && (
+          <DomainSwitchDialog
+            open={!!pendingDomainSwitch}
+            targetCountryCode={pendingDomainSwitch.targetCountry}
+            targetDomainHost={pendingDomainSwitch.targetHost}
+            onConfirm={handleConfirmDomainSwitch}
+            onCancel={handleCancelDomainSwitch}
           />
         )}
       </Box>

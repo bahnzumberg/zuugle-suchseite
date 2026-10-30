@@ -1,7 +1,11 @@
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { convertNumToTime, getTourLink } from "../../utils/globals";
+import {
+  convertNumToTime,
+  getTourLink,
+  getTourLinkTarget,
+} from "../../utils/globals";
 import Box from "@mui/material/Box";
 import { Tour } from "../../models/Tour";
 import React from "react";
@@ -13,6 +17,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import { assetUrl } from "../../utils/assetUrl";
 import FavoriteButton from "../Favorites/FavoriteButton";
+import { useIsMobile } from "../../utils/muiUtils";
 
 function PopupCard({
   tour,
@@ -25,6 +30,7 @@ function PopupCard({
   activeMarker: Marker | null;
   setActiveMarker: (marker: Marker | null) => void;
 }) {
+  const isMobile = useIsMobile();
   const externalLinks = useSelector(
     (state: RootState) => state.search.externalLinks,
   );
@@ -81,10 +87,7 @@ function PopupCard({
             >
               <a
                 href={getTourLink(tour, city, externalLinks)}
-                target="_blank"
-                // Keep our own detail tab as opener so it can detect this
-                // search tab is still open; external links stay noopener.
-                rel={externalLinks ? "noopener" : "opener"}
+                {...getTourLinkTarget(isMobile, externalLinks)}
                 className="updated-title curser-link"
               >
                 {tour.title}

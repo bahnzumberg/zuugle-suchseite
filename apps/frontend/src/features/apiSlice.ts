@@ -2,13 +2,15 @@ import {
   createApi,
   fetchBaseQuery,
   FetchBaseQueryError,
+  type BaseQueryFn,
+  type FetchArgs,
 } from "@reduxjs/toolkit/query/react";
 import { BoundsObject, CityObject, LocationWithRadius } from "./searchSlice";
 import { Tour } from "../models/Tour";
 import { FilterObject, Provider } from "../models/Filter";
 import { Marker } from "../models/mapTypes";
 import { parseGPX } from "../utils/gpx_utils";
-import { API_BASE_URL } from "../utils/apiBase";
+import { getApiBaseUrl, getApiDomain } from "../utils/apiBase";
 import { apiImageUrl, assetUrl, publicAssetUrl } from "../utils/assetUrl";
 import { fetchAsset } from "../utils/fetchAsset";
 import { forecastDays, type TourWeatherDetailDay } from "../models/tourWeather";
@@ -229,22 +231,23 @@ export const errorStatus = (error: unknown): number | null => {
 };
 
 /**
- * Domain sent to the API in every request (`?domain=…`).
- *
- * The main app uses the page's own hostname (`www.zuugle.at`, `www.zuugle.de`,
- * …). The embed widget runs on a third-party host (e.g. `www.bahn-zum-berg.at`)
- * but must still tell the API which Zuugle domain it represents — the build
- * sets `__ZUUGLE_DOMAIN__` to the correct value (e.g. `dev.zuugle.at`).
+ * Dynamic base query that resolves the API base URL at request time.
+ * In the standalone app it falls back to API_BASE_URL (or VITE_API_URL / localhost).
+ * In the embed widget it uses the configured data-domain (e.g. https://www.zuugle.de/api).
  */
-declare const __ZUUGLE_DOMAIN__: string | undefined;
-const domain =
-  typeof __ZUUGLE_DOMAIN__ !== "undefined"
-    ? __ZUUGLE_DOMAIN__
-    : window.location.hostname;
+const dynamicBaseQuery: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  const baseUrl = getApiBaseUrl();
+  const rawBaseQuery = fetchBaseQuery({ baseUrl });
+  return rawBaseQuery(args, api, extraOptions);
+};
 
 /**
- * The API returns GPX links as absolute URLs built from the `domain` above, so
- * on localhost it hands back `https://localhost/public/gpx/…`, which nothing
+ * The API returns GPX links as absolute URLs built from the domain query param, so
+ * on localhost it hands back https://localhost/public/gpx/…, which nothing
  * serves. Its own images arrive host-free and need this environment's asset
  * base prefixed; bahn-zum-berg images arrive absolute and are left as they are.
  */
@@ -260,14 +263,12 @@ const withLocalRangeImageUrl = (range: RangeObject): RangeObject => ({
 });
 
 export const api = createApi({
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-  }),
+  baseQuery: dynamicBaseQuery,
   tagTypes: ["FavoritesList"],
   endpoints: (build) => ({
     getCities: build.query<CityObject[], void>({
       query: () => {
-        return `cities/?domain=${domain}`;
+        return `cities/?domain=${getApiDomain()}`;
       },
       transformResponse: (response: CitiesResponse) => {
         return response.cities;
@@ -276,13 +277,14 @@ export const api = createApi({
     getTotals: build.query<TotalResponse, string | undefined>({
       query: (city) => {
         const cityParam = city && city !== "no-city" ? `city=${city}&` : "";
-        return `tours/total?${cityParam}domain=${domain}`;
+        return `tours/total?${cityParam}domain=${getApiDomain()}`;
       },
     }),
     getTour: build.query<Tour, TourParams>({
       query: (params) => {
         return (
-          `tours/${params.id}/${params.city ?? "no-city"}` + `?domain=${domain}`
+          `tours/${params.id}/${params.city ?? "no-city"}` +
+          `?domain=${getApiDomain()}`
         );
       },
       transformResponse: (response: TourResponse) => {
@@ -306,7 +308,7 @@ export const api = createApi({
         } else if (bounds) {
           body.bounds = bounds;
         }
-        const augmentedParams = { ...rest, domain: domain };
+        const augmentedParams = { ...rest, domain: getApiDomain() };
         return {
           url: `tours/?${toSearchParams(augmentedParams)}`,
           method: "POST",
@@ -342,7 +344,7 @@ export const api = createApi({
       query: (params) => {
         const { filter, ...queryParams } = params;
         return {
-          url: `tours/filter?${toSearchParams(queryParams)}&domain=${domain}`,
+          url: `tours/filter?${toSearchParams(queryParams)}&domain=${getApiDomain()}`,
           method: "POST",
           body: filter ? { filter } : {},
         };
@@ -399,7 +401,7 @@ export const api = createApi({
     }),
     getCities2Tour: build.query<Cities2TourCity[], string>({
       query: (id) => {
-        return `cities2tour?domain=${domain}&id=${id}`;
+        return `cities2tour?domain=${getApiDomain()}&id=${id}`;
       },
       transformResponse: (response: Cities2TourResponse) => {
         return response.cities;

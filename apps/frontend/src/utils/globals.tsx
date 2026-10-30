@@ -1,6 +1,14 @@
 import { Tour } from "../models/Tour";
 import { i18n } from "i18next";
 import { Dayjs } from "dayjs";
+import { getApiDomain } from "./apiBase";
+import {
+  ZUUGLE_COUNTRIES,
+  getCountryForHost,
+  getCountryHost,
+  getDomainName,
+  isUatHost,
+} from "./domains";
 
 /**
  * Rewrites the domain in a bahn-zum-berg URL to match the current Zuugle TLD.
@@ -31,6 +39,20 @@ export function getTourLink(
       return `/tour/${tour.id}/no-city`;
     }
   }
+}
+
+/**
+ * `target`/`rel` for a link to a tour. On mobile our own detail page opens in
+ * the same tab so native Back returns to the results. Otherwise it opens in a
+ * new tab that keeps this search tab as opener, so the detail tab can detect
+ * it is still open; external (cross-origin) links stay noopener for safety.
+ */
+export function getTourLinkTarget(
+  isMobile: boolean,
+  externalLinks: boolean,
+): { target?: "_blank"; rel?: "opener" | "noopener" } {
+  if (isMobile && !externalLinks) return {};
+  return { target: "_blank", rel: externalLinks ? "noopener" : "opener" };
 }
 
 export function convertNumToTime(number: number, nonseparate = false) {
@@ -97,35 +119,11 @@ export const parseFileName = (name: string, prefix = "", postfix = "") => {
 
 export const getDomainText = () => {
   const host = window.location.hostname;
-  if (host.indexOf("www.zuugle.at") >= 0) {
-    return "Zuugle.at";
-  } else if (host.indexOf("www.zuugle.de") >= 0) {
-    return "Zuugle.de";
-  } else if (host.indexOf("www.zuugle.ch") >= 0) {
-    return "Zuugle.ch";
-  } else if (host.indexOf("www.zuugle.li") >= 0) {
-    return "Zuugle.li";
-  } else if (host.indexOf("www.zuugle.it") >= 0) {
-    return "Zuugle.it";
-  } else if (host.indexOf("www.zuugle.fr") >= 0) {
-    return "Zuugle.fr";
-  } else if (host.indexOf("www.zuugle.si") >= 0) {
-    return "Zuugle.si";
-  } else if (host.indexOf("www2.zuugle.at") >= 0) {
-    return "UAT Zuugle.at";
-  } else if (host.indexOf("www2.zuugle.de") >= 0) {
-    return "UAT Zuugle.de";
-  } else if (host.indexOf("www2.zuugle.ch") >= 0) {
-    return "UAT Zuugle.ch";
-  } else if (host.indexOf("www2.zuugle.fr") >= 0) {
-    return "UAT Zuugle.fr";
-  } else if (host.indexOf("www2.zuugle.it") >= 0) {
-    return "UAT Zuugle.it";
-  } else if (host.indexOf("www2.zuugle.si") >= 0) {
-    return "UAT Zuugle.si";
-  } else {
-    return "Localhost";
-  }
+  const uat = isUatHost(host);
+  const country = ZUUGLE_COUNTRIES.find((c) =>
+    host.includes(getCountryHost(c, uat)),
+  );
+  return country ? getDomainName(country, uat) : "Localhost";
 };
 
 export const isMobileDevice = () => {
@@ -141,26 +139,8 @@ export function getBackgroundImageUrl(tld: string, mobile = isMobileDevice()) {
   return `https://cdn.bahn-zum-berg.at/zuugle/zuugle-${tld}.jpg?${dimensions}`;
 }
 
-export const getTopLevelDomain = () => {
-  const domain = window.location.hostname;
-  let tld = "at";
-
-  if (domain.indexOf("zuugle.de") > 0) {
-    tld = "de";
-  } else if (domain.indexOf("zuugle.si") > 0) {
-    tld = "si";
-  } else if (domain.indexOf("zuugle.it") > 0) {
-    tld = "it";
-  } else if (domain.indexOf("zuugle.ch") > 0) {
-    tld = "ch";
-  } else if (domain.indexOf("zuugle.li") > 0) {
-    tld = "li";
-  } else if (domain.indexOf("zuugle.fr") > 0) {
-    tld = "fr";
-  }
-
-  return tld;
-};
+export const getTopLevelDomain = () =>
+  getCountryForHost(window.location.hostname).tld;
 
 export const shortenText = (
   text: string,
@@ -175,27 +155,7 @@ export const shortenText = (
 };
 
 export function getTLD() {
-  // Mapping of domain substrings to TLDs
-  const tldMap: Record<string, string> = {
-    "zuugle.de": "de",
-    "zuugle.si": "si",
-    "zuugle.it": "it",
-    "zuugle.ch": "ch",
-    "zuugle.li": "li",
-    "zuugle.fr": "fr",
-  };
-
-  // Get the hostname of the current window
-  const domain = window.location.hostname;
-
-  // Find the TLD by checking the domain substrings
-  for (const key in tldMap) {
-    if (domain.indexOf(key) > -1) {
-      return tldMap[key];
-    }
-  }
-  // Default TLD if no match is found
-  return "at";
+  return getCountryForHost(getApiDomain()).tld;
 }
 
 export const capitalize = (str: string) => {

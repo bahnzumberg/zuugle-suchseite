@@ -147,13 +147,12 @@ export async function fixTours() {
     await knex.raw(`UPDATE city2tour AS c SET min_connection_duration = i.min_connection_dur
                     FROM (
                     SELECT 
-                    f.tour_provider AS provider,
                     f.hashed_url,
                     f.city_slug,
                     COALESCE(EXTRACT(EPOCH FROM MIN(f.best_connection_duration))/60,0) AS min_connection_dur
                     FROM fahrplan AS f
                     WHERE f.city_any_connection='yes'
-                    GROUP BY f.tour_provider, f.hashed_url, f.city_slug
+                    GROUP BY f.hashed_url, f.city_slug
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
@@ -162,13 +161,12 @@ export async function fixTours() {
     await knex.raw(`UPDATE city2tour AS c SET max_connection_duration = i.max_connection_dur
                     FROM (
                     SELECT 
-                    f.tour_provider AS provider,
                     f.hashed_url,
                     f.city_slug,
                     EXTRACT(EPOCH FROM MAX(f.best_connection_duration))/60 AS max_connection_dur
                     FROM fahrplan AS f
                     WHERE f.city_any_connection='yes'
-                    GROUP BY f.tour_provider, f.hashed_url, f.city_slug
+                    GROUP BY f.hashed_url, f.city_slug
                     ) AS i
                     WHERE i.hashed_url=c.hashed_url
                     AND i.city_slug=c.city_slug`);
