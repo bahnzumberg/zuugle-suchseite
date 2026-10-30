@@ -31,6 +31,8 @@ import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import HikingRoundedIcon from "@mui/icons-material/HikingRounded";
 import { useAppDispatch } from "../hooks";
 import { mapUpdated } from "../features/searchSlice";
+import { usePageTour } from "../tours/usePageTour";
+import { useEmbed } from "../utils/embedContext";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -55,7 +57,13 @@ export default function StartNew() {
     favoritesOnly,
   } = useSearchTours();
 
+  const { isEmbed } = useEmbed();
   const dispatch = useAppDispatch();
+
+  usePageTour({
+    tourId: "search",
+    enabled: !isEmbed && !favoritesOnly && !showMap,
+  });
 
   /** Sections the mobile quick-nav scrolls to on the start page. */
   const startSections: QuickNavSection[] = useMemo(

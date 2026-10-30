@@ -37,6 +37,17 @@
       "merged_one": "Die Geräte sind verbunden. Eine Tour ist dazugekommen.",
       "merged_other": "Die Geräte sind verbunden. {{count}} Touren sind dazugekommen.",
       "reset": "Die Favoriten auf diesem Gerät wurden zurückgesetzt."
+    },
+    "tour": {
+      "step_favorites_title": "Deine persönliche Merkliste",
+      "step_favorites_desc": "Hier behältst du den Überblick über deine Lieblingstouren. Klicke einfach bei einer Tour auf das Herz-Symbol, um sie zu merken oder zu entfernen.",
+      "step_sync_title": "Geräte synchronisieren",
+      "step_sync_desc": "Nimm deine gemerkten Touren ganz einfach aufs Smartphone mit – oder übertrage Favoriten vom Handy hierher. Ohne Login und ohne Registrierung!",
+      "next": "Weiter",
+      "prev": "Zurück",
+      "done": "Fertig",
+      "open_sync": "Jetzt verbinden",
+      "help_button": "Tipps & Synchronisation anzeigen"
     }
   },
   "about": {
@@ -532,6 +543,42 @@
         "w": "W",
         "nw": "NW"
       }
+    }
+  },
+  "tours": {
+    "next": "Weiter",
+    "prev": "Zurück",
+    "done": "Fertig",
+    "open_sync": "Jetzt verbinden",
+    "search": {
+      "step_input_title": "Ausgangspunkt & Bergtouren suchen",
+      "step_input_desc": "Gib hier deinen Startbahnhof oder deine Wunschregion ein. Du kannst nach Startorten, Gebirgsgruppen, Sportarten oder beliebigen Stichwörtern suchen.",
+      "step_filter_title": "Suche verfeinern",
+      "step_filter_desc": "Passe deine Suche gezielt an: Filtere nach Anreisezeit, Gehzeit, Höhenmetern, Schwierigkeitsgrad oder Wochentag.",
+      "step_cards_title": "Auf einen Blick: Öffi-Fahrt & Bergtour",
+      "step_cards_desc": "<b>Blau:</b> Öffi-Fahrtzeit zum Tourenstart und Anzahl der Umstiege.<br><b>Schwarz:</b> Gehzeit und Höhenmeter bergauf für die Tour.<br><b>Unten:</b> Die Bergwetter-Vorhersage für die nächsten Tage.",
+      "step_favorites_title": "Deine Merkliste",
+      "step_favorites_desc": "Hier findest du all deine gemerkten Touren und kannst sie ohne Account auf dein Smartphone übertragen."
+    },
+    "search_map": {
+      "step_map_title": "Touren auf der Karte entdecken",
+      "step_map_desc": "Jeder Marker steht für den Startpunkt einer Bergtour. Zoomen und Verschieben wirkt wie ein Filter: Es werden nur Touren angezeigt, die in der sichtbaren Region starten!",
+      "step_weather_title": "Wanderwetter-Karte",
+      "step_weather_desc": "Schalte hier zwischen Wanderkarte und Wetterkarte um. So siehst du das vorhergesagte Bergwetter für heute und die nächsten 3 Tage direkt in der Region."
+    },
+    "tour_detail": {
+      "step_itinerary_title": "Individuelle Fahrplanabfrage",
+      "step_itinerary_desc": "Plane deine Verbindung von jeder beliebigen Haltestelle oder Adresse aus! Die Haltestellen am Start und Ziel der Bergtour sind bereits hinterlegt – gib einfach ein, wo du losfahren möchtest.",
+      "step_map_title": "Wanderroute & Bergwetter",
+      "step_map_desc": "Betrachte den Routenverlauf auf der topografischen Karte mit Höhenprofil (Zoom möglich). Mit dem Schalter oben links wechselst du zur Wetterkarte für heute und die nächsten 3 Tage.",
+      "step_weather_title": "Stündliches Bergwetter im Tourengebiet",
+      "step_weather_desc": "Prüfe das Bergwetter im Umkreis dieser Tour nach Uhrzeiten und Höhenlage. Klicke auf das ℹ️-Symbol, um ausführliche Erklärungen zu allen Wetterwerten und Symbolen zu erhalten."
+    },
+    "favorites": {
+      "step_favorites_title": "Deine persönliche Merkliste",
+      "step_favorites_desc": "Hier behältst du den Überblick über deine Lieblingstouren. Klicke einfach bei einer Tour auf das Herz-Symbol, um sie zu merken oder zu entfernen.",
+      "step_sync_title": "Geräte synchronisieren",
+      "step_sync_desc": "Nimm deine gemerkten Touren ganz einfach aufs Smartphone mit – oder übertrage Favoriten vom Handy hierher. Ohne Login und ohne Registrierung!"
     }
   }
 }
