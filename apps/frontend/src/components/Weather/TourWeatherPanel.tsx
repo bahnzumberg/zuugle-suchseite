@@ -46,6 +46,7 @@ export default memo(function TourWeatherPanel({
 
   return (
     <Box
+      id="tour-weather-section"
       component="section"
       aria-labelledby="tour-weather-title"
       className="tour-weather-panel"
@@ -74,6 +75,7 @@ export default memo(function TourWeatherPanel({
           {t("weather.button")}
         </Typography>
         <IconButton
+          id="tour-weather-info-button"
           aria-label={t("weather.detail.info_label")}
           aria-haspopup="dialog"
           onClick={() => setInfoOpen(true)}

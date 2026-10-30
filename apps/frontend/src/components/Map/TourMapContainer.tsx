@@ -444,6 +444,7 @@ export default function TourMapContainer({
 
   return (
     <Box
+      id="tour-map-container"
       ref={containerRef}
       className={`map-fullscreen-container ${isWeatherActive ? "weather-active-map" : ""}`}
       sx={{

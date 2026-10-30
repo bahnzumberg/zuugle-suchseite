@@ -43,6 +43,7 @@ import MobileQuickNav, {
 import DirectionsTransitRoundedIcon from "@mui/icons-material/DirectionsTransitRounded";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import { usePageTour } from "../tours/usePageTour";
 
 /** Sections the mobile quick-nav scrolls to on the tour detail page. */
 const DETAIL_SECTIONS: QuickNavSection[] = [
@@ -129,6 +130,11 @@ export default function DetailReworked() {
 
   // The day the weather panel and the map show.
   const [weatherDate, setWeatherDate] = useState(activityDate);
+
+  usePageTour({
+    tourId: "tour_detail",
+    enabled: Boolean(tour),
+  });
 
   // Sync weatherDate whenever activityDate or weatherDays change
   useEffect(() => {
@@ -785,6 +791,7 @@ export default function DetailReworked() {
                   }}
                 >
                   <Box
+                    id="tour-itinerary-section"
                     component="section"
                     aria-labelledby="tour-fahrplan-title"
                     className="tour-fahrplan-panel"
@@ -870,6 +877,7 @@ export default function DetailReworked() {
                 >
                   {track && (
                     <Box
+                      id="tour-interactive-map"
                       sx={{
                         width: "100%",
                         aspectRatio: { sm: "1 / 1" },

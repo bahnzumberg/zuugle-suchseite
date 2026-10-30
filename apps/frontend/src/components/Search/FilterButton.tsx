@@ -74,6 +74,7 @@ export default function FilterButton({ setFilterOn }: FilterButtonProps) {
 
   return (
     <SearchBarButton
+      id="search-filter-button"
       icon={<TuneOutlinedIcon />}
       label={t("filter.filter")}
       onClick={(e) => {

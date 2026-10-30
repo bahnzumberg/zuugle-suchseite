@@ -37,6 +37,17 @@
       "merged_one": "The devices are connected. One tour was added.",
       "merged_other": "The devices are connected. {{count}} tours were added.",
       "reset": "The favourites on this device have been reset."
+    },
+    "tour": {
+      "step_favorites_title": "Your Personal Favorites",
+      "step_favorites_desc": "Keep track of your favorite tours here. Simply click the heart icon on any tour to save or remove it.",
+      "step_sync_title": "Sync Devices",
+      "step_sync_desc": "Take your saved tours with you on your smartphone – or transfer favorites from your phone to this computer. No login or account required!",
+      "next": "Next",
+      "prev": "Back",
+      "done": "Done",
+      "open_sync": "Connect now",
+      "help_button": "Show tips & sync"
     }
   },
   "about": {
@@ -531,6 +542,42 @@
         "w": "W",
         "nw": "NW"
       }
+    }
+  },
+  "tours": {
+    "next": "Next",
+    "prev": "Back",
+    "done": "Done",
+    "open_sync": "Connect now",
+    "search": {
+      "step_input_title": "Starting Point & Search",
+      "step_input_desc": "Enter your departure station or desired region. You can search by start locations, mountain ranges, sports, or any keywords.",
+      "step_filter_title": "Refine Your Search",
+      "step_filter_desc": "Customize your search: filter by travel time, walking duration, elevation gain, difficulty, or weekday.",
+      "step_cards_title": "At a Glance: Transit & Hike",
+      "step_cards_desc": "<b>Blue:</b> Public transport travel time and transfers to the start.<br><b>Black:</b> Hiking duration and elevation gain.<br><b>Bottom:</b> Mountain weather forecast for the upcoming days.",
+      "step_favorites_title": "Your Saved Tours",
+      "step_favorites_desc": "Access all your saved tours here and sync them to your phone without creating an account."
+    },
+    "search_map": {
+      "step_map_title": "Discover Tours on the Map",
+      "step_map_desc": "Each marker represents the start of a hike. Zooming and panning filters the tours: only hikes starting within the visible area are shown!",
+      "step_weather_title": "Hiking Weather Map",
+      "step_weather_desc": "Switch between the topographic map and the weather map. See the predicted mountain weather for today and the next 3 days across the region."
+    },
+    "tour_detail": {
+      "step_itinerary_title": "Personalized Timetable",
+      "step_itinerary_desc": "Plan your connection from any station or street address! The stations at the start and end of the tour are already set – simply enter where you want to depart.",
+      "step_map_title": "Trail Route & Weather",
+      "step_map_desc": "View the track on the topographic map with elevation profile (zoomable). Use the switch at top left to view the weather map for today and the next 3 days.",
+      "step_weather_title": "Hourly Mountain Weather",
+      "step_weather_desc": "Check detailed weather conditions for this hike by hour and elevation. Click the ℹ️ icon for explanations of all weather indicators."
+    },
+    "favorites": {
+      "step_favorites_title": "Your Personal Favorites",
+      "step_favorites_desc": "Keep track of your favorite tours here. Simply click the heart icon on any tour to save or remove it.",
+      "step_sync_title": "Sync Devices",
+      "step_sync_desc": "Take your saved tours with you on your smartphone – or transfer favorites from your phone to this computer. No login or account required!"
     }
   }
 }

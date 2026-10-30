@@ -39,6 +39,17 @@
       "merged_few": "Napravi sta povezani. Dodane so bile {{count}} ture.",
       "merged_other": "Napravi sta povezani. Dodanih je bilo {{count}} tur.",
       "reset": "Priljubljene na tej napravi so ponastavljene."
+    },
+    "tour": {
+      "step_favorites_title": "Vaši priljubljeni izleti",
+      "step_favorites_desc": "Tukaj spremljajte svoje shranjene izlete. Preprosto kliknite ikono srca pri katerem koli izletu, da ga shranite ali odstranite.",
+      "step_sync_title": "Sinhronizacija naprav",
+      "step_sync_desc": "Vzemite shranjene izlete s seboj na pametni telefon ali jih prenesite iz telefona na ta računalnik. Brez prijave ali registracije!",
+      "next": "Naprej",
+      "prev": "Nazaj",
+      "done": "Končano",
+      "open_sync": "Poveži zdaj",
+      "help_button": "Prikaži nasvete in sinhronizacijo"
     }
   },
   "about": {
@@ -533,6 +544,42 @@
         "w": "Z",
         "nw": "SZ"
       }
+    }
+  },
+  "tours": {
+    "next": "Naprej",
+    "prev": "Nazaj",
+    "done": "Končano",
+    "open_sync": "Poveži zdaj",
+    "search": {
+      "step_input_title": "Izhodišče in iskanje",
+      "step_input_desc": "Vnesite svojo izhodiščno postajo ali želeno regijo. Iščete lahko po postajah, gorskih skupinah, športih ali ključnih besedah.",
+      "step_filter_title": "Prilagoditev iskanja",
+      "step_filter_desc": "Prilagodite iskanje: filtrirajte po času potovanja z javnim prevozom, času hoje, višinski razliki ali težavnosti.",
+      "step_cards_title": "Na kratko: Javni prevoz in izlet",
+      "step_cards_desc": "<b>Modro:</b> Čas vožnje z javnim prevozom in prestopi do izhodišča.<br><b>Črno:</b> Čas hoje in vzpon za turo.<br><b>Spodaj:</b> Vremenska napoved za naslednje dni.",
+      "step_favorites_title": "Shranjeni izleti",
+      "step_favorites_desc": "Dostopajte do vseh shranjenih izletov in jih brez registracije prenesite na pametni telefon."
+    },
+    "search_map": {
+      "step_map_title": "Raziščite izlete na zemljevidu",
+      "step_map_desc": "Vsaka oznaka predstavlja začetek izleta. Približevanje in premikanje deluje kot filter za vidno območje!",
+      "step_weather_title": "Vremenski zemljevid",
+      "step_weather_desc": "Preklopite med topografskim in vremenskim zemljevidom za napoved za danes in naslednje 3 dni."
+    },
+    "tour_detail": {
+      "step_itinerary_title": "Vozni red po meri",
+      "step_itinerary_desc": "Načrtujte povezavo s katere koli postaje ali naslova! Postaji na začetku in koncu ture sta že nastavljeni – vnesite le izhodišče.",
+      "step_map_title": "Sled poti in vreme",
+      "step_map_desc": "Oglejte si sled na zemljevidu z višinskim profilom. Z gumbom zgoraj levo preklopite na vremenski zemljevid.",
+      "step_weather_title": "Urna vremenska napoved v gorah",
+      "step_weather_desc": "Preverite podrobno gorsko vreme po urah in nadmorski višini. Kliknite ikono ℹ️ za razlago vseh vrednosti."
+    },
+    "favorites": {
+      "step_favorites_title": "Vaši priljubljeni izleti",
+      "step_favorites_desc": "Tukaj spremljajte svoje shranjene izlete. Preprosto kliknite ikono srca, da jih shranite ali odstranite.",
+      "step_sync_title": "Sinhronizacija naprav",
+      "step_sync_desc": "Vzemite shranjene izlete s seboj na pametni telefon. Brez prijave ali registracije!"
     }
   }
 }
