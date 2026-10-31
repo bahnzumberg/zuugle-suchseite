@@ -369,7 +369,7 @@
     "verbindung_suchen": "Verbindung suchen",
     "direkt": "Direkt",
     "umstieg": "Umstieg",
-    "verfuegbare_gehzeit": "Verfügbare Zeit Stopp zu Stopp",
+    "verfuegbare_gehzeit": "Verfügbare Zeit bis Rückfahrt",
     "gleis": "Bahnsteig",
     "von_gleis_zu_gleis": "von Bahnsteig {{from}} zu Bahnsteig {{to}}",
     "von_gleis": "von Bahnsteig {{from}}",

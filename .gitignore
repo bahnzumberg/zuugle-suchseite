@@ -16,3 +16,7 @@ test-results/
 # generated fallback and a stray Windows artifact, not source assets
 assets/public/range-image/*.jpg
 assets/public/range-image/desktop.ini
+
+# Database backups and dumps
+*.dump
+zuugle-db-backup/

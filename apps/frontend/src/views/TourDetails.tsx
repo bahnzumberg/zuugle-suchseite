@@ -843,7 +843,6 @@ export default function DetailReworked() {
                     <Box
                       sx={{
                         mt: { xs: "100px", md: "50px" },
-                        minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                       }}
                       className="tour-weather-panel"
                     >
@@ -872,7 +871,6 @@ export default function DetailReworked() {
                     position: { md: "sticky" },
                     top: { md: "72px" },
                     alignSelf: { md: "flex-start" },
-                    minHeight: { xs: "calc(100vh - 128px)", sm: "unset" },
                   }}
                 >
                   {track && (
