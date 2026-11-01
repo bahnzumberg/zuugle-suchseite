@@ -868,43 +868,6 @@ ul.about-bullets {
   margin-top: 5px;
 }
 
-.react-horizontal-scrolling-menu--wrapper {
-}
-
-.react-horizontal-scrolling-card {
-  width: auto;
-  /* margin-right: 20px; */
-  vertical-align: top;
-  height: 100%;
-}
-
-.react-horizontal-scrolling-arrow-container {
-  display: flex;
-  align-items: center;
-}
-
-.react-horizontal-scrolling-menu--scroll-container {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-.react-horizontal-scrolling-menu--scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-@media only screen and (max-width: 600px) {
-  .react-horizontal-scrolling-arrow-container {
-    display: none;
-  }
-  .react-horizontal-scrolling-card {
-    max-width: 100%;
-  }
-}
-
-.react-horizontal-scrolling-arrow {
-  margin: 0;
-}
-
 .map-fullscreen-container {
   isolation: isolate;
   z-index: 0;
