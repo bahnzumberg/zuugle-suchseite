@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
+import { numberLocale } from "../utils/globals";
 import { useSelector } from "react-redux";
 import { RootState } from "..";
 import { useAppDispatch } from "../hooks";
@@ -31,7 +32,7 @@ export default function TotalToursHeader({
   loadedTours?: { total: number };
   setFilterOn?: (v: boolean) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { isEmbed, fixedProviders } = useEmbed();
   const storedFilter = useSelector((state: RootState) => state.filter);
@@ -338,7 +339,9 @@ export default function TotalToursHeader({
               flexShrink: 0,
             }}
           >
-            {Number(loadedTours.total).toLocaleString()}
+            {Number(loadedTours.total).toLocaleString(
+              numberLocale(i18n.language),
+            )}
             {loadedTours.total === 1
               ? ` ${t("main.ergebnis")}`
               : ` ${t("main.ergebnisse")}`}

@@ -17,11 +17,8 @@ import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import WbTwilightIcon from "@mui/icons-material/WbTwilight";
 import { useTranslation } from "react-i18next";
 import { useGetWeatherMetadataQuery } from "../../features/apiSlice";
-import {
-  numberLocale,
-  weatherIconUrl,
-  WEATHER_ICONS,
-} from "../../models/tourWeather";
+import { weatherIconUrl, WEATHER_ICONS } from "../../models/tourWeather";
+import { numberLocale } from "../../utils/globals";
 import { formatWeatherGeneratedAt } from "../Map/WeatherControls";
 import { MUTED, RULE, TWILIGHT_COLOR } from "./weatherStyles";
 
@@ -170,7 +167,11 @@ export default function TourWeatherInfoDialog({
               borderTop: `1px solid ${RULE}`,
             }}
           >
-            {formatWeatherGeneratedAt(metadata.generated_at, t, i18n.language)}
+            {formatWeatherGeneratedAt(
+              metadata.generated_at,
+              t,
+              numberLocale(i18n.language),
+            )}
           </Typography>
         )}
       </DialogContent>

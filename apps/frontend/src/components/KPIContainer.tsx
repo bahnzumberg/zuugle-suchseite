@@ -2,6 +2,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useTranslation } from "react-i18next";
+import { numberLocale } from "../utils/globals";
 import Paper from "@mui/material/Paper";
 import { assetUrl } from "../utils/assetUrl";
 
@@ -18,7 +19,7 @@ export default function KPIContainer({
   totalCities,
   totalProvider,
 }: KPIContainerProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <Paper
@@ -53,7 +54,9 @@ export default function KPIContainer({
                   variant={"h3"}
                   sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
                 >
-                  {Number(totalTours).toLocaleString()}
+                  {Number(totalTours).toLocaleString(
+                    numberLocale(i18n.language),
+                  )}
                 </Typography>
                 <Typography
                   variant={"text"}
@@ -134,7 +137,9 @@ export default function KPIContainer({
                   variant={"h3"}
                   sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
                 >
-                  {Number(totalConnections).toLocaleString()}
+                  {Number(totalConnections).toLocaleString(
+                    numberLocale(i18n.language),
+                  )}
                 </Typography>
                 <Typography
                   variant={"text"}

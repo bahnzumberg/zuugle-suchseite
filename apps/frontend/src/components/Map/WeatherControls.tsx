@@ -8,11 +8,12 @@ import { WeatherMetadata } from "../../models/weatherOverlay";
 import { theme } from "../../theme";
 import { formatWeatherDayLabel } from "../../models/tourWeather";
 import { WEATHER_GRADIENT_CSS } from "../../models/weatherScore";
+import { numberLocale } from "../../utils/globals";
 
 export function formatWeatherGeneratedAt(
   isoString: string,
   t: TFunction,
-  locale = "de-AT",
+  locale: string,
 ): string {
   try {
     const d = new Date(isoString);
@@ -130,7 +131,11 @@ export const WeatherButtonAndDays: React.FC<WeatherButtonAndDaysProps> = ({
           >
             {metadata.days.slice(0, 4).map((day) => {
               const isSelected = selectedDate === day.date;
-              const label = formatWeatherDayLabel(day.date, t, i18n.language);
+              const label = formatWeatherDayLabel(
+                day.date,
+                t,
+                numberLocale(i18n.language),
+              );
               return (
                 <button
                   type="button"
@@ -228,7 +233,7 @@ export const WeatherLegend: React.FC<WeatherLegendProps> = ({
   const formattedGeneratedAt = formatWeatherGeneratedAt(
     metadata.generated_at,
     t,
-    i18n.language,
+    numberLocale(i18n.language),
   );
 
   return (

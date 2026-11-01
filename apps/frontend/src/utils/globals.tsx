@@ -96,10 +96,19 @@ export const simpleConvertNumToTime = (number: number) => {
   return timeStr;
 };
 
-export function formatNumber(number: string | number, postfix = "") {
+/** Locale for formatting numbers and dates in the UI language; German always uses de-DE. */
+export function numberLocale(language: string): string {
+  return language.startsWith("de") ? "de-DE" : language;
+}
+
+export function formatNumber(
+  number: string | number,
+  language: string,
+  postfix = "",
+) {
   const num = typeof number === "string" ? parseFloat(number) : number;
   if (isNaN(num)) return "";
-  return num.toLocaleString("de-AT") + postfix;
+  return num.toLocaleString(numberLocale(language)) + postfix;
 }
 
 export const parseFileName = (name: string, prefix = "", postfix = "") => {
