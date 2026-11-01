@@ -17,6 +17,12 @@ import {
 } from "./sync.js";
 import cacheService from "../services/cache.js";
 import logger from "../utils/logger";
+import { checkImportDataAllowed } from "../utils/environmentGuard";
+
+// Guard: prevent accidental execution on native PROD
+if (!checkImportDataAllowed()) {
+    process.exit(1);
+}
 
 const DUMP_URL = "https://uat-dump.zuugle.at/zuugle_postgresql.dump";
 const DUMP_FILE = "zuugle_postgresql.dump";
