@@ -53,18 +53,24 @@ npm run build         # verify the build succeeds (CI builds before deploy)
 node scripts/check-cron-scripts.mjs  # guard cron-invoked npm scripts (CI runs this)
 ```
 
-### Updating the GPX reference image
+### GPX image test
 
-`test/gpx-image.test.js` compares generated map screenshots against
-`test/fixtures/gpx_image_reference.webp` using pixel-level analysis. If you change
-anything that visibly affects map rendering (markers, colors, layout, Leaflet config),
-update the reference before committing:
+`test/gpx-image.test.js` renders `test/fixtures/tour_28308.gpx` through the
+headless-leaflet page and checks the screenshot with simple pixel heuristics, not
+against a reference image (live OpenTopo tiles drift too much between runs):
+
+- near-white pixels < 5 % — otherwise map tiles are missing
+- greenish pixels > 20 % — otherwise the GPX failed to load and the map fell back
+  to London
 
 ```bash
-rm test/fixtures/gpx_image_reference.webp
-npm test -- --testPathPattern=gpx-image   # first run recreates the reference
-git add test/fixtures/gpx_image_reference.webp
+npm test -- --testPathPatterns=gpx-image
 ```
+
+Every run overwrites `test/fixtures/gpx_image_generated.webp` and
+`test/fixtures/gpx_image_reference.webp`; they are for visual inspection only. Commit
+them when map rendering changes intentionally (markers, colors, layout, Leaflet
+config), otherwise discard them with `git checkout test/fixtures/`.
 
 ## Commit Guidelines
 
