@@ -83,7 +83,7 @@ export default function KPIContainer({
                   variant={"h3"}
                   sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
                 >
-                  {totalProvider}
+                  {totalProvider.toLocaleString(numberLocale(i18n.language))}
                 </Typography>
                 <Typography
                   variant={"text"}
@@ -110,7 +110,7 @@ export default function KPIContainer({
                   variant={"h3"}
                   sx={{ fontSize: { xs: "27px", sm: "48px" }, fontWeight: 700 }}
                 >
-                  {totalCities}
+                  {totalCities.toLocaleString(numberLocale(i18n.language))}
                 </Typography>
                 <Typography
                   variant={"text"}
