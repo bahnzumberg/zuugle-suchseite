@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
+import { formatNumber, numberLocale } from "../utils/globals";
 import { useSelector } from "react-redux";
 import { RootState } from "..";
 import { useAppDispatch } from "../hooks";
@@ -31,7 +32,7 @@ export default function TotalToursHeader({
   loadedTours?: { total: number };
   setFilterOn?: (v: boolean) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { isEmbed, fixedProviders } = useEmbed();
   const storedFilter = useSelector((state: RootState) => state.filter);
@@ -100,7 +101,7 @@ export default function TotalToursHeader({
     ) {
       chips.push({
         key: "ascent",
-        label: `${t("filter.anstieg")}: ${storedFilter.minAscent ?? 0}–${storedFilter.maxAscent ?? "∞"} hm`,
+        label: `${t("filter.anstieg")}: ${formatNumber(storedFilter.minAscent ?? 0, i18n.language)}–${storedFilter.maxAscent === undefined ? "∞" : formatNumber(storedFilter.maxAscent, i18n.language)} hm`,
         onDelete: () => removeFilterKey("minAscent", "maxAscent"),
       });
     }
@@ -110,7 +111,7 @@ export default function TotalToursHeader({
     ) {
       chips.push({
         key: "descent",
-        label: `${t("main.abstieg")}: ${storedFilter.minDescent ?? 0}–${storedFilter.maxDescent ?? "∞"} hm`,
+        label: `${t("main.abstieg")}: ${formatNumber(storedFilter.minDescent ?? 0, i18n.language)}–${storedFilter.maxDescent === undefined ? "∞" : formatNumber(storedFilter.maxDescent, i18n.language)} hm`,
         onDelete: () => removeFilterKey("minDescent", "maxDescent"),
       });
     }
@@ -120,7 +121,7 @@ export default function TotalToursHeader({
     ) {
       chips.push({
         key: "distance",
-        label: `${t("filter.gehdistanz")}: ${storedFilter.minDistance ?? 0}–${storedFilter.maxDistance ?? "∞"} km`,
+        label: `${t("filter.gehdistanz")}: ${formatNumber(storedFilter.minDistance ?? 0, i18n.language)}–${storedFilter.maxDistance === undefined ? "∞" : formatNumber(storedFilter.maxDistance, i18n.language)} km`,
         onDelete: () => removeFilterKey("minDistance", "maxDistance"),
       });
     }
@@ -130,7 +131,7 @@ export default function TotalToursHeader({
     ) {
       chips.push({
         key: "transport",
-        label: `${t("details.anreisedauer")}: ${storedFilter.minTransportDuration ?? 0}–${storedFilter.maxTransportDuration ?? "∞"} h`,
+        label: `${t("details.anreisedauer")}: ${formatNumber(storedFilter.minTransportDuration ?? 0, i18n.language)}–${storedFilter.maxTransportDuration === undefined ? "∞" : formatNumber(storedFilter.maxTransportDuration, i18n.language)} h`,
         onDelete: () =>
           removeFilterKey("minTransportDuration", "maxTransportDuration"),
       });
@@ -338,7 +339,9 @@ export default function TotalToursHeader({
               flexShrink: 0,
             }}
           >
-            {Number(loadedTours.total).toLocaleString()}
+            {Number(loadedTours.total).toLocaleString(
+              numberLocale(i18n.language),
+            )}
             {loadedTours.total === 1
               ? ` ${t("main.ergebnis")}`
               : ` ${t("main.ergebnisse")}`}

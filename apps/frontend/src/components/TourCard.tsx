@@ -4,6 +4,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import {
   convertNumToTime,
+  formatNumber,
   getTourLink,
   getTourLinkTarget,
 } from "../utils/globals";
@@ -45,7 +46,7 @@ export default function TourCard({
     : DEFAULT_IMAGE;
 
   // i18next
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const hm = t("details.hm_hoehenmeter");
 
   const tourLink = getTourLink(tour, city, externalLinks);
@@ -275,7 +276,7 @@ export default function TourCard({
               )}
               <br />
               <span style={{ fontSize: "18px" }}>
-                {tour.ascent} {hm}
+                {formatNumber(tour.ascent, i18n.language, " " + hm)}
               </span>
             </Typography>
           </Box>

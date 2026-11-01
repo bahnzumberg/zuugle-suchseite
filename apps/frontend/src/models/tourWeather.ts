@@ -143,11 +143,6 @@ export function weatherIcon(id: number | null): WeatherIcon | undefined {
   return id === null ? undefined : WEATHER_ICONS[id];
 }
 
-/** German uses the Austrian format, so 2000 reads "2 000" as on the rest of the page. */
-export function numberLocale(language: string): string {
-  return language.startsWith("de") ? "de-AT" : language;
-}
-
 /** Today in Europe/Vienna as "YYYY-MM-DD". */
 export function todayInVienna(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Vienna" });
