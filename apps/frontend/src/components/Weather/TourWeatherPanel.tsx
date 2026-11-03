@@ -34,8 +34,8 @@ export default memo(function TourWeatherPanel({
 }: TourWeatherPanelProps) {
   const { t } = useTranslation();
   const { data: days = [] } = useGetTourWeatherQuery(tourId);
-  // One day at a time: an open day's table is tall, the closed rows already compare the days.
-  const [open, setOpen] = useState(true);
+  // One day at a time: closed by default for a compact view above the tour story.
+  const [open, setOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   if (days.length === 0) return null;
 

@@ -43,6 +43,8 @@ import MobileQuickNav, {
 import DirectionsTransitRoundedIcon from "@mui/icons-material/DirectionsTransitRounded";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import TourStoryPanel from "../components/TourStory/TourStoryPanel";
+import { SAMPLE_TOUR_STORY } from "../components/TourStory/sampleTourStory";
 
 /** Sections the mobile quick-nav scrolls to on the tour detail page. */
 const DETAIL_SECTIONS: QuickNavSection[] = [
@@ -83,6 +85,21 @@ function hasOpenSearchTab(): boolean {
     // Cross-origin opener: accessing `.closed` throws.
     return false;
   }
+}
+
+function LoadingSpinner() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+      }}
+    >
+      <CircularProgress size={50} />
+    </div>
+  );
 }
 
 export default function DetailReworked() {
@@ -242,6 +259,11 @@ export default function DetailReworked() {
     return url;
   };
 
+  const storyData =
+    tour?.provider === "bahnzumberg" || idOne === "309"
+      ? SAMPLE_TOUR_STORY
+      : null;
+
   // Translation-related
   const { t } = useTranslation();
 
@@ -290,19 +312,6 @@ export default function DetailReworked() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, [city, i18n, navigate]);
-
-  const LoadingSpinner = () => (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}
-    >
-      <CircularProgress size={50} />
-    </div>
-  );
 
   useEffect(() => {
     if (!isTourLoading && !tour) {
@@ -755,6 +764,11 @@ export default function DetailReworked() {
                 </Box>
               )}
             </Box>
+
+            {/* ─── Community Tourenbericht (provider=bahnzumberg) ─── */}
+            {storyData && (
+              <TourStoryPanel contentHtml={storyData.contentHtml} />
+            )}
 
             {/* ═══════════════════════════════════════════════ */}
             {/* ─── DOMINANT SECTION: Fahrplan + Map (Cases 1 & 2) ─── */}
