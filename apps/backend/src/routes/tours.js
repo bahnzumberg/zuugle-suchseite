@@ -923,7 +923,9 @@ const getMatchingTourIds = async (req) => {
     const type = req.query.type;
     const domain = req.query.domain;
     const tld = get_domain_country(domain).toUpperCase();
-    const language = req.query.language;
+    // Used as a bind value in the ORDER BY below; default to a value that
+    // never matches so the language boost is a no-op when unspecified.
+    const language = req.query.language || "";
 
     let searchType = req.query["search_type"];
     if (searchType !== "hut" && searchType !== "peak") {
@@ -957,6 +959,10 @@ const getMatchingTourIds = async (req) => {
     let new_search_where_map = ``;
     let new_search_where_language = ``;
     let bindings = [];
+    // Filter IN-list values are appended after `bindings` in the WHERE text
+    // (searchterm clauses first), so they get their own array and are
+    // concatenated at bind time to keep placeholder order correct.
+    let filter_bindings = [];
     let order_bindings = [];
     let new_filter_where_singleDayTour = ``;
     let new_filter_where_multipleDayTour = ``;
@@ -1055,53 +1061,24 @@ const getMatchingTourIds = async (req) => {
             new_filter_where_Distance += `AND t.distance <= ${filterJSON["maxDistance"]} `;
         }
 
-        if (filterJSON["ranges"]) {
-            new_filter_where_ranges = `AND t.range IN ${JSON.stringify(filterJSON["ranges"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
-
-            if (new_filter_where_ranges === "AND t.range IN () ") {
-                new_filter_where_ranges = ``;
+        // Builds an `IN (...)` clause with one `?` placeholder per value, so the
+        // values reach the driver as bind parameters instead of being spliced
+        // into the SQL text. Values from the request body are never trusted.
+        const filterList = (column, values) => {
+            if (!Array.isArray(values) || values.length === 0) {
+                return ``;
             }
-        }
+            const placeholders = values.map(() => `?`).join(`, `);
+            filter_bindings.push(...values);
+            return `AND ${column} IN (${placeholders}) `;
+        };
 
-        if (filterJSON["types"]) {
-            new_filter_where_types = `AND t.type IN ${JSON.stringify(filterJSON["types"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
-
-            if (new_filter_where_types === "AND t.type IN () ") {
-                new_filter_where_types = ``;
-            }
-        }
-
-        if (filterJSON["languages"]) {
-            new_filter_where_languages = `AND t.text_lang IN ${JSON.stringify(filterJSON["languages"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
-
-            if (new_filter_where_languages === "AND t.text_lang IN () ") {
-                new_filter_where_languages = ``;
-            }
-        }
-
-        if (filterJSON["difficulties"]) {
-            new_filter_where_difficulties = `AND t.difficulty IN ${JSON.stringify(filterJSON["difficulties"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
-
-            if (new_filter_where_difficulties === "AND t.difficulty IN () ") {
-                new_filter_where_difficulties = ``;
-            }
-        }
-
-        if (filterJSON["providers"]) {
-            new_filter_where_providers = `AND t.provider IN ${JSON.stringify(filterJSON["providers"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
-
-            if (new_filter_where_providers === "AND t.provider IN () ") {
-                new_filter_where_providers = ``;
-            }
-        }
-
-        if (filterJSON["countries"]) {
-            new_filter_where_countries = `AND t.country IN ${JSON.stringify(filterJSON["countries"]).replace("[", "(").replace("]", ")").replaceAll('"', "'")} `;
-
-            if (new_filter_where_countries === "AND t.country IN () ") {
-                new_filter_where_countries = ``;
-            }
-        }
+        new_filter_where_ranges = filterList(`t.range`, filterJSON["ranges"]);
+        new_filter_where_types = filterList(`t.type`, filterJSON["types"]);
+        new_filter_where_languages = filterList(`t.text_lang`, filterJSON["languages"]);
+        new_filter_where_difficulties = filterList(`t.difficulty`, filterJSON["difficulties"]);
+        new_filter_where_providers = filterList(`t.provider`, filterJSON["providers"]);
+        new_filter_where_countries = filterList(`t.country`, filterJSON["countries"]);
 
         if (Array.isArray(filterJSON["favoriteTourIds"])) {
             const favoriteTourIds = filterJSON["favoriteTourIds"].filter((id) =>
@@ -1273,6 +1250,7 @@ const getMatchingTourIds = async (req) => {
                                     ${new_filter_where_poi}`;
 
     // Create a version with actual values for cache key generation
+    bindings.push(...filter_bindings);
     const global_where_condition_bound = bindValues(global_where_condition, bindings);
     const new_search_order_searchterm_bound = bindValues(
         new_search_order_searchterm,
@@ -1313,7 +1291,7 @@ const getMatchingTourIds = async (req) => {
                             ${global_where_condition_bound}
                             ORDER BY 
                             ${reachability_order}
-                            CASE WHEN t.text_lang='${language}' THEN 1 ELSE 0 END DESC,
+                            CASE WHEN t.text_lang=? THEN 1 ELSE 0 END DESC,
                             ${new_search_order_searchterm_bound}
                             t.month_order ASC, 
                             t.number_of_days ASC,
@@ -1324,7 +1302,7 @@ const getMatchingTourIds = async (req) => {
                             t.quality_rating DESC,
                             FLOOR(COALESCE(t.duration, 0)) ASC,
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
-        const tour_ids = await knex.raw(tour_ids_sql);
+        const tour_ids = await knex.raw(tour_ids_sql, [language]);
         tourIds = tour_ids.rows.map((row) => row.id);
         cacheService.set(cacheKeyIds, tourIds);
     }
@@ -2019,6 +1997,12 @@ const filterWrapperV2 = async (req, res) => {
  */
 const tourGpxWrapper = async (req, res) => {
     const id = req.params.id;
+
+    // Validate: tour IDs are always positive integers (numeric DB primary key).
+    // Reject anything else to prevent path traversal via crafted :id values.
+    if (!/^\d{1,10}$/.test(id)) {
+        return res.status(400).json({ success: false, error: "Invalid tour ID" });
+    }
 
     res.setHeader("content-type", "application/gpx+xml");
     res.setHeader("Cache-Control", "public, max-age=31557600");

@@ -1,0 +1,19 @@
+# Systemd service unit for Promtail on Zuugle Server
+# Copy to /etc/systemd/system/promtail.service, adjust paths if needed, then run:
+#   systemctl daemon-reload
+#   systemctl enable --now promtail
+
+[Unit]
+Description=Promtail agent for Loki log shipping
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/promtail -config.file=/etc/promtail/promtail-config.yml
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

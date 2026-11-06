@@ -33,6 +33,8 @@ import { useSearchParams } from "react-router";
 import LegalDialog, {
   type LegalDialogType,
 } from "../components/LegalDialog/LegalDialog";
+import { usePageTour } from "../tours/usePageTour";
+import { useEmbed } from "../utils/embedContext";
 
 const TourMapContainer = lazy(
   () => import("../components/Map/TourMapContainer"),
@@ -56,7 +58,18 @@ export default function SearchResults() {
     favoritesOnly,
   } = useSearchTours();
 
+  const { isEmbed } = useEmbed();
   const dispatch = useAppDispatch();
+
+  usePageTour({
+    tourId: "search",
+    enabled: !isEmbed && !favoritesOnly && !showMap,
+  });
+
+  usePageTour({
+    tourId: "search_map",
+    enabled: !isEmbed && showMap,
+  });
 
   /** Sections the mobile quick-nav scrolls to on the search results page. */
   const searchSections: QuickNavSection[] = useMemo(

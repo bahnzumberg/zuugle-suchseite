@@ -129,6 +129,7 @@ export default function Search({
 
   return (
     <Box
+      id="zuugle-search-box"
       sx={[
         {
           zIndex: 20,

@@ -37,6 +37,17 @@
       "merged_one": "Les appareils sont connectés. Une randonnée a été ajoutée.",
       "merged_other": "Les appareils sont connectés. {{count}} randonnées ont été ajoutées.",
       "reset": "Les favoris de cet appareil ont été réinitialisés."
+    },
+    "tour": {
+      "step_favorites_title": "Votre liste de favoris",
+      "step_favorites_desc": "Gardez un œil sur vos circuits préférés. Cliquez simplement sur le cœur d'un circuit pour l'ajouter ou le retirer.",
+      "step_sync_title": "Synchroniser les appareils",
+      "step_sync_desc": "Emportez vos circuits sur votre smartphone ou transférez vos favoris depuis votre mobile vers cet ordinateur. Sans compte ni inscription !",
+      "next": "Suivant",
+      "prev": "Retour",
+      "done": "Terminé",
+      "open_sync": "Connecter maintenant",
+      "help_button": "Astuces et synchronisation"
     }
   },
   "about": {
@@ -531,6 +542,42 @@
         "w": "O",
         "nw": "NO"
       }
+    }
+  },
+  "tours": {
+    "next": "Suivant",
+    "prev": "Retour",
+    "done": "Terminé",
+    "open_sync": "Connecter maintenant",
+    "search": {
+      "step_input_title": "Point de départ et recherche",
+      "step_input_desc": "Indiquez votre gare de départ ou une région. Vous pouvez chercher par lieu, massif, activité ou mot-clé.",
+      "step_filter_title": "Affiner la recherche",
+      "step_filter_desc": "Personnalisez votre recherche par temps de trajet, durée de marche, dénivelé ou difficulté.",
+      "step_cards_title": "En un coup d'œil : Trajet & Randonnée",
+      "step_cards_desc": "<b>Bleu :</b> Temps de transport et correspondances pour rejoindre le départ.<br><b>Noir :</b> Durée de marche et dénivelé positif.<br><b>Bas :</b> Météo des prochains jours.",
+      "step_favorites_title": "Vos favoris",
+      "step_favorites_desc": "Retrouvez vos randonnées enregistrées et synchronisez-les avec votre smartphone sans compte."
+    },
+    "search_map": {
+      "step_map_title": "Explorer sur la carte",
+      "step_map_desc": "Chaque repère indique le départ d'une randonnée. Zoomer et déplacer la carte filtre automatiquement les randonnées dans la zone visible !",
+      "step_weather_title": "Carte météo",
+      "step_weather_desc": "Basculez entre carte topographique et carte météo pour voir les prévisions d'aujourd'hui et des 3 prochains jours."
+    },
+    "tour_detail": {
+      "step_itinerary_title": "Calcul d'itinéraire personnalisé",
+      "step_itinerary_desc": "Planifiez votre trajet depuis n'importe quel arrêt ou adresse ! Les arrêts de départ et d'arrivée sont déjà configurés – entrez simplement votre point de départ.",
+      "step_map_title": "Tracé et météo",
+      "step_map_desc": "Consultez le tracé sur la carte topographique avec profil altimétrique. Basculez en haut à gauche vers la carte météo.",
+      "step_weather_title": "Météo détaillée en montagne",
+      "step_weather_desc": "Consultez la météo heure par heure autour de l'itinéraire. Cliquez sur l'icône ℹ️ pour obtenir l'explication des valeurs."
+    },
+    "favorites": {
+      "step_favorites_title": "Votre liste de favoris",
+      "step_favorites_desc": "Gardez un œil sur vos circuits préférés. Cliquez simplement sur le cœur d'un circuit pour l'ajouter ou le retirer.",
+      "step_sync_title": "Synchroniser les appareils",
+      "step_sync_desc": "Emportez vos circuits sur votre smartphone ou transférez vos favoris sans compte ni inscription !"
     }
   }
 }

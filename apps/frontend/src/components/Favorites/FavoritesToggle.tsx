@@ -13,6 +13,7 @@ import { syncDialogOpened } from "../../features/favoritesSlice";
 import SearchBarButton from "../Search/SearchBarButton";
 import { useEmbed } from "../../utils/embedContext";
 import { theme } from "../../theme";
+import { useFavoritesTour } from "./useFavoritesTour";
 
 // Lindgrün (Corporate Design) — same literal FilterButton uses for its
 // active state, so the hover shade can be derived the same way.
@@ -88,6 +89,8 @@ export default function FavoritesToggle({
 
   const showSync = !isEmbed && !hideSync;
 
+  useFavoritesTour({ enabled: showSync && favoritesOnly });
+
   const handleToggle = () => {
     // When on a different page (e.g. the start page), the user wants to
     // enter favorites mode. Toggle first, then navigate — wrapping the
@@ -111,6 +114,7 @@ export default function FavoritesToggle({
       {showSync && favoritesOnly && (
         <Tooltip title={t("favorites.sync.title")}>
           <IconButton
+            id="favorites-sync-button"
             onClick={() => dispatch(syncDialogOpened(null))}
             aria-label={t("favorites.sync.title")}
             sx={{
@@ -126,6 +130,7 @@ export default function FavoritesToggle({
         </Tooltip>
       )}
       <SearchBarButton
+        id="favorites-toggle-button"
         icon={icon}
         label={label}
         onClick={handleToggle}

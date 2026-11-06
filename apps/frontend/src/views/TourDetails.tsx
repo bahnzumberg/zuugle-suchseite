@@ -147,6 +147,11 @@ export default function DetailReworked() {
   // The day the weather panel and the map show.
   const [weatherDate, setWeatherDate] = useState(activityDate);
 
+  usePageTour({
+    tourId: "tour_detail",
+    enabled: Boolean(tour),
+  });
+
   // Sync weatherDate whenever activityDate or weatherDays change
   useEffect(() => {
     if (weatherDays.length > 0) {
@@ -799,6 +804,7 @@ export default function DetailReworked() {
                   }}
                 >
                   <Box
+                    id="tour-itinerary-section"
                     component="section"
                     aria-labelledby="tour-fahrplan-title"
                     className="tour-fahrplan-panel"
@@ -882,6 +888,7 @@ export default function DetailReworked() {
                 >
                   {track && (
                     <Box
+                      id="tour-interactive-map"
                       sx={{
                         width: "100%",
                         aspectRatio: { sm: "1 / 1" },
