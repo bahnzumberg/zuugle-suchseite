@@ -2,7 +2,6 @@ import express from "express";
 import logger from "../utils/logger";
 import cacheService from "../services/cache.js";
 import {
-    getDianaToken,
     proxyGet,
     proxyPost,
     findCityByCoordinates,
@@ -75,51 +74,6 @@ function filterParams(queryObj, allowedSet) {
     }
     return filtered.toString();
 }
-
-// ─── GET /api/diana/token ────────────────────────────────────────
-
-/**
- * @swagger
- * /api/diana/token:
- *   get:
- *     summary: Get Diana API access token
- *     description: Returns an OAuth2 access token for the Diana routing API. Token is cached server-side; credentials never reach the frontend.
- *     responses:
- *       200:
- *         description: Access token.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 access_token:
- *                   type: string
- *                 expires_in:
- *                   type: integer
- *       502:
- *         description: Diana API unreachable.
- *       503:
- *         description: Diana credentials not configured.
- */
-router.get("/token", async (_req, res) => {
-    try {
-        const tokenData = await getDianaToken();
-        res.status(200).json({
-            success: true,
-            access_token: tokenData.access_token,
-            expires_in: tokenData.expires_in || 1800,
-        });
-    } catch (error) {
-        logger.error("Diana token error:", error.message);
-        const status = error.message.includes("missing") ? 503 : 502;
-        res.status(status).json({
-            success: false,
-            error: error.message,
-        });
-    }
-});
 
 // ─── GET /api/diana/address-autocomplete ─────────────────────────
 
