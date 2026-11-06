@@ -1,0 +1,61 @@
+zuugle_total_tours:
+  query: "SELECT value AS total_tours FROM kpi WHERE name = 'total_tours'"
+  metrics:
+    - total_tours:
+        usage: "GAUGE"
+        description: "Gesamtzahl der auf Zuugle erreichbaren Touren"
+
+zuugle_city_reachable_tours:
+  query: "SELECT REPLACE(name, 'total_tours_', '') AS city, value AS tours FROM kpi WHERE name LIKE 'total_tours_%' AND LOWER(name) NOT IN ('total_tours_at', 'total_tours_de', 'total_tours_ch', 'total_tours_it', 'total_tours_si', 'total_tours_li', 'total_tours_fr')"
+  metrics:
+    - city:
+        usage: "LABEL"
+        description: "Stadt-Slug (z. B. wien, muenchen, innsbruck)"
+    - tours:
+        usage: "GAUGE"
+        description: "Anzahl der erreichbaren Touren fuer diese Stadt"
+
+zuugle_country_reachable_tours:
+  query: "SELECT UPPER(REPLACE(name, 'total_tours_', '')) AS country, value AS tours FROM kpi WHERE LOWER(name) IN ('total_tours_at', 'total_tours_de', 'total_tours_ch', 'total_tours_it', 'total_tours_si', 'total_tours_li', 'total_tours_fr')"
+  metrics:
+    - country:
+        usage: "LABEL"
+        description: "Laender-Code (AT, DE, CH, IT, SI, LI, FR)"
+    - tours:
+        usage: "GAUGE"
+        description: "Anzahl erreichbare Touren fuer dieses Land"
+
+zuugle_connections_total:
+  query: "SELECT value AS connections FROM kpi WHERE name = 'total_connections'"
+  metrics:
+    - connections:
+        usage: "GAUGE"
+        description: "Gesamtzahl der Fahrplanverbindungen in der Datenbank"
+
+zuugle_cities_total:
+  query: "SELECT value AS cities FROM kpi WHERE name = 'total_cities'"
+  metrics:
+    - cities:
+        usage: "GAUGE"
+        description: "Gesamtzahl der aktiven Staedte"
+
+zuugle_providers_total:
+  query: "SELECT value AS providers FROM kpi WHERE name = 'total_provider'"
+  metrics:
+    - providers:
+        usage: "GAUGE"
+        description: "Gesamtzahl der Touren-Provider"
+
+zuugle_tour_staging_rows:
+  query: "SELECT count(*) AS count FROM tour_load"
+  metrics:
+    - count:
+        usage: "GAUGE"
+        description: "Anzahl der Datensaetze in tour_load (Staging-Tabelle des Nachtlaufs)"
+
+zuugle_tour_live_rows:
+  query: "SELECT count(*) AS count FROM tour"
+  metrics:
+    - count:
+        usage: "GAUGE"
+        description: "Anzahl der Datensaetze in tour (Live-Tabelle)"

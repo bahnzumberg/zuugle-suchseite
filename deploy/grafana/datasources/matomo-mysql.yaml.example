@@ -1,0 +1,20 @@
+apiVersion: 1
+
+datasources:
+  - name: matomo
+    type: mysql
+    access: proxy
+    # Host and port of the Matomo MySQL / MariaDB database server
+    url: <matomo-db-host>:3306
+    user: <matomo-db-user>
+    database: <matomo-db-name>
+    isDefault: false
+    editable: true
+    jsonData:
+      # Critical for accurate day boundaries: match Matomo's timezone
+      timezone: "Europe/Vienna"
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: "<matomo-db-password>"

@@ -1,0 +1,70 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/log/promtail-positions.yaml
+
+clients:
+  # Replace <grafana-server-ip> with the IP / hostname of your Grafana/Loki server
+  - url: http://<grafana-server-ip>:3100/loki/api/v1/push
+
+scrape_configs:
+  # ── 1. Zuugle Nightly Data Import & Load Logs ────────────────────────────
+  - job_name: zuugle-nightly-load
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: zuugle-nightly-load
+          environment: production
+          host: zuugle-server
+          __path__: /var/log/import-data-files*.log
+    pipeline_stages:
+      # Group multi-line messages (e.g. stack traces) with their parent log line
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      # Extract timestamp, log level (INFO, WARN, ERROR) and message body
+      - regex:
+          expression: '^(?P<log_time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>[A-Z]+)\] (?P<message>.*)$'
+      - labels:
+          level:
+      - timestamp:
+          source: log_time
+          format: '2006-01-02 15:04:05'
+          location: Europe/Vienna
+
+  # ── 2. Zuugle Express API (PM2 Service Logs) ─────────────────────────────
+  - job_name: zuugle-pm2-api
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: zuugle-pm2-api
+          environment: production
+          host: zuugle-server
+          __path__: /root/.pm2/logs/zuugle_api-*.log
+    pipeline_stages:
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<log_time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>[A-Z]+)\] (?P<message>.*)$'
+      - labels:
+          level:
+      - timestamp:
+          source: log_time
+          format: '2006-01-02 15:04:05'
+          location: Europe/Vienna
+
+  # ── 3. Database Restore & Cron Script Logs ────────────────────────────────
+  - job_name: zuugle-restore-db
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: zuugle-restore-db
+          environment: production
+          host: zuugle-server
+          __path__: /root/suchseite/*/logs/restore.log

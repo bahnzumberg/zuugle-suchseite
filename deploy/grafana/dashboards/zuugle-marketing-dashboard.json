@@ -1,0 +1,2110 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "title": "🎯 Key Performance Indicators (Headline Stats)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT COUNT(DISTINCT v.idvisit) AS besuche FROM piwik_log_visit v WHERE v.idsite = ${matomo_site_id} AND $__timeFilter(v.visit_first_action_time) AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))",
+          "refId": "A"
+        }
+      ],
+      "title": "Besuche (Visits)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS pageviews FROM piwik_log_link_visit_action l JOIN piwik_log_action a ON l.idaction_url = a.idaction WHERE l.idsite = ${matomo_site_id} AND $__timeFilter(l.server_time) AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))",
+          "refId": "A"
+        }
+      ],
+      "title": "Seitenaufrufe (Pageviews)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT COALESCE(ROUND(AVG(v.visit_total_actions), 1), 0) AS avg_aktionen FROM piwik_log_visit v WHERE v.idsite = ${matomo_site_id} AND $__timeFilter(v.visit_first_action_time) AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))",
+          "refId": "A"
+        }
+      ],
+      "title": "Aktionen pro Besuch",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT COALESCE(ROUND(AVG(v.visit_total_time), 0), 0) AS avg_dauer FROM piwik_log_visit v WHERE v.idsite = ${matomo_site_id} AND $__timeFilter(v.visit_first_action_time) AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))",
+          "refId": "A"
+        }
+      ],
+      "title": "Ø Verweildauer",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "0%",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 40
+              },
+              {
+                "color": "red",
+                "value": 65
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT COALESCE(ROUND(100.0 * SUM(CASE WHEN v.visit_total_actions = 1 THEN 1 ELSE 0 END) / COUNT(*), 1), 0) AS absprungrate FROM piwik_log_visit v WHERE v.idsite = ${matomo_site_id} AND $__timeFilter(v.visit_first_action_time) AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))",
+          "refId": "A"
+        }
+      ],
+      "title": "Absprungrate (Bounce Rate)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "teal",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "teal",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS fahrplan_suchen FROM piwik_log_link_visit_action l JOIN piwik_log_action a ON (l.idaction_name = a.idaction OR l.idaction_event_action = a.idaction) WHERE l.idsite = ${matomo_site_id} AND $__timeFilter(l.server_time) AND a.name LIKE '%connection-search%' AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = l.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))",
+          "refId": "A"
+        }
+      ],
+      "title": "Fahrplan-Suchen (Öffi-Intent)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 101,
+      "title": "🌍 Akquise, Länderportale & Herkunft (Woher kommen die Bergsteiger?)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      },
+      "id": 7,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%zuugle.at%' THEN 'Österreich (zuugle.at)'\n    WHEN a.name LIKE '%zuugle.de%' THEN 'Deutschland (zuugle.de)'\n    WHEN a.name LIKE '%zuugle.ch%' THEN 'Schweiz (zuugle.ch)'\n    WHEN a.name LIKE '%zuugle.it%' THEN 'Italien (zuugle.it)'\n    WHEN a.name LIKE '%zuugle.si%' THEN 'Slowenien (zuugle.si)'\n    WHEN a.name LIKE '%zuugle.fr%' THEN 'Frankreich (zuugle.fr)'\n    WHEN a.name LIKE '%zuugle.li%' THEN 'Liechtenstein (zuugle.li)'\n    ELSE 'Andere / Dev'\n  END AS portal,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY portal\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Traffic nach Länderportal (TLD)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 5
+      },
+      "id": 8,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CONCAT(v.location_city, ' (', UPPER(v.location_country), ')') AS herkunft_stadt,\n  COUNT(*) AS besuche\nFROM piwik_log_visit v\nWHERE v.idsite = ${matomo_site_id}\n  AND $__timeFilter(v.visit_first_action_time)\n  AND v.location_city IS NOT NULL \n  AND v.location_city != ''\n  AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))\nGROUP BY v.location_city, v.location_country\nORDER BY besuche DESC\nLIMIT 15",
+          "refId": "A"
+        }
+      ],
+      "title": "Physischer Standort (Top 15 GeoIP Städte)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 5
+      },
+      "id": 9,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE v.config_device_type\n    WHEN 0 THEN 'Desktop'\n    WHEN 1 THEN 'Smartphone'\n    WHEN 2 THEN 'Tablet'\n    WHEN 3 THEN 'Phablet'\n    ELSE 'Sonstige'\n  END AS geraetetyp,\n  COUNT(*) AS besuche\nFROM piwik_log_visit v\nWHERE v.idsite = ${matomo_site_id}\n  AND $__timeFilter(v.visit_first_action_time)\n  AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))\nGROUP BY v.config_device_type\nORDER BY besuche DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Geräteverteilung (Device Type)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 5
+      },
+      "id": 10,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE v.referer_type\n    WHEN 1 THEN 'Direktaufruf (Direct)'\n    WHEN 2 THEN 'Suchmaschinen (Google, etc.)'\n    WHEN 3 THEN 'Verlinkungen (Websites)'\n    WHEN 6 THEN 'Social Media'\n    ELSE 'Kampagne / Andere'\n  END AS kanal,\n  COUNT(*) AS besuche\nFROM piwik_log_visit v\nWHERE v.idsite = ${matomo_site_id}\n  AND $__timeFilter(v.visit_first_action_time)\n  AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))\nGROUP BY v.referer_type\nORDER BY besuche DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Akquise-Kanäle (Traffic-Quellen)",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 102,
+      "title": "⏱️ User Journey & Startort-Aktivierung (Der Zuugle Onboarding-Funnel)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Durchschnittliche Zeitdauer ab Website-Einstieg, bis der Nutzer zum ersten Mal eine Startstadt wählt.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 14
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  COALESCE(ROUND(AVG(TIMESTAMPDIFF(SECOND, v.visit_first_action_time, city_action.first_city_time)), 0), 0) AS time_to_city\nFROM piwik_log_visit v\nJOIN (\n  SELECT l.idvisit, MIN(l.server_time) AS first_city_time\n  FROM piwik_log_link_visit_action l\n  JOIN piwik_log_action a ON l.idaction_url = a.idaction\n  WHERE l.idsite = ${matomo_site_id}\n    AND $__timeFilter(l.server_time)\n    AND a.name LIKE '%city=%'\n    AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\n  GROUP BY l.idvisit\n) city_action ON v.idvisit = city_action.idvisit\nWHERE v.idsite = ${matomo_site_id}\n  AND $__timeFilter(v.visit_first_action_time)",
+          "refId": "A"
+        }
+      ],
+      "title": "Ø Zeit bis zur Stadtwahl (Time to City)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Prozentualer Anteil der Besuche, die eine Startstadt für Fahrplan und Tourenauswahl aktivieren.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "noValue": "0%",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "green",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 4,
+        "y": 14
+      },
+      "id": 12,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  COALESCE(ROUND(100.0 * COUNT(DISTINCT city_action.idvisit) / COUNT(DISTINCT v.idvisit), 1), 0) AS activation_rate\nFROM piwik_log_visit v\nLEFT JOIN (\n  SELECT l.idvisit\n  FROM piwik_log_link_visit_action l\n  JOIN piwik_log_action a ON l.idaction_url = a.idaction\n  WHERE l.idsite = ${matomo_site_id}\n    AND $__timeFilter(l.server_time)\n    AND a.name LIKE '%city=%'\n    AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\n  GROUP BY l.idvisit\n) city_action ON v.idvisit = city_action.idvisit\nWHERE v.idsite = ${matomo_site_id}\n  AND $__timeFilter(v.visit_first_action_time)",
+          "refId": "A"
+        }
+      ],
+      "title": "Startstadt-Aktivierungsrate",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Am häufigsten als Startort ausgewählte Städte in URL-Suchanfragen (?city=).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
+      "id": 13,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(a.name, 'city=', -1), '&', 1), '#', 1)) AS start_stadt,\n  COUNT(*) AS aufrufe\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.name LIKE '%city=%'\n  AND a.name NOT LIKE '%city=&%'\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY start_stadt\nHAVING start_stadt != '' AND start_stadt NOT LIKE 'http%' AND LENGTH(start_stadt) BETWEEN 2 AND 30\nORDER BY aufrufe DESC\nLIMIT 15",
+          "refId": "A"
+        }
+      ],
+      "title": "Top gewählte Start-Städte (Departure Cities)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "id": 14,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%lang=de%' THEN 'Deutsch (de)'\n    WHEN a.name LIKE '%lang=en%' THEN 'Englisch (en)'\n    WHEN a.name LIKE '%lang=it%' THEN 'Italienisch (it)'\n    WHEN a.name LIKE '%lang=fr%' THEN 'Französisch (fr)'\n    WHEN a.name LIKE '%lang=sl%' THEN 'Slowenisch (sl)'\n    ELSE 'Standard / Deutsch'\n  END AS sprache,\n  COUNT(*) AS aufrufe\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY sprache\nORDER BY aufrufe DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Sprachverteilung (UI-Sprache)",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 103,
+      "title": "🔍 Filter-Radar: Tortendiagramme aller Suchfilter & Sportarten",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Verteilung der gefilterten Sportarten (Touren-Typ: types=...)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 21
+      },
+      "id": 15,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  sportart,\n  COUNT(*) AS pageviews\nFROM (\n  SELECT \n    CASE \n      WHEN a.name LIKE '%types=%Wandern%' AND a.name NOT LIKE '%types=%Weitwandern%' THEN 'Wandern'\n      WHEN a.name LIKE '%types=%Bergtour%' THEN 'Bergtour'\n      WHEN a.name LIKE '%types=%Skitour%' THEN 'Skitour'\n      WHEN a.name LIKE '%types=%Schneeschuh%' THEN 'Schneeschuh'\n      WHEN a.name LIKE '%types=%Klettersteig%' THEN 'Klettersteig'\n      WHEN a.name LIKE '%types=%Klettern%' THEN 'Klettern'\n      WHEN a.name LIKE '%types=%Bike%Hike%' THEN 'Bike & Hike'\n      WHEN a.name LIKE '%types=%Rodeln%' THEN 'Rodeln'\n      WHEN a.name LIKE '%types=%Langlaufen%' THEN 'Langlaufen'\n      WHEN a.name LIKE '%types=%Trailrunning%' THEN 'Trailrunning'\n      WHEN a.name LIKE '%types=%Weitwandern%' THEN 'Weitwandern'\n      ELSE 'Andere Sportart'\n    END AS sportart\n  FROM piwik_log_link_visit_action l\n  JOIN piwik_log_action a ON l.idaction_url = a.idaction\n  WHERE l.idsite = ${matomo_site_id}\n    AND $__timeFilter(l.server_time)\n    AND a.name LIKE '%types=%'\n    AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\n) t\nGROUP BY sportart\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Sportarten (types=...)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Verteilung der gefilterten Schwierigkeitsgrade (1=Leicht, 2=Mittel, 3=Schwer)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 21
+      },
+      "id": 16,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%difficulties=1|%' OR a.name LIKE '%difficulties=2|%' OR a.name LIKE '%difficulties=%|%' THEN 'Kombiniert (z. B. 1 & 2)'\n    WHEN a.name LIKE '%difficulties=1%' THEN 'Leicht (1)'\n    WHEN a.name LIKE '%difficulties=2%' THEN 'Mittel (2)'\n    WHEN a.name LIKE '%difficulties=3%' THEN 'Schwer (3)'\n    ELSE 'Sonstige'\n  END AS schwierigkeit,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.name LIKE '%difficulties=%'\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY schwierigkeit\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Schwierigkeit (difficulties=...)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Verhältnis von Tagestouren zu Mehrtagestouren",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 21
+      },
+      "id": 17,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%multipleDayTour=true%' THEN 'Mehrtagestour'\n    WHEN a.name LIKE '%singleDayTour=true%' THEN 'Tagestour'\n    ELSE 'Alle / Nicht eingeschränkt'\n  END AS tour_laenge,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND (a.name LIKE '%multipleDayTour=true%' OR a.name LIKE '%singleDayTour=true%')\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY tour_laenge\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Tour-Dauer (singleDay / multipleDay)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Nutzung der Kartenansicht vs. Standard-Listenansicht",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 21
+      },
+      "id": 18,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%map=true%' THEN 'Kartenansicht (map=true)'\n    ELSE 'Listenansicht'\n  END AS ansicht,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.type = 1\n  AND (a.name LIKE '%/search%' OR a.name LIKE '%city=%')\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY ansicht\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Kartenansicht (map=true)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Filterung nach Überschreitungen (traverse=true) vs. Rundtouren",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 28
+      },
+      "id": 19,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%traverse=true%' THEN 'Nur Überschreitungen'\n    ELSE 'Alle / Rundtouren'\n  END AS routen_typ,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.type = 1\n  AND (a.name LIKE '%/search%' OR a.name LIKE '%city=%')\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY routen_typ\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Überschreitung (traverse=true)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Saisonale Eingrenzung (Sommer vs. Winter vs. Ganzjährig)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 28
+      },
+      "id": 20,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%summerSeason=true%' AND a.name LIKE '%winterSeason=true%' THEN 'Ganzjährig (Sommer & Winter)'\n    WHEN a.name LIKE '%summerSeason=true%' THEN 'Nur Sommer'\n    WHEN a.name LIKE '%winterSeason=true%' THEN 'Nur Winter'\n    ELSE 'Keine Einschränkung'\n  END AS saison,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND (a.name LIKE '%summerSeason=true%' OR a.name LIKE '%winterSeason=true%')\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY saison\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Saison (summerSeason / winterSeason)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Aktivierung des Wetterfilters in Kartenansichten",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 28
+      },
+      "id": 21,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CASE \n    WHEN a.name LIKE '%weather=true%' THEN 'Wetterfilter aktiv'\n    ELSE 'Wetterfilter aus'\n  END AS wetter,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.name LIKE '%map=true%'\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY wetter\nORDER BY pageviews DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Wetterfilter (weather=true)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Am häufigsten gefilterte Regionen & Gebirgsgruppen",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 28
+      },
+      "id": 22,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  REPLACE(REPLACE(REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(a.name, 'ranges=', -1), '&', 1), '#', 1), '%20', ' '), '+', ' '), '|', ', ') AS gebirgsgruppe,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.name LIKE '%ranges=%'\n  AND a.name NOT LIKE '%ranges=&%'\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY gebirgsgruppe\nHAVING gebirgsgruppe != '' AND gebirgsgruppe NOT LIKE 'http%' AND LENGTH(gebirgsgruppe) BETWEEN 3 AND 50\nORDER BY pageviews DESC\nLIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "title": "Regionen (ranges=...)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Häufigste in das Freitext-Suchfeld eingegebene Begriffe (z. B. Berge, Hütten, Regionen).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "suchbegriff"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Gesuchter Begriff / Gipfel"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "anzahl_suchen"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Anzahl Suchen"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 23,
+      "options": {
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Anzahl Suchen"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  LOWER(REPLACE(REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(a.name, 'search=', -1), '&', 1), '#', 1), '+', ' '), '%20', ' ')) AS suchbegriff,\n  COUNT(*) AS anzahl_suchen\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.name LIKE '%search=%'\n  AND a.name NOT LIKE '%search=&%'\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY suchbegriff\nHAVING suchbegriff != '' AND suchbegriff NOT LIKE 'http%' AND LENGTH(suchbegriff) BETWEEN 2 AND 40\nORDER BY anzahl_suchen DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Freitext-Suchbegriffe & Gipfel",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 104,
+      "title": "🏔️ Touren-Interesse & Outbound-Conversions zu Partnern",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Pivottabelle der meistaufgerufenen Touren (Zeilen = Tour-ID) aufgeschlüsselt nach den Ausgangsstädten (Spalten = Cities alphabetisch sortiert). Werte = Seitenaufrufe.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tour_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Tour ID"
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 24,
+      "options": {
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  CONCAT('Tour #', SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(a.name, '/tour/', -1), '/', 1), '?', 1)) AS tour_id,\n  CASE \n    WHEN a.name LIKE '%/tour/%/%' AND SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(a.name, '/tour/', -1), '/', 2), '/', -1), '?', 1) NOT IN ('no-city', '') \n      THEN LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(a.name, '/tour/', -1), '/', 2), '/', -1), '?', 1))\n    ELSE '(ohne Stadt)'\n  END AS city,\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.type = 1\n  AND a.name LIKE '%/tour/%'\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY tour_id, city\nHAVING city NOT LIKE 'http%' AND LENGTH(city) <= 30\nORDER BY tour_id ASC, city ASC",
+          "refId": "A"
+        }
+      ],
+      "title": "📊 Meistaufgerufene Touren nach Städten (Pivottabelle)",
+      "transformations": [
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "city",
+            "emptyValue": 0,
+            "rowField": "tour_id",
+            "valueField": "pageviews"
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "description": "Klicks auf externe Tourenanbieter & Partner (z. B. Alpenvereinaktiv, Bahn zum Berg, Outdooractive).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "partner_ziel_url"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Partner-URL"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "klicks"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Outbound Klicks"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 25,
+      "options": {
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Outbound Klicks"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawSql": "SELECT \n  a.name AS partner_ziel_url,\n  COUNT(*) AS klicks\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE l.idsite = ${matomo_site_id}\n  AND $__timeFilter(l.server_time)\n  AND a.type = 4\n  AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = l.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))\nGROUP BY a.name\nORDER BY klicks DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "Outbound-Klicks zu Tourenanbietern & Partnern",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 105,
+      "title": "📈 Traffic-Entwicklung im Zeitverlauf",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${datasource_matomo}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Anzahl",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "id": 26,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawSql": "SELECT\n  $__timeGroupAlias(l.server_time, $__interval),\n  COUNT(*) AS pageviews\nFROM piwik_log_link_visit_action l\nJOIN piwik_log_action a ON l.idaction_url = a.idaction\nWHERE \n  $__timeFilter(l.server_time)\n  AND l.idsite = ${matomo_site_id}\n  AND ('${city}' = 'All' OR a.name LIKE CONCAT('%city=', '${city}', '%') OR a.name LIKE CONCAT('%/', '${city}', '%'))\nGROUP BY 1\nORDER BY 1",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "${datasource_matomo}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawSql": "SELECT\n  $__timeGroupAlias(v.visit_first_action_time, $__interval),\n  COUNT(*) AS besuche\nFROM piwik_log_visit v\nWHERE \n  $__timeFilter(v.visit_first_action_time)\n  AND v.idsite = ${matomo_site_id}\n  AND ('${city}' = 'All' OR EXISTS (SELECT 1 FROM piwik_log_link_visit_action l2 JOIN piwik_log_action a2 ON l2.idaction_url = a2.idaction WHERE l2.idvisit = v.idvisit AND (a2.name LIKE CONCAT('%city=', '${city}', '%') OR a2.name LIKE CONCAT('%/', '${city}', '%'))))\nGROUP BY 1\nORDER BY 1",
+          "refId": "B"
+        }
+      ],
+      "title": "Besuche & Pageviews im Zeitverlauf",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "zuugle",
+    "marketing",
+    "matomo",
+    "analytics",
+    "user-journey"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": {
+          "type": "mysql",
+          "uid": "${datasource_matomo}"
+        },
+        "definition": "SELECT DISTINCT LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(name, 'city=', -1), '&', 1), '#', 1)) AS city_slug FROM piwik_log_action WHERE type = 1 AND name LIKE '%city=%' AND name NOT LIKE '%city=&%' HAVING city_slug != '' AND city_slug NOT LIKE 'http%' AND LENGTH(city_slug) BETWEEN 2 AND 30 ORDER BY city_slug ASC",
+        "hide": 0,
+        "includeAll": true,
+        "allValue": "All",
+        "label": "Stadt / City",
+        "multi": false,
+        "name": "city",
+        "options": [],
+        "query": "SELECT DISTINCT LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(name, 'city=', -1), '&', 1), '#', 1)) AS city_slug FROM piwik_log_action WHERE type = 1 AND name LIKE '%city=%' AND name NOT LIKE '%city=&%' HAVING city_slug != '' AND city_slug NOT LIKE 'http%' AND LENGTH(city_slug) BETWEEN 2 AND 30 ORDER BY city_slug ASC",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "matomo",
+          "value": "matomo"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "Matomo Datasource",
+        "multi": false,
+        "name": "datasource_matomo",
+        "options": [],
+        "query": "mysql",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "13",
+          "value": "13"
+        },
+        "hide": 2,
+        "label": "Matomo Site ID",
+        "name": "matomo_site_id",
+        "options": [
+          {
+            "selected": true,
+            "text": "13",
+            "value": "13"
+          }
+        ],
+        "query": "13",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "Europe/Vienna",
+  "title": "Zuugle - User Journey & Marketing Analytics",
+  "uid": "zuugle-marketing-analytics",
+  "version": 2,
+  "weekStart": ""
+}
