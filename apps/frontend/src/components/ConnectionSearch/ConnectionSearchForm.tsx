@@ -778,12 +778,7 @@ export default function ConnectionSearchForm({
       }
     } catch (err) {
       console.error("❌ Diana connections error:", err);
-      const msg = err instanceof Error ? err.message : "";
-      if (msg.includes("diana-config") || msg.includes("Credentials")) {
-        setSearchError(msg);
-      } else {
-        setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
-      }
+      setSearchError(t("details.verbindungssuche_fehlgeschlagen"));
     } finally {
       setIsSearching(false);
     }

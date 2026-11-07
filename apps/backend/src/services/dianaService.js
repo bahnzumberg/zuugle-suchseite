@@ -12,11 +12,24 @@ let configLoaded = false;
 
 async function loadCredentials() {
     if (configLoaded) return true;
+
+    // Prefer environment variables (set via .env / PM2 / systemd).
+    if (process.env.DIANA_CLIENT_ID && process.env.DIANA_CLIENT_SECRET) {
+        CLIENT_ID = process.env.DIANA_CLIENT_ID;
+        CLIENT_SECRET = process.env.DIANA_CLIENT_SECRET;
+        configLoaded = true;
+        return true;
+    }
+
+    // Legacy fallback: diana-config.js file (will be removed).
     const configPath = path.resolve(__dirname, "../diana-config.js");
     if (!existsSync(configPath)) return false;
     try {
         ({ CLIENT_ID, CLIENT_SECRET } = await import("../diana-config.js"));
         configLoaded = true;
+        logger.warn(
+            "Diana credentials loaded from diana-config.js — migrate to DIANA_CLIENT_ID / DIANA_CLIENT_SECRET env vars.",
+        );
         return true;
     } catch {
         return false;
@@ -36,7 +49,7 @@ export async function getDianaToken() {
     const ok = await loadCredentials();
     if (!ok || !CLIENT_ID || !CLIENT_SECRET) {
         throw new Error(
-            "Diana credentials missing. Rename diana-config.js.example to diana-config.js?",
+            "Diana credentials missing. Set DIANA_CLIENT_ID and DIANA_CLIENT_SECRET env vars.",
         );
     }
 

@@ -9,12 +9,12 @@ import { useTranslation } from "react-i18next";
 import {
   formatWeatherDayLabel,
   hoursInWindow,
-  numberLocale,
   tempRange,
   weatherIcon,
   weatherIconUrl,
   type TourWeatherDetailDay,
 } from "../../models/tourWeather";
+import { numberLocale } from "../../utils/globals";
 import TourWeatherTable from "./TourWeatherTable";
 import {
   MUTED,

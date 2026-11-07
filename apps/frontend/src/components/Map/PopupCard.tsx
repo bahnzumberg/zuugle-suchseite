@@ -3,6 +3,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import {
   convertNumToTime,
+  formatNumber,
   getTourLink,
   getTourLinkTarget,
 } from "../../utils/globals";
@@ -12,7 +13,7 @@ import React from "react";
 import { Popup } from "react-leaflet";
 import L from "leaflet";
 import { Marker } from "../../models/mapTypes";
-import { t } from "i18next";
+import i18next, { t } from "i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "../..";
 import { assetUrl } from "../../utils/assetUrl";
@@ -158,7 +159,11 @@ function PopupCard({
             <Typography variant="blackP" style={{ fontSize: "13px" }}>
               {t("filter.anstieg")} <br />
               <span style={{ fontSize: "13px" }}>
-                {tour.ascent} {t("details.hm_hoehenmeter")}
+                {formatNumber(
+                  tour.ascent,
+                  i18next.language,
+                  " " + t("details.hm_hoehenmeter"),
+                )}
               </span>
             </Typography>
           </Box>

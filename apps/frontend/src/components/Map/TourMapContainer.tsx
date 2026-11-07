@@ -20,12 +20,10 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import {
-  formatMapClusterNumber,
-  getDefaultBoundsForDomain,
-} from "../../utils/map_utils";
+import { getDefaultBoundsForDomain } from "../../utils/map_utils";
 import "./popup-style.css";
-import { getTopLevelDomain } from "../../utils/globals";
+import i18next from "i18next";
+import { formatNumber, getTopLevelDomain } from "../../utils/globals";
 import { Tour } from "../../models/Tour";
 import { Marker } from "../../models/mapTypes";
 import { RootState } from "../..";
@@ -361,7 +359,7 @@ export default function TourMapContainer({
 
   const createClusterCustomIcon = useCallback((cluster: L.MarkerCluster) => {
     const clusterChildCount = cluster.getChildCount();
-    const formattedCount = formatMapClusterNumber(clusterChildCount);
+    const formattedCount = formatNumber(clusterChildCount, i18next.language);
 
     // Calculate icon size based on formatted count length
     const iconSize = L.point(

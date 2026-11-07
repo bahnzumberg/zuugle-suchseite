@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { FilterObject } from "../../../models/Filter";
 import GeneralSlider from "../../GeneralSlider";
-import { getDurationAsHours } from "../../../utils/globals";
+import { formatNumber, getDurationAsHours } from "../../../utils/globals";
 import SliderWithInputs from "./SliderWithInputs";
 
 interface TravelTimeProps {
@@ -25,7 +25,7 @@ export default function TravelTime({
   setTempFilter,
   getFilterValue,
 }: TravelTimeProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
@@ -123,7 +123,7 @@ export default function TravelTime({
             onChangeMax={(v) =>
               setTempFilter({ ...tempFilter, maxDistance: v })
             }
-            capLabel={`80+ ${t("details.km_kilometer")}`}
+            capLabel={`${formatNumber(80, i18n.language)}+ ${t("details.km_kilometer")}`}
           />
         </Grid>
       </Grid>
