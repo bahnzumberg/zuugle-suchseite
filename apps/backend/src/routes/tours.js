@@ -1291,7 +1291,7 @@ const getMatchingTourIds = async (req) => {
                             ${global_where_condition_bound}
                             ORDER BY 
                             ${reachability_order}
-                            CASE WHEN t.text_lang=? THEN 1 ELSE 0 END DESC,
+                            ${bindValues(`CASE WHEN t.text_lang=? THEN 1 ELSE 0 END DESC,`, [language])}
                             ${new_search_order_searchterm_bound}
                             t.month_order ASC, 
                             t.number_of_days ASC,
@@ -1302,7 +1302,7 @@ const getMatchingTourIds = async (req) => {
                             t.quality_rating DESC,
                             FLOOR(COALESCE(t.duration, 0)) ASC,
                             MOD(t.id, CAST(EXTRACT(DAY FROM CURRENT_DATE) AS INTEGER)) ASC;`;
-        const tour_ids = await knex.raw(tour_ids_sql, [language]);
+        const tour_ids = await knex.raw(tour_ids_sql);
         tourIds = tour_ids.rows.map((row) => row.id);
         cacheService.set(cacheKeyIds, tourIds);
     }
