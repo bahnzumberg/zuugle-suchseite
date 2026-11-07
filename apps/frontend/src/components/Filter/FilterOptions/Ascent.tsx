@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useTranslation } from "react-i18next";
 import { FilterObject } from "../../../models/Filter";
+import { formatNumber } from "../../../utils/globals";
 import SliderWithInputs from "./SliderWithInputs";
 
 interface AscentProps {
@@ -18,7 +19,7 @@ export default function Ascent({
   setTempFilter,
   getFilterValue,
 }: AscentProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <Box className={"filter-box border"} sx={{ paddingTop: "20px" }}>
@@ -43,7 +44,7 @@ export default function Ascent({
             }
             onChangeMin={(v) => setTempFilter({ ...tempFilter, minAscent: v })}
             onChangeMax={(v) => setTempFilter({ ...tempFilter, maxAscent: v })}
-            capLabel={`3000+ ${t("filter.hoehenmeter")}`}
+            capLabel={`${formatNumber(3000, i18n.language)}+ ${t("filter.hoehenmeter")}`}
           />
         </Grid>
         <Grid
@@ -63,7 +64,7 @@ export default function Ascent({
             }
             onChangeMin={(v) => setTempFilter({ ...tempFilter, minDescent: v })}
             onChangeMax={(v) => setTempFilter({ ...tempFilter, maxDescent: v })}
-            capLabel={`3000+ ${t("filter.hoehenmeter")}`}
+            capLabel={`${formatNumber(3000, i18n.language)}+ ${t("filter.hoehenmeter")}`}
           />
         </Grid>
       </Grid>

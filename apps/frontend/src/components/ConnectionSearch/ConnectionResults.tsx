@@ -35,7 +35,8 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { icons } from "../../icons/icons";
 import { useTourType } from "../../utils/tourType";
 import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
+import i18next, { type TFunction } from "i18next";
+import { numberLocale } from "../../utils/globals";
 import { DIANA_PROXY_BASE } from "../../utils/dianaApi";
 import { Tour } from "../../models/Tour";
 
@@ -179,16 +180,17 @@ function isPastTime(isoString?: string): boolean {
 
 function formatTime(isoString: string): string {
   const d = new Date(isoString);
-  return d.toLocaleTimeString("de-AT", {
+  return d.toLocaleTimeString(numberLocale(i18next.language), {
     hour: "2-digit",
     minute: "2-digit",
+    hourCycle: "h23",
     timeZone: "Europe/Vienna",
   });
 }
 
 function formatDate(isoString: string): string {
   const d = new Date(isoString);
-  return d.toLocaleDateString("de-AT", {
+  return d.toLocaleDateString(numberLocale(i18next.language), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

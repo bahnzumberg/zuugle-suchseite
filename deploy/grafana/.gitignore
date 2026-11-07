@@ -1,0 +1,13 @@
+# Sensitive files with live credentials or private IPs
+.env
+.env.*
+!.env.example
+*.secret
+*.key
+promtail-config.yml
+queries.local.yaml
+datasources/*.yml
+datasources/*.yaml
+!datasources/*.example.yaml
+!datasources/*.example.yml
+docker-compose.override.yml

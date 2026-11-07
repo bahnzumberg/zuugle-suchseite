@@ -19,13 +19,13 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import {
   darkness,
-  numberLocale,
   weatherIcon,
   weatherIconUrl,
   windCompassKey,
   type TourWeatherDetailDay,
   type TourWeatherHour,
 } from "../../models/tourWeather";
+import { numberLocale } from "../../utils/globals";
 import { MUTED, RULE, TEMP_HIGH_COLOR, TEMP_LOW_COLOR } from "./weatherStyles";
 
 const NIGHT_RGB = "170, 181, 215";

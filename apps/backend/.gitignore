@@ -22,6 +22,8 @@ src/firebase.json
 src/diana-config.js
 test.json
 zuugle_postgresql.dump
+zuugle-db-backup/
+*.dump
 HOWTO-Diana-GreenConnect.md
 # WSL Zone.Identifier metadata files
 *:Zone.Identifier

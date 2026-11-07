@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { numberLocale } from "../utils/globals";
 import debounce from "lodash.debounce";
 import { RootState } from "..";
 import {
@@ -24,7 +25,7 @@ import {
  * used by both StartNew (/) and SearchResults (/search).
  */
 export function useSearchTours() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const filter = useSelector((state: RootState) => state.filter);
   const search = useSelector((state: RootState) => state.search);
   const showMap = useSelector((state: RootState) => state.search.map);
@@ -219,9 +220,9 @@ export function useSearchTours() {
   const getHeroTitle = () => {
     if (!totals) return "";
     if (city) {
-      return `${totals.tours_city.toLocaleString()} ${t("start.tourenanzahl_untertitel_city", { capCity: city.label })}`;
+      return `${totals.tours_city.toLocaleString(numberLocale(i18n.language))} ${t("start.tourenanzahl_untertitel_city", { capCity: city.label })}`;
     }
-    return `${totals.tours_country.toLocaleString()} ${t("start.tourenanzahl_untertitel")}`;
+    return `${totals.tours_country.toLocaleString(numberLocale(i18n.language))} ${t("start.tourenanzahl_untertitel")}`;
   };
 
   const effectiveLoadedTours = favoritesNothingToFetch

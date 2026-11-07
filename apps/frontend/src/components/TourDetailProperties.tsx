@@ -1,4 +1,4 @@
-import { convertNumToTime, formatNumber } from "../utils/globals";
+import { convertNumToTime, formatNumber, numberLocale } from "../utils/globals";
 import { useTranslation } from "react-i18next";
 import { useTourType } from "../utils/tourType";
 import { Tour } from "../models/Tour";
@@ -11,7 +11,7 @@ import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
 import TerrainIcon from "@mui/icons-material/Terrain";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { formatWeatherDayLabel, numberLocale } from "../models/tourWeather";
+import { formatWeatherDayLabel } from "../models/tourWeather";
 
 export interface TourDetailPropertiesProps {
   tour?: Tour;
@@ -68,7 +68,7 @@ const TourDetailProperties = ({
     {
       key: "distanz",
       label: t("main.distanz"),
-      value: formatNumber(tour.distance ?? 0) + " " + km,
+      value: formatNumber(tour.distance ?? 0, i18n.language) + " " + km,
       icon: <RouteIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
     },
     {
@@ -84,19 +84,19 @@ const TourDetailProperties = ({
     {
       key: "aufstieg",
       label: t("main.aufstieg"),
-      value: formatNumber(tour.ascent ?? 0, " " + hm),
+      value: formatNumber(tour.ascent ?? 0, i18n.language, " " + hm),
       icon: <NorthIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
     },
     {
       key: "abstieg",
       label: t("main.abstieg"),
-      value: formatNumber(tour.descent ?? 0, " " + hm),
+      value: formatNumber(tour.descent ?? 0, i18n.language, " " + hm),
       icon: <SouthIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
     },
     {
       key: "max_ele",
       label: t("main.maximale_hoehe"),
-      value: formatNumber(tour.max_ele ?? 0, " " + hm),
+      value: formatNumber(tour.max_ele ?? 0, i18n.language, " " + hm),
       icon: <TerrainIcon sx={{ fontSize: 18, color: "var(--bzb-bahnblau)" }} />,
     },
     ...(tourDate
