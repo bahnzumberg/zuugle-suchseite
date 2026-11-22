@@ -841,7 +841,7 @@
             "uid": "${datasource_loki}"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=~\"zuugle.*\"} |~ \"(?i)ERROR\" [$__range]))",
+          "expr": "sum(count_over_time({job=~\"zuugle.*\", level=\"ERROR\"} [$__range]))",
           "legendFormat": "ERROR Messages",
           "queryType": "range",
           "refId": "A"
@@ -852,7 +852,7 @@
             "uid": "${datasource_loki}"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=~\"zuugle.*\"} |~ \"(?i)WARN\" [$__range]))",
+          "expr": "sum(count_over_time({job=~\"zuugle.*\", level=\"WARN\"} [$__range]))",
           "legendFormat": "WARN Messages",
           "queryType": "range",
           "refId": "B"
@@ -890,7 +890,7 @@
             "uid": "${datasource_loki}"
           },
           "editorMode": "code",
-          "expr": "{job=~\"zuugle.*\"} |~ \"(?s)(?i)$log_level\"",
+          "expr": "{job=~\"zuugle.*\", level=~\"$log_level\"}",
           "queryType": "range",
           "refId": "A"
         }
@@ -1136,7 +1136,7 @@
         "hide": 0,
         "includeAll": false,
         "label": "Log Level",
-        "multi": true,
+        "multi": false,
         "name": "log_level",
         "options": [
           {
